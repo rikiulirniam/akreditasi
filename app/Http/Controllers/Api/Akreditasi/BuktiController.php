@@ -78,6 +78,14 @@ class BuktiController extends Controller
      */
     public function updateStatusValidasi(UpdateStatusBuktiRequest $request, int $id): JsonResponse
     {
+        return $this->updateStatus($request, $id);
+    }
+
+    /**
+     * Method updateStatus untuk memenuhi rute PUT /v1/bukti/{id}/status.
+     */
+    public function updateStatus(UpdateStatusBuktiRequest $request, int $id): JsonResponse
+    {
         $bukti = Bukti::find($id);
 
         if (! $bukti) {
