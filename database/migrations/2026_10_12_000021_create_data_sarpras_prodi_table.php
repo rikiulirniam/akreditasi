@@ -14,9 +14,7 @@ return new class extends Migration
         Schema::create('data_sarpras_prodi', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_project')->constrained('project_akreditasi')->cascadeOnDelete();
-            $table->unsignedBigInteger('id_sarana')->index();
-            $table->integer('jumlah_unit');
-            $table->string('kondisi');
+            $table->integer('kapasitas')->nullable();
             $table->text('keterangan')->nullable();
             $table->timestamps();
         });
