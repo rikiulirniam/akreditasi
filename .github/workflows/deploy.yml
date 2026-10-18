@@ -13,12 +13,31 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Setup Environment File (.env)
+        run: |
+          # Periksa dan salin file .env persisten dari server jika tersedia
+          if [ -f /var/www/api-akreditasi/.env ]; then
+            echo "Menggunakan .env persisten dari /var/www/api-akreditasi/.env"
+            cp /var/www/api-akreditasi/.env .env
+          elif [ -f /var/www/.env ]; then
+            echo "Menggunakan .env dari /var/www/.env"
+            cp /var/www/.env .env
+          elif [ -f ../../.env ]; then
+            echo "Menggunakan .env dari direktori runner"
+            cp ../../.env .env
+          elif [ ! -f .env ]; then
+            echo "Perhatian: .env tidak ditemukan. Menyalin dari .env.example..."
+            cp .env.example .env
+            php artisan key:generate --force
+          fi
+
       - name: Install Dependencies
         run: |
           composer install --no-dev --optimize-autoloader
 
       - name: Run Database Migrations & Optimization
         run: |
+          php artisan storage:link || true
           php artisan migrate --force
           php artisan config:cache
           php artisan route:cache
