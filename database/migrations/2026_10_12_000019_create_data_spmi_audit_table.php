@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('id_indikator')->nullable()->constrained('indikator')->nullOnDelete();
             $table->enum('jenis_kegiatan', ['PPEPP', 'AMI', 'RTM']);
             $table->date('tanggal_pelaksanaan');
+            $table->year('tahun_audit');
             $table->text('temuan')->nullable();
             $table->text('tindak_lanjut')->nullable();
             $table->string('status_penyelesaian')->default('Open');

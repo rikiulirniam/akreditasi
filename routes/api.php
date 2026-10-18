@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\Master\JenisPembiayaanController;
 use App\Http\Controllers\Api\Master\KriteriaController;
 use App\Http\Controllers\Api\Master\RubrikController;
 use App\Http\Controllers\Api\Master\StandarMutuController;
+use App\Http\Controllers\Api\Sarpras\DataSaranaProdiController;
+use App\Http\Controllers\Api\Sarpras\DataSarprasProdiController;
 use App\Http\Controllers\Api\Spmi\SpmiAuditController;
 use Illuminate\Support\Facades\Route;
 
@@ -75,4 +77,12 @@ Route::prefix('v1')->group(function () {
     Route::apiResource('spmi-audit', SpmiAuditController::class);
     Route::put('spmi-audit/{id}/tindak-lanjut', [SpmiAuditController::class, 'updateTindakLanjut']);
     Route::patch('spmi-audit/{id}/tindak-lanjut', [SpmiAuditController::class, 'updateTindakLanjut']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | 4. Modul Sarana & Prasarana
+    |--------------------------------------------------------------------------
+    */
+    Route::apiResource('sarpras-prodi', DataSarprasProdiController::class);
+    Route::apiResource('sarana-prodi', DataSaranaProdiController::class);
 });

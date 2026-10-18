@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Bobot;
+use App\Models\DataSaranaProdi;
+use App\Models\DataSarprasProdi;
 use App\Models\Indikator;
 use App\Models\JenisBukti;
 use App\Models\JenisInstrumen;
@@ -11,6 +13,7 @@ use App\Models\Jenjang;
 use App\Models\Kriteria;
 use App\Models\LembagaAkreditasi;
 use App\Models\Prodi;
+use App\Models\ProjectAkreditasi;
 use App\Models\Rubrik;
 use App\Models\StandarMutu;
 use App\Models\Subkriteria;
@@ -105,5 +108,19 @@ class DatabaseSeeder extends Seeder
 
         JenisPembiayaan::firstOrCreate(['nama_pembiayaan' => 'Biaya Operasional Pendidikan']);
         JenisPembiayaan::firstOrCreate(['nama_pembiayaan' => 'Biaya Penelitian dan Pengabdian']);
+
+        // 7. Contoh Data Sarpras & Sarana (1-to-many)
+        $project = ProjectAkreditasi::first();
+        if ($project) {
+            $prasarana = DataSarprasProdi::firstOrCreate(
+                ['id_project' => $project->id, 'keterangan' => 'Laboratorium Komputer Lanjut'],
+                ['kapasitas' => 40]
+            );
+
+            DataSaranaProdi::firstOrCreate(
+                ['id_prasarana' => $prasarana->id, 'kondisi' => 'Baik'],
+                ['jumlah_unit' => 40, 'keterangan' => 'PC Workstation i7 16GB RAM']
+            );
+        }
     }
 }
