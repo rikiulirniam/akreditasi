@@ -27,6 +27,10 @@ class SpmiAuditController extends Controller
             $query->where('jenis_kegiatan', $request->query('jenis_kegiatan'));
         }
 
+        if ($request->has('tahun_audit')) {
+            $query->where('tahun_audit', $request->query('tahun_audit'));
+        }
+
         if ($request->has('status_penyelesaian')) {
             $query->where('status_penyelesaian', $request->query('status_penyelesaian'));
         }

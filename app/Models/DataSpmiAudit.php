@@ -18,6 +18,7 @@ class DataSpmiAudit extends Model
         'id_indikator',
         'jenis_kegiatan',
         'tanggal_pelaksanaan',
+        'tahun_audit',
         'temuan',
         'tindak_lanjut',
         'status_penyelesaian',
@@ -29,6 +30,7 @@ class DataSpmiAudit extends Model
             'id_project' => 'integer',
             'id_standar' => 'integer',
             'id_indikator' => 'integer',
+            'tahun_audit' => 'integer',
             'tanggal_pelaksanaan' => 'date',
         ];
     }
