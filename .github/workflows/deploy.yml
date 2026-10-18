@@ -13,11 +13,22 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install Dependencies & Build
+      - name: Install Dependencies
         run: |
-          npm ci
-          npm run build
+          composer install --no-dev --optimize-autoloader
 
-      - name: Restart Application
+      - name: Run Database Migrations & Optimization
         run: |
-          pm2 restart api-akreditasi || pm2 start npm --name "api-akreditasi" -- start
+          php artisan migrate --force
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+
+      - name: Reload PHP-FPM / Application
+        run: |
+          # Pilih salah satu sesuai dengan setup server Anda:
+          # Jika menggunakan PHP-FPM (misal php8.2-fpm / php8.3-fpm):
+          sudo systemctl reload php8.3-fpm || sudo systemctl reload php-fpm || true
+
+          # ATAU jika menggunakan Laravel Queue Worker:
+          php artisan queue:restart || true
