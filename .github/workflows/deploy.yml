@@ -1,0 +1,23 @@
+name: Continuous Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies & Build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Restart Application
+        run: |
+          pm2 restart api-akreditasi || pm2 start npm --name "api-akreditasi" -- start
