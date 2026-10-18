@@ -17,6 +17,8 @@ return [
 
     'enabled' => env('BOOST_ENABLED', true),
 
+    'enforce_tests' => env('BOOST_ENFORCE_TESTS', false),
+
     /*
     |--------------------------------------------------------------------------
     | Boost Project Rules
