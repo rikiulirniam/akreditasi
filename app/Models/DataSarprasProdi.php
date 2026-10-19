@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DataSarprasProdi extends Model
 {
@@ -14,9 +15,7 @@ class DataSarprasProdi extends Model
 
     protected $fillable = [
         'id_project',
-        'id_sarana',
-        'jumlah_unit',
-        'kondisi',
+        'kapasitas',
         'keterangan',
     ];
 
@@ -24,8 +23,7 @@ class DataSarprasProdi extends Model
     {
         return [
             'id_project' => 'integer',
-            'id_sarana' => 'integer',
-            'jumlah_unit' => 'integer',
+            'kapasitas' => 'integer',
         ];
     }
 
@@ -35,5 +33,13 @@ class DataSarprasProdi extends Model
     public function project(): BelongsTo
     {
         return $this->belongsTo(ProjectAkreditasi::class, 'id_project');
+    }
+
+    /**
+     * Relasi 1-to-Many ke Data Sarana Prodi.
+     */
+    public function sarana(): HasMany
+    {
+        return $this->hasMany(DataSaranaProdi::class, 'id_prasarana');
     }
 }
