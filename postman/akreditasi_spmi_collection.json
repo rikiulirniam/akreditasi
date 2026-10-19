@@ -204,7 +204,6 @@
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
                       "pm.test('Message indicates deleted', function () { pm.expect(pm.response.json().success).to.eql(true); });",
-                      "// Kembalikan kriteria_id ke nilai baseline seed default",
                       "pm.environment.set('kriteria_id', '1');"
                     ],
                     "type": "text/javascript"
@@ -406,7 +405,6 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "// Kembalikan indikator_id ke baseline seed default agar modul berikutnya tetap valid",
                       "pm.environment.set('indikator_id', '1');"
                     ],
                     "type": "text/javascript"
@@ -606,7 +604,6 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "// Kembalikan rubrik_id ke baseline seed default",
                       "pm.environment.set('rubrik_id', '1');"
                     ],
                     "type": "text/javascript"
@@ -806,7 +803,6 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "// Kembalikan standar_mutu_id ke baseline seed default",
                       "pm.environment.set('standar_mutu_id', '1');"
                     ],
                     "type": "text/javascript"
@@ -1006,7 +1002,6 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "// Kembalikan jenis_bukti_id ke baseline seed default",
                       "pm.environment.set('jenis_bukti_id', '1');"
                     ],
                     "type": "text/javascript"
@@ -1206,7 +1201,6 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "// Kembalikan jenis_pembiayaan_id ke baseline seed default",
                       "pm.environment.set('jenis_pembiayaan_id', '1');"
                     ],
                     "type": "text/javascript"
