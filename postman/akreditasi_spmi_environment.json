@@ -9,6 +9,12 @@
       "enabled": true
     },
     {
+      "key": "lembaga_id",
+      "value": "1",
+      "type": "default",
+      "enabled": true
+    },
+    {
       "key": "versi_id",
       "value": "1",
       "type": "default",

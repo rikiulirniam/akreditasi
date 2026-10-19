@@ -10,6 +10,416 @@
       "name": "1. Master Data",
       "item": [
         {
+          "name": "Lembaga Akreditasi",
+          "item": [
+            {
+              "name": "0.1 GET Semua Lembaga Akreditasi",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/master/lembaga-akreditasi",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "master",
+                    "lembaga-akreditasi"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "0.2 POST Tambah Lembaga Akreditasi",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nama_lembaga\": \"LAM INFOKOM\",\n  \"keterangan\": \"Lembaga Akreditasi Mandiri Informatika dan Komputer\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/master/lembaga-akreditasi",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "master",
+                    "lembaga-akreditasi"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
+                      "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                      "var json = pm.response.json();",
+                      "if (json.data && json.data.id) {",
+                      "    pm.environment.set('lembaga_id', json.data.id);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "0.3 GET Detail Lembaga Akreditasi",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/master/lembaga-akreditasi/{{lembaga_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "master",
+                    "lembaga-akreditasi",
+                    "{{lembaga_id}}"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "0.4 PUT Update Lembaga Akreditasi",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nama_lembaga\": \"LAM INFOKOM Indonesia\",\n  \"keterangan\": \"Lembaga Akreditasi Mandiri Informatika dan Komputer Nasional\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/master/lembaga-akreditasi/{{lembaga_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "master",
+                    "lembaga-akreditasi",
+                    "{{lembaga_id}}"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "0.5 DELETE Lembaga Akreditasi",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/master/lembaga-akreditasi/{{lembaga_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "master",
+                    "lembaga-akreditasi",
+                    "{{lembaga_id}}"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Versi Instrumen",
+          "item": [
+            {
+              "name": "0.6 GET Semua Versi Instrumen",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/master/versi-instrumen",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "master",
+                    "versi-instrumen"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "0.7 POST Tambah Versi Instrumen",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id_lembaga\": \"{{lembaga_id}}\",\n  \"nomor_versi\": \"2.1\",\n  \"tanggal_berlaku\": \"2026-01-25\",\n  \"status_aktif\": true\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/master/versi-instrumen",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "master",
+                    "versi-instrumen"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
+                      "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                      "var json = pm.response.json();",
+                      "if (json.data && json.data.id) {",
+                      "    pm.environment.set('versi_id', json.data.id);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "0.8 GET Detail Versi Instrumen",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/master/versi-instrumen/{{versi_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "master",
+                    "versi-instrumen",
+                    "{{versi_id}}"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "0.9 PUT Update Versi Instrumen",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id_lembaga\": \"{{lembaga_id}}\",\n  \"nomor_versi\": \"2.1-Revisi\",\n  \"tanggal_berlaku\": \"2026-01-25\",\n  \"status_aktif\": true\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/master/versi-instrumen/{{versi_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "master",
+                    "versi-instrumen",
+                    "{{versi_id}}"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "0.10 DELETE Versi Instrumen",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/master/versi-instrumen/{{versi_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "master",
+                    "versi-instrumen",
+                    "{{versi_id}}"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "Kriteria",
           "item": [
             {
