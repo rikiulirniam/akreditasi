@@ -15,6 +15,7 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: 'Akreditasi - Bukti', description: 'Upload dan Validasi Berkas Bukti Dukung')]
 #[OA\Tag(name: 'Akreditasi - Self Assessment', description: 'Penilaian Mandiri oleh Reviewer & Asesor')]
 #[OA\Tag(name: 'SPMI - Audit Mutu Internal', description: 'Audit SPMI dan Tindak Lanjut Temuan')]
+#[OA\Tag(name: 'Sarpras - Sarana & Prasarana', description: 'Manajemen Data Sarana dan Prasarana Program Studi')]
 class OpenApiSpec
 {
 }

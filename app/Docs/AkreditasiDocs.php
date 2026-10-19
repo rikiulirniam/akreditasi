@@ -163,11 +163,59 @@ class AkreditasiDocs
             new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError'))
         ]
     )]
+    #[OA\Get(
+        path: '/lembar-prodi/{id}',
+        summary: 'Mendapatkan detail lembar prodi berdasarkan ID',
+        tags: ['Akreditasi - Lembar Prodi'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Detail lembar prodi berhasil dimuat', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 404, description: 'Lembar prodi tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound'))
+        ]
+    )]
+    #[OA\Delete(
+        path: '/lembar-prodi/{id}',
+        summary: 'Menghapus data lembar prodi',
+        tags: ['Akreditasi - Lembar Prodi'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Lembar prodi berhasil dihapus', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 404, description: 'Lembar prodi tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound'))
+        ]
+    )]
     public function lembarProdiDocs() {}
 
     // ==========================================
     // BUKTI DUKUNG
     // ==========================================
+    #[OA\Get(
+        path: '/bukti',
+        summary: 'Mendapatkan daftar bukti dukung',
+        description: 'Menampilkan list berkas bukti dukung dengan opsional filter id_lembar_prodi.',
+        tags: ['Akreditasi - Bukti'],
+        parameters: [
+            new OA\Parameter(name: 'id_lembar_prodi', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Lembar Prodi')
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Berhasil memuat daftar bukti', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess'))
+        ]
+    )]
+    #[OA\Get(
+        path: '/bukti/{id}',
+        summary: 'Mendapatkan detail berkas bukti dukung',
+        tags: ['Akreditasi - Bukti'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Detail bukti berhasil dimuat', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 404, description: 'Bukti tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound'))
+        ]
+    )]
     #[OA\Post(
         path: '/bukti',
         summary: 'Upload berkas bukti dukung',
@@ -238,6 +286,42 @@ class AkreditasiDocs
     // ==========================================
     // SELF ASSESSMENT
     // ==========================================
+    #[OA\Get(
+        path: '/self-assessment',
+        summary: 'Mendapatkan daftar penilaian mandiri',
+        description: 'Menampilkan list penilaian mandiri dengan opsional filter id_project.',
+        tags: ['Akreditasi - Self Assessment'],
+        parameters: [
+            new OA\Parameter(name: 'id_project', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Project')
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Berhasil memuat daftar self-assessment', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess'))
+        ]
+    )]
+    #[OA\Get(
+        path: '/self-assessment/{id}',
+        summary: 'Mendapatkan detail penilaian mandiri',
+        tags: ['Akreditasi - Self Assessment'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Detail self-assessment berhasil dimuat', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 404, description: 'Data tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound'))
+        ]
+    )]
+    #[OA\Delete(
+        path: '/self-assessment/{id}',
+        summary: 'Menghapus data penilaian mandiri',
+        tags: ['Akreditasi - Self Assessment'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Data self-assessment berhasil dihapus', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 404, description: 'Data tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound'))
+        ]
+    )]
     #[OA\Post(
         path: '/self-assessment',
         summary: 'Mengisi atau memperbarui penilaian mandiri (Self Assessment)',

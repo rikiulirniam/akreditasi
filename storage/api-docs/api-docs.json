@@ -503,7 +503,118 @@
                 }
             }
         },
+        "/lembar-prodi/{id}": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Lembar Prodi"
+                ],
+                "summary": "Mendapatkan detail lembar prodi berdasarkan ID",
+                "operationId": "f61c8b5ed244ea5052229ca8cf1506cd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail lembar prodi berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Lembar prodi tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Akreditasi - Lembar Prodi"
+                ],
+                "summary": "Menghapus data lembar prodi",
+                "operationId": "b36f25db886281ca4312f1eb4ffd897e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lembar prodi berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Lembar prodi tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/bukti": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Bukti"
+                ],
+                "summary": "Mendapatkan daftar bukti dukung",
+                "description": "Menampilkan list berkas bukti dukung dengan opsional filter id_lembar_prodi.",
+                "operationId": "f80a47271037ccd29bd30f5c08f97081",
+                "parameters": [
+                    {
+                        "name": "id_lembar_prodi",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Lembar Prodi",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar bukti",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "tags": [
                     "Akreditasi - Bukti"
@@ -573,6 +684,87 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bukti/{id}": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Bukti"
+                ],
+                "summary": "Mendapatkan detail berkas bukti dukung",
+                "operationId": "b2ad0bf25665d1776df31da9541fe711",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail bukti berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Bukti tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Akreditasi - Bukti"
+                ],
+                "summary": "Menghapus berkas bukti",
+                "description": "Menghapus catatan bukti dan berkas fisik pada storage Laravel.",
+                "operationId": "ecc612ef8b6ae122e5892f3b6fc38a91",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berkas bukti berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Bukti tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
                                 }
                             }
                         }
@@ -669,19 +861,20 @@
                 }
             }
         },
-        "/bukti/{id}": {
-            "delete": {
+        "/self-assessment": {
+            "get": {
                 "tags": [
-                    "Akreditasi - Bukti"
+                    "Akreditasi - Self Assessment"
                 ],
-                "summary": "Menghapus berkas bukti",
-                "description": "Menghapus catatan bukti dan berkas fisik pada storage Laravel.",
-                "operationId": "ecc612ef8b6ae122e5892f3b6fc38a91",
+                "summary": "Mendapatkan daftar penilaian mandiri",
+                "description": "Menampilkan list penilaian mandiri dengan opsional filter id_project.",
+                "operationId": "521b2cf7e8d70a1ae51f14e065d56bde",
                 "parameters": [
                     {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
+                        "name": "id_project",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Project",
+                        "required": false,
                         "schema": {
                             "type": "integer"
                         }
@@ -689,29 +882,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Berkas bukti berhasil dihapus",
+                        "description": "Berhasil memuat daftar self-assessment",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseSuccess"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Bukti tidak ditemukan",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
                                 }
                             }
                         }
                     }
                 }
-            }
-        },
-        "/self-assessment": {
+            },
             "post": {
                 "tags": [
                     "Akreditasi - Self Assessment"
@@ -775,6 +956,86 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/self-assessment/{id}": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Self Assessment"
+                ],
+                "summary": "Mendapatkan detail penilaian mandiri",
+                "operationId": "52325af7dcbf7b1be4973c37306fcdc1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail self-assessment berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Data tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Akreditasi - Self Assessment"
+                ],
+                "summary": "Menghapus data penilaian mandiri",
+                "operationId": "1b2b1b332629b0b3919e8aa80c4d582d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data self-assessment berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Data tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
                                 }
                             }
                         }
@@ -2277,6 +2538,500 @@
                 }
             }
         },
+        "/sarpras-prodi": {
+            "get": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Mendapatkan daftar data prasarana prodi",
+                "description": "Menampilkan list data prasarana dengan opsional filter id_project.",
+                "operationId": "ccd16183c49e979531c03428a3fa5840",
+                "parameters": [
+                    {
+                        "name": "id_project",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Project Akreditasi",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar prasarana",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Menambahkan data prasarana prodi baru",
+                "operationId": "94f1117de527d28c5def3af861cbd4b4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_project"
+                                ],
+                                "properties": {
+                                    "id_project": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "kapasitas": {
+                                        "type": "integer",
+                                        "example": 40,
+                                        "nullable": true
+                                    },
+                                    "keterangan": {
+                                        "type": "string",
+                                        "example": "Laboratorium Rekayasa Perangkat Lunak Gedung A",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Data prasarana berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sarpras-prodi/{id}": {
+            "get": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Mendapatkan detail data prasarana prodi",
+                "operationId": "f9b4c53208b2c1e5d4a4007a7a4e9dd6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail prasarana berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Prasarana tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Memperbarui data prasarana prodi",
+                "operationId": "127beec472a5d3531aa4d557342605bf",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "kapasitas": {
+                                        "type": "integer",
+                                        "example": 45,
+                                        "nullable": true
+                                    },
+                                    "keterangan": {
+                                        "type": "string",
+                                        "example": "Laboratorium RPL Gedung A (Renovasi)",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Data prasarana berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Prasarana tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Menghapus data prasarana prodi",
+                "operationId": "0034ea9afb1f32e1ab85f7c9669cd79a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data prasarana berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Prasarana tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sarana-prodi": {
+            "get": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Mendapatkan daftar data sarana prodi",
+                "description": "Menampilkan list data sarana dengan opsional filter id_prasarana.",
+                "operationId": "7b6510cf537aa2805cf138e37bfa39b2",
+                "parameters": [
+                    {
+                        "name": "id_prasarana",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Prasarana",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar sarana",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Menambahkan data sarana prodi baru",
+                "operationId": "64ed3f739ac6149fe25c2087385a8d8a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_prasarana",
+                                    "nama_sarana"
+                                ],
+                                "properties": {
+                                    "id_prasarana": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "nama_sarana": {
+                                        "type": "string",
+                                        "example": "PC Workstation Core i7 32GB RAM"
+                                    },
+                                    "jumlah": {
+                                        "type": "integer",
+                                        "example": 30,
+                                        "nullable": true
+                                    },
+                                    "kondisi": {
+                                        "type": "string",
+                                        "example": "Baik",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Data sarana berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sarana-prodi/{id}": {
+            "get": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Mendapatkan detail data sarana prodi",
+                "operationId": "169000b73b2a7fc2c71668c1bf3aa6dc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail sarana berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Sarana tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Memperbarui data sarana prodi",
+                "operationId": "9c7e59bb7e789ee478c3dd8ac25aed02",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nama_sarana": {
+                                        "type": "string",
+                                        "example": "PC Workstation Core i7 32GB RAM (Upgrade SSD)",
+                                        "nullable": true
+                                    },
+                                    "jumlah": {
+                                        "type": "integer",
+                                        "example": 35,
+                                        "nullable": true
+                                    },
+                                    "kondisi": {
+                                        "type": "string",
+                                        "example": "Sangat Baik",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Data sarana berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Sarana tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Menghapus data sarana prodi",
+                "operationId": "442674ed5935068e9a5e2da9344bf78a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data sarana berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Sarana tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/spmi-audit": {
             "get": {
                 "tags": [
@@ -2854,6 +3609,10 @@
         {
             "name": "SPMI - Audit Mutu Internal",
             "description": "Audit SPMI dan Tindak Lanjut Temuan"
+        },
+        {
+            "name": "Sarpras - Sarana & Prasarana",
+            "description": "Manajemen Data Sarana dan Prasarana Program Studi"
         }
     ]
 }
