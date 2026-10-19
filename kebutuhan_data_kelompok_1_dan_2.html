@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Dokumen Kebutuhan Integrasi Data & Kontrak API (Kelompok 3 ke Kelompok 1 & 2)</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 16mm 14mm 16mm 14mm;
+      @bottom-right {
+        content: counter(page) " / " counter(pages);
+      }
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #1e293b;
+      line-height: 1.5;
+      font-size: 11pt;
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+    }
+    .header-container {
+      border-bottom: 3px double #0284c7;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      font-size: 8pt;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      background: #e0f2fe;
+      color: #0369a1;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 16pt;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 6px 0;
+      line-height: 1.25;
+    }
+    .subtitle {
+      font-size: 10pt;
+      color: #475569;
+      margin: 0;
+    }
+    .meta-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+      font-size: 9.5pt;
+    }
+    .meta-item {
+      display: flex;
+      gap: 6px;
+    }
+    .meta-label {
+      font-weight: 600;
+      color: #64748b;
+    }
+    .meta-value {
+      font-weight: 600;
+      color: #0f172a;
+    }
+    h2 {
+      font-size: 12.5pt;
+      font-weight: 700;
+      color: #0369a1;
+      border-bottom: 1.5px solid #bae6fd;
+      padding-bottom: 4px;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    h3 {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 16px;
+      margin-bottom: 6px;
+    }
+    p {
+      margin: 0 0 10px 0;
+      text-align: justify;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 14px;
+      font-size: 9pt;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 7px 9px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background-color: #0284c7;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 8.5pt;
+      letter-spacing: 0.3px;
+    }
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+    .code-box {
+      background: #0f172a;
+      color: #38bdf8;
+      border-radius: 5px;
+      padding: 10px 12px;
+      font-family: "Cascadia Code", Consolas, "Courier New", monospace;
+      font-size: 8pt;
+      margin: 8px 0 14px 0;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      page-break-inside: avoid;
+    }
+    .code-box .comment {
+      color: #94a3b8;
+    }
+    .code-box .key {
+      color: #f1f5f9;
+    }
+    .code-box .val-str {
+      color: #34d399;
+    }
+    .code-box .val-num {
+      color: #fbbf24;
+    }
+    .callout {
+      background: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      padding: 10px 12px;
+      border-radius: 0 6px 6px 0;
+      margin: 12px 0;
+      font-size: 9.5pt;
+    }
+    .page-break {
+      page-break-after: always;
+    }
+    .footer-note {
+      margin-top: 30px;
+      border-top: 1px dashed #cbd5e1;
+      padding-top: 10px;
+      font-size: 8.5pt;
+      color: #64748b;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header-container">
+    <div class="badge">Spesifikasi Interoperabilitas & Kontrak Data Antar Kelompok</div>
+    <h1>DOKUMEN KEBUTUHAN DATA DAN KONTRAK REST API</h1>
+    <div class="subtitle">Project Based Learning: Pengembangan Sistem Informasi Akreditasi LAM INFOKOM Versi 2.1</div>
+  </div>
+
+  <!-- META BOX -->
+  <div class="meta-box">
+    <div class="meta-item"><span class="meta-label">Pemohon (Konsumen API):</span> <span class="meta-value">Kelompok 3 (Akreditasi, Mutu & Reporting)</span></div>
+    <div class="meta-item"><span class="meta-label">Penyedia API 1:</span> <span class="meta-value">Kelompok 1 (Pendidikan, Mahasiswa & Lulusan)</span></div>
+    <div class="meta-item"><span class="meta-label">Penyedia API 2:</span> <span class="meta-value">Kelompok 2 (SDM, Tri Dharma & Kerja Sama)</span></div>
+    <div class="meta-item"><span class="meta-label">Versi Dokumen:</span> <span class="meta-value">1.0 (Oktober 2026)</span></div>
+  </div>
+
+  <!-- PENGANTAR -->
+  <h2>1. Latar Belakang & Peran Sistem Kelompok 3</h2>
+  <p>
+    Berdasarkan panduan resmi pembagian modul PBL, <strong>Kelompok 3</strong> bertanggung jawab atas mesin akreditasi utama (<em>Core LAM INFOKOM Engine</em>), Evaluasi Diri (LED), Laporan Kinerja Program Studi (LKPS), Pengelolaan Bukti/Evidence Terpusat, Audit Mutu Internal (SPMI), serta <em>Dashboard Readiness & Early Warning System</em>.
+  </p>
+  <p>
+    Sesuai prinsip <strong>Mata Kuliah Interoperabilitas</strong>, Kelompok 3 tidak diperkenankan melakukan <em>redundant input</em> (input ulang data yang sudah dikelola oleh kelompok lain). Sebaliknya, sistem Kelompok 3 wajib mengonsumsi (<em>consume</em>) data agregat, transaksional, dan repositori evidence dari Kelompok 1 dan Kelompok 2 melalui REST API berformat JSON.
+  </p>
+
+  <div class="callout">
+    <strong>Tujuan Dokumen:</strong> Menjadi acuan teknis bagi Kelompok 1 dan Kelompok 2 dalam merancang skema database, controller API, dan output endpoint yang akan diintegrasikan dengan modul penilaian otomatis Kelompok 3.
+  </div>
+
+  <!-- KELOMPOK 1 -->
+  <h2>2. Kebutuhan Data dari Kelompok 1 (Pendidikan, Mahasiswa & Lulusan)</h2>
+  <p>
+    Data ini dibutuhkan oleh Kelompok 3 untuk penilaian otomatis pada <strong>Kriteria C2 (Relevansi Pendidikan)</strong>, penyusunan tabel LKPS profil mahasiswa, serta perhitungan rasio kecukupan mahasiswa terhadap dosen.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 5%;">No</th>
+        <th style="width: 25%;">Kategori Data</th>
+        <th style="width: 40%;">Parameter / Field Spesifik yang Dibutuhkan</th>
+        <th style="width: 30%;">Kegunaan di Modul Kelompok 3</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align: center;">1</td>
+        <td><strong>Statistik Mahasiswa</strong></td>
+        <td>
+          • Jumlah Mahasiswa Aktif per angkatan (TS-4 s.d. TS)<br>
+          • Daya Tampung, Pendaftar, Lulus Seleksi, Registrasi<br>
+          • Jumlah Mahasiswa Transfer dan Mahasiswa Asing
+        </td>
+        <td>
+          • Pengisian otomatis Tabel LKPS Mahasiswa Baru & Daya Tampung.<br>
+          • Pembagi dalam perhitungan <strong>Rasio Dosen : Mahasiswa</strong>.
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">2</td>
+        <td><strong>Statistik Kelulusan & Masa Studi</strong></td>
+        <td>
+          • Rata-rata IPK Lulusan prodi<br>
+          • Rata-rata Masa Studi Lulusan (dalam tahun / semester)<br>
+          • Persentase Kelulusan Tepat Waktu (KTW)
+        </td>
+        <td>
+          • Scoring otomatis matriks rubrik keberhasilan studi.<br>
+          • Indikator peringatan (<em>Early Warning</em>) bila KTW &lt; 70%.
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">3</td>
+        <td><strong>Prestasi Mahasiswa</strong></td>
+        <td>
+          • Rekapitulasi prestasi akademik & non-akademik<br>
+          • Skala prestasi: Wilayah/Lokal, Nasional, Internasional
+        </td>
+        <td>
+          • Penilaian poin capaian mahasiswa pada tabel LKPS Prestasi.
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">4</td>
+        <td><strong>Kurikulum & CPL</strong></td>
+        <td>
+          • Persentase rata-rata ketercapaian CPL prodi<br>
+          • Jumlah Mata Kuliah & RPS terintegrasi OBE
+        </td>
+        <td>
+          • Narasi otomatis pada LED Kriteria Pembelajaran.
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">5</td>
+        <td><strong>Evidence Pendidikan</strong></td>
+        <td>
+          • URL/Berkas Dokumen Kurikulum, Sampel RPS, SK Prestasi
+        </td>
+        <td>
+          • Ditautkan langsung ke menu <em>Repository Evidence</em> indikator.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Rekomendasi Spesifikasi Endpoint API Kelompok 1:</h3>
+  <p><strong>1. GET /api/v1/mahasiswa/statistik?id_prodi={id}&tahun={ts}</strong></p>
+  <div class="code-box"><span class="comment">// Response JSON yang diharapkan:</span>
+{
+  <span class="key">"success"</span>: <span class="val-num">true</span>,
+  <span class="key">"data"</span>: {
+    <span class="key">"id_prodi"</span>: <span class="val-num">1</span>,
+    <span class="key">"nama_prodi"</span>: <span class="val-str">"D4 Teknologi Rekayasa Komputer"</span>,
+    <span class="key">"tahun_akademik"</span>: <span class="val-str">"2026/2027"</span>,
+    <span class="key">"daya_tampung"</span>: <span class="val-num">120</span>,
+    <span class="key">"pendaftar"</span>: <span class="val-num">480</span>,
+    <span class="key">"lulus_seleksi"</span>: <span class="val-num">125</span>,
+    <span class="key">"mahasiswa_baru"</span>: <span class="val-num">112</span>,
+    <span class="key">"mahasiswa_aktif"</span>: <span class="val-num">425</span>,
+    <span class="key">"mahasiswa_asing"</span>: <span class="val-num">2</span>
+  }
+}</div>
+
+  <p><strong>2. GET /api/v1/lulusan/statistik?id_prodi={id}</strong></p>
+  <div class="code-box">{
+  <span class="key">"success"</span>: <span class="val-num">true</span>,
+  <span class="key">"data"</span>: {
+    <span class="key">"id_prodi"</span>: <span class="val-num">1</span>,
+    <span class="key">"rata_rata_ipk"</span>: <span class="val-num">3.52</span>,
+    <span class="key">"rata_rata_masa_studi_tahun"</span>: <span class="val-num">4.1</span>,
+    <span class="key">"persentase_lulus_tepat_waktu"</span>: <span class="val-num">87.2</span>,
+    <span class="key">"total_lulusan_ts"</span>: <span class="val-num">98</span>
+  }
+}</div>
+
+  <div class="page-break"></div>
+
+  <!-- KELOMPOK 2 -->
+  <h2>3. Kebutuhan Data dari Kelompok 2 (SDM, Tri Dharma & Kerja Sama)</h2>
+  <p>
+    Data ini dibutuhkan oleh Kelompok 3 untuk penilaian otomatis pada <strong>Kriteria C3 (Relevansi Penelitian), C4 (Relevansi PkM), C5 (Akuntabilitas SDM)</strong>, serta pemetaan kerja sama tridharma.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 5%;">No</th>
+        <th style="width: 25%;">Kategori Data</th>
+        <th style="width: 40%;">Parameter / Field Spesifik yang Dibutuhkan</th>
+        <th style="width: 30%;">Kegunaan di Modul Kelompok 3</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align: center;">1</td>
+        <td><strong>Kualifikasi DTPS (Dosen)</strong></td>
+        <td>
+          • Total Dosen Tetap Program Studi (DTPS)<br>
+          • Jumlah Dosen berpendidikan S3 (Doktor)<br>
+          • Jumlah Dosen Lektor Kepala dan Guru Besar<br>
+          • Jumlah Dosen bersertifikat Serdos & Sertifikasi Profesi
+        </td>
+        <td>
+          • Perhitungan skor kecukupan & kualifikasi akademik dosen.<br>
+          • Pembilang dalam perhitungan rasio dosen:mahasiswa.
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">2</td>
+        <td><strong>Kinerja Penelitian DTPS</strong></td>
+        <td>
+          • Jumlah judul penelitian DTPS dalam 3 tahun terakhir (TS)<br>
+          • Sumber dana: Mandiri, PT/Yayasan, Nasional (Hibah), LN<br>
+          • Jumlah mahasiswa yang dilibatkan dalam penelitian dosen
+        </td>
+        <td>
+          • Pengisian otomatis Tabel LKPS Penelitian.<br>
+          • Perhitungan produktivitas penelitian per dosen per tahun.
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">3</td>
+        <td><strong>Publikasi, Sitasi & HKI</strong></td>
+        <td>
+          • Jumlah artikel Jurnal Internasional (Scopus/WoS)<br>
+          • Jumlah artikel Jurnal Nasional Terakreditasi (Sinta 1-6)<br>
+          • Jumlah Buku ber-ISBN dan Sitasi karya dosen<br>
+          • Jumlah Paten / Hak Cipta (HKI)
+        </td>
+        <td>
+          • Matriks skor indikator luaran publikasi ilmiah di LAM INFOKOM.<br>
+          • Feed analitik trend publikasi dosen di Dashboard Akreditasi.
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">4</td>
+        <td><strong>Pengabdian Masyarakat (PkM)</strong></td>
+        <td>
+          • Jumlah kegiatan PkM DTPS dalam 3 tahun terakhir<br>
+          • Sumber pendanaan PkM dan luaran PkM (Produk/HAKI)<br>
+          • Jumlah mahasiswa yang dilibatkan dalam kegiatan PkM
+        </td>
+        <td>
+          • Pengisian otomatis Tabel LKPS Pengabdian kepada Masyarakat.
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">5</td>
+        <td><strong>Kerja Sama Tridharma</strong></td>
+        <td>
+          • Jumlah dokumen kerja sama aktif (MoU, MoA, IA)<br>
+          • Kategori: Bidang Pendidikan, Penelitian, atau PkM<br>
+          • Skala: Wilayah/Lokal, Nasional, Internasional
+        </td>
+        <td>
+          • Scoring bobot kriteria kemitraan dan reputasi prodi.
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center;">6</td>
+        <td><strong>Evidence SDM & Tri Dharma</strong></td>
+        <td>
+          • URL Berkas SK DTPS, Sertifikat Serdos/Profesi, Kontrak Penelitian/PkM, MoU/MoA/IA
+        </td>
+        <td>
+          • Terintegrasi ke modul validasi bukti fisik reviewer di Kelompok 3.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Rekomendasi Spesifikasi Endpoint API Kelompok 2:</h3>
+  <p><strong>1. GET /api/v1/dosen/statistik?id_prodi={id}</strong></p>
+  <div class="code-box">{
+  <span class="key">"success"</span>: <span class="val-num">true</span>,
+  <span class="key">"data"</span>: {
+    <span class="key">"id_prodi"</span>: <span class="val-num">1</span>,
+    <span class="key">"jumlah_dtps"</span>: <span class="val-num">20</span>,
+    <span class="key">"dosen_s3_doktor"</span>: <span class="val-num">8</span>,
+    <span class="key">"lektor_kepala"</span>: <span class="val-num">3</span>,
+    <span class="key">"guru_besar"</span>: <span class="val-num">1</span>,
+    <span class="key">"sertifikat_pendidik"</span>: <span class="val-num">17</span>,
+    <span class="key">"sertifikat_kompetensi"</span>: <span class="val-num">12</span>
+  }
+}</div>
+
+  <p><strong>2. GET /api/v1/penelitian/statistik?id_prodi={id}&tahun={ts}</strong></p>
+  <div class="code-box">{
+  <span class="key">"success"</span>: <span class="val-num">true</span>,
+  <span class="key">"data"</span>: {
+    <span class="key">"id_prodi"</span>: <span class="val-num">1</span>,
+    <span class="key">"total_penelitian_3th"</span>: <span class="val-num">35</span>,
+    <span class="key">"keterlibatan_mahasiswa"</span>: <span class="val-num">28</span>,
+    <span class="key">"sumber_dana"</span>: { <span class="key">"mandiri"</span>: <span class="val-num">5</span>, <span class="key">"institusi"</span>: <span class="val-num">15</span>, <span class="key">"nasional"</span>: <span class="val-num">12</span>, <span class="key">"internasional"</span>: <span class="val-num">3</span> }
+  }
+}</div>
+
+  <p><strong>3. GET /api/v1/publikasi-hki/statistik?id_prodi={id}</strong></p>
+  <div class="code-box">{
+  <span class="key">"success"</span>: <span class="val-num">true</span>,
+  <span class="key">"data"</span>: {
+    <span class="key">"id_prodi"</span>: <span class="val-num">1</span>,
+    <span class="key">"publikasi_scopus"</span>: <span class="val-num">14</span>,
+    <span class="key">"jurnal_nasional_sinta"</span>: <span class="val-num">24</span>,
+    <span class="key">"hki_paten"</span>: <span class="val-num">8</span>,
+    <span class="key">"buku_ber_isbn"</span>: <span class="val-num">5</span>
+  }
+}</div>
+
+  <p><strong>4. GET /api/v1/kerjasama/summary?id_prodi={id}</strong></p>
+  <div class="code-box">{
+  <span class="key">"success"</span>: <span class="val-num">true</span>,
+  <span class="key">"data"</span>: {
+    <span class="key">"id_prodi"</span>: <span class="val-num">1</span>,
+    <span class="key">"total_kerjasama_aktif"</span>: <span class="val-num">17</span>,
+    <span class="key">"tingkat_internasional"</span>: <span class="val-num">3</span>,
+    <span class="key">"tingkat_nasional"</span>: <span class="val-num">10</span>,
+    <span class="key">"tingkat_lokal"</span>: <span class="val-num">4</span>
+  }
+}</div>
+
+  <div class="page-break"></div>
+
+  <!-- KEBUTUHAN DATA MASTER PENGGUNA -->
+  <h2>4. Kebutuhan Data Referensi & Master Pengguna</h2>
+  <p>
+    Kelompok 3 mengelola alur kerja pembagian borang akreditasi, penilaian reviewer, dan audit SPMI. Oleh karena itu, diperlukan referensi ID pengguna dari modul autentikasi/pengguna:
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Modul di Kelompok 3</th>
+        <th style="width: 30%;">Foreign Reference yang Dibutuhkan</th>
+        <th style="width: 45%;">Keterangan & Role yang Diharapkan</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Mapping Tim Akreditasi</strong></td>
+        <td><code>mapping_tim_akreditasi.id_user</code></td>
+        <td>ID User Dosen / Tim Penyusun yang ditugaskan mengerjakan narasi per butir indikator.</td>
+      </tr>
+      <tr>
+        <td><strong>Self Assessment</strong></td>
+        <td><code>self_assessment.id_reviewer</code></td>
+        <td>ID User Reviewer Internal / Asesor yang memberikan penilaian skor rubrik dan catatan evaluasi.</td>
+      </tr>
+      <tr>
+        <td><strong>Audit Mutu (SPMI)</strong></td>
+        <td><code>data_spmi_audit.id_auditor</code></td>
+        <td>ID User Auditor Internal yang mencatat temuan audit mutu prodi.</td>
+      </tr>
+      <tr>
+        <td><strong>Validasi Bukti</strong></td>
+        <td><code>bukti.validated_by</code></td>
+        <td>ID User Asesor/Pimpinan yang menyetujui atau menolak berkas bukti dukung.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- CONTOH OUTPUT INTEGRASI -->
+  <h2>5. Contoh Output Hasil Agregasi pada Sistem Kelompok 3</h2>
+  <p>
+    Setelah mengonsumsi API dari Kelompok 1 dan Kelompok 2, sistem Kelompok 3 akan otomatis menggabungkannya menjadi ringkasan kesiapan akreditasi (seperti dicontohkan pada panduan PBL halaman 15):
+  </p>
+  <div class="code-box">{
+  <span class="key">"program_studi"</span>: <span class="val-str">"D4 Teknologi Rekayasa Komputer"</span>,
+  <span class="key">"mahasiswa_aktif"</span>: <span class="val-num">425</span>,                 <span class="comment">// Diambil dari API Kelompok 1</span>
+  <span class="key">"lulusan_tepat_waktu"</span>: <span class="val-num">87.2</span>,            <span class="comment">// Diambil dari API Kelompok 1</span>
+  <span class="key">"dtps"</span>: <span class="val-num">20</span>,                             <span class="comment">// Diambil dari API Kelompok 2</span>
+  <span class="key">"publikasi_dtps"</span>: <span class="val-num">38</span>,                   <span class="comment">// Diambil dari API Kelompok 2</span>
+  <span class="key">"rasio_dosen_mahasiswa"</span>: <span class="val-num">21.25</span>,        <span class="comment">// Dihitung otomatis oleh Kelompok 3: (425 / 20)</span>
+  <span class="key">"hasil_simulasi_akreditasi"</span>: {
+    <span class="key">"skor_kriteria_sdm"</span>: <span class="val-num">3.85</span>,            <span class="comment">// Evaluasi otomatis berdasarkan rubrik LAM INFOKOM</span>
+    <span class="key">"skor_kriteria_pendidikan"</span>: <span class="val-num">3.70</span>,     <span class="comment">// Evaluasi otomatis berdasarkan rubrik LAM INFOKOM</span>
+    <span class="key">"overall_readiness"</span>: <span class="val-str">"88.5%"</span>,
+    <span class="key">"proyeksi_peringkat"</span>: <span class="val-str">"Terakreditasi Unggul"</span>
+  }
+}</div>
+
+  <!-- STANDAR TEKNIS INTEGRASI -->
+  <h2>6. Standar Teknis Interoperabilitas</h2>
+  <ol style="padding-left: 20px; font-size: 9.5pt; line-height: 1.6;">
+    <li><strong>Standar Format JSON:</strong> Seluruh API wajib mengembalikan format seragam:
+      <br><code>{ "success": true/false, "message": "string", "data": ... }</code>.</li>
+    <li><strong>Protokol & Prefix:</strong> Menggunakan REST API standar dengan prefix versi (misal: <code>/api/v1/...</code>).</li>
+    <li><strong>Filter Parameter:</strong> Mendukung parameter query <code>id_prodi</code> dan tahun akademik (<code>tahun</code>).</li>
+    <li><strong>Dokumentasi:</strong> Setiap kelompok wajib menyediakan dokumentasi interaktif via <strong>Swagger / OpenAPI UI</strong> agar mempermudah pengujian timbal balik.</li>
+  </ol>
+
+  <div class="footer-note">
+    <span>Sistem Akreditasi LAM INFOKOM 2.1 &bull; Kelompok 3 PBL</span>
+    <span>Tanggal Terbit: 19 Oktober 2026</span>
+  </div>
+
+</body>
+</html>
