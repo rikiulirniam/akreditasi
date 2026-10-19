@@ -7,4 +7,3 @@ Route::get('/', function () {
 });
 
 Route::redirect('/api/documentation', '/documentation');
-

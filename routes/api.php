@@ -8,8 +8,10 @@ use App\Http\Controllers\Api\Master\IndikatorController;
 use App\Http\Controllers\Api\Master\JenisBuktiController;
 use App\Http\Controllers\Api\Master\JenisPembiayaanController;
 use App\Http\Controllers\Api\Master\KriteriaController;
+use App\Http\Controllers\Api\Master\LembagaAkreditasiController;
 use App\Http\Controllers\Api\Master\RubrikController;
 use App\Http\Controllers\Api\Master\StandarMutuController;
+use App\Http\Controllers\Api\Master\VersiInstrumenController;
 use App\Http\Controllers\Api\Sarpras\DataSaranaProdiController;
 use App\Http\Controllers\Api\Sarpras\DataSarprasProdiController;
 use App\Http\Controllers\Api\Spmi\SpmiAuditController;
@@ -31,6 +33,8 @@ Route::prefix('v1')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::prefix('master')->group(function () {
+        Route::apiResource('lembaga-akreditasi', LembagaAkreditasiController::class);
+        Route::apiResource('versi-instrumen', VersiInstrumenController::class);
         Route::apiResource('kriteria', KriteriaController::class);
         Route::apiResource('indikator', IndikatorController::class);
         Route::apiResource('rubrik', RubrikController::class);

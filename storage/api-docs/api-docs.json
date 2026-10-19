@@ -1086,6 +1086,494 @@
                 }
             }
         },
+        "/master/lembaga-akreditasi": {
+            "get": {
+                "tags": [
+                    "Master Data - Lembaga Akreditasi"
+                ],
+                "summary": "Mendapatkan daftar lembaga akreditasi",
+                "description": "Menampilkan list master lembaga akreditasi (misal: LAM INFOKOM, BAN-PT).",
+                "operationId": "b0794330f788ab241557dd07797bb15e",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar lembaga akreditasi",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Master Data - Lembaga Akreditasi"
+                ],
+                "summary": "Menambahkan lembaga akreditasi baru",
+                "operationId": "8bfd2d3f8d736b93541c98719ae11a92",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama_lembaga"
+                                ],
+                                "properties": {
+                                    "nama_lembaga": {
+                                        "type": "string",
+                                        "example": "LAM INFOKOM"
+                                    },
+                                    "keterangan": {
+                                        "type": "string",
+                                        "example": "Lembaga Akreditasi Mandiri Informatika dan Komputer",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Lembaga akreditasi berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/lembaga-akreditasi/{id}": {
+            "get": {
+                "tags": [
+                    "Master Data - Lembaga Akreditasi"
+                ],
+                "summary": "Mendapatkan detail lembaga akreditasi",
+                "operationId": "4ab92159401d6a53a412f3670b4d0c50",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail lembaga akreditasi berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Lembaga akreditasi tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Master Data - Lembaga Akreditasi"
+                ],
+                "summary": "Memperbarui data lembaga akreditasi",
+                "operationId": "97ac937a007749a9cc974365323b44d1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nama_lembaga": {
+                                        "type": "string",
+                                        "example": "LAM INFOKOM"
+                                    },
+                                    "keterangan": {
+                                        "type": "string",
+                                        "example": "Keterangan diperbarui",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lembaga akreditasi berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Lembaga akreditasi tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Master Data - Lembaga Akreditasi"
+                ],
+                "summary": "Menghapus lembaga akreditasi",
+                "operationId": "0b491d0b65b01e6095ff988de817acfc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lembaga akreditasi berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Lembaga akreditasi tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/versi-instrumen": {
+            "get": {
+                "tags": [
+                    "Master Data - Versi Instrumen"
+                ],
+                "summary": "Mendapatkan daftar versi instrumen akreditasi",
+                "description": "Menampilkan list versi instrumen dengan filter id_lembaga dan status_aktif.",
+                "operationId": "3b5b98039c9bb10856b97452f1a730ae",
+                "parameters": [
+                    {
+                        "name": "id_lembaga",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Lembaga",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "status_aktif",
+                        "in": "query",
+                        "description": "Filter status aktif (true/false)",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar versi instrumen",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Master Data - Versi Instrumen"
+                ],
+                "summary": "Menambahkan versi instrumen baru",
+                "operationId": "c4246129c64409f346722432923889be",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_lembaga",
+                                    "nomor_versi",
+                                    "tanggal_berlaku"
+                                ],
+                                "properties": {
+                                    "id_lembaga": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "nomor_versi": {
+                                        "type": "string",
+                                        "example": "2.1"
+                                    },
+                                    "tanggal_berlaku": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-01-25"
+                                    },
+                                    "status_aktif": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Versi instrumen berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/versi-instrumen/{id}": {
+            "get": {
+                "tags": [
+                    "Master Data - Versi Instrumen"
+                ],
+                "summary": "Mendapatkan detail versi instrumen",
+                "operationId": "1af6c7770031ad4014b4a7d276f877c1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail versi instrumen berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Versi instrumen tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Master Data - Versi Instrumen"
+                ],
+                "summary": "Memperbarui data versi instrumen",
+                "operationId": "4a355a91a9f44dc53a420e62aee094ba",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id_lembaga": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "nomor_versi": {
+                                        "type": "string",
+                                        "example": "2.1"
+                                    },
+                                    "tanggal_berlaku": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-01-25"
+                                    },
+                                    "status_aktif": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Versi instrumen berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Versi instrumen tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Master Data - Versi Instrumen"
+                ],
+                "summary": "Menghapus versi instrumen",
+                "operationId": "0710a2d7e0c6fed663b833986ecdb1b2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Versi instrumen berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Versi instrumen tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/master/kriteria": {
             "get": {
                 "tags": [
@@ -3566,6 +4054,14 @@
         }
     },
     "tags": [
+        {
+            "name": "Master Data - Lembaga Akreditasi",
+            "description": "Manajemen Data Master Lembaga Akreditasi (LAM INFOKOM, BAN-PT, dll)"
+        },
+        {
+            "name": "Master Data - Versi Instrumen",
+            "description": "Manajemen Versi Instrumen Akreditasi (1.0, 2.0, 2.1, dll)"
+        },
         {
             "name": "Master Data - Kriteria",
             "description": "Manajemen Data Master Kriteria"

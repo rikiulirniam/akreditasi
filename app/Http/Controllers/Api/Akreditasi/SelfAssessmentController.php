@@ -78,7 +78,7 @@ class SelfAssessmentController extends Controller
 
         return $this->successResponse(
             $assessment,
-            'Penilaian reviewer berhasil disimpan dengan perhitungan skor terbobot otomatis: ' . $skorTerbobot,
+            'Penilaian reviewer berhasil disimpan dengan perhitungan skor terbobot otomatis: '.$skorTerbobot,
             200
         );
     }
