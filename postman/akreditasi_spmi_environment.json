@@ -34,7 +34,7 @@
     },
     {
       "key": "instrumen_id",
-      "value": "",
+      "value": "1",
       "type": "default",
       "enabled": true
     },
@@ -76,6 +76,12 @@
     },
     {
       "key": "project_id",
+      "value": "1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "mapping_tim_id",
       "value": "1",
       "type": "default",
       "enabled": true
