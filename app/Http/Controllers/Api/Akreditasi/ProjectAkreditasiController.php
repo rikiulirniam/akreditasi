@@ -18,7 +18,7 @@ class ProjectAkreditasiController extends Controller
 
     public function index(): JsonResponse
     {
-        $projects = ProjectAkreditasi::with(['prodi', 'versiInstrumen', 'jenjang', 'jenisInstrumen'])
+        $projects = ProjectAkreditasi::with(['versiInstrumen', 'jenjang', 'jenisInstrumen'])
             ->latest()
             ->get();
 
@@ -35,7 +35,6 @@ class ProjectAkreditasiController extends Controller
     public function show(int $id): JsonResponse
     {
         $project = ProjectAkreditasi::with([
-            'prodi',
             'versiInstrumen',
             'jenjang',
             'jenisInstrumen',

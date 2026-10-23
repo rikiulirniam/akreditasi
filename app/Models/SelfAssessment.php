@@ -19,7 +19,6 @@ class SelfAssessment extends Model
         'skor_terbobot',
         'catatan_reviewer',
         'tanggal_penilaian',
-        'asesor_id',
         'reviewer_id',
     ];
 
@@ -31,30 +30,20 @@ class SelfAssessment extends Model
             'id_rubrik' => 'integer',
             'skor_terbobot' => 'decimal:2',
             'tanggal_penilaian' => 'datetime',
-            'asesor_id' => 'integer',
             'reviewer_id' => 'integer',
         ];
     }
 
-    /**
-     * Relasi ke Project Akreditasi.
-     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(ProjectAkreditasi::class, 'id_project');
     }
 
-    /**
-     * Relasi ke Indikator yang dinilai.
-     */
     public function indikator(): BelongsTo
     {
         return $this->belongsTo(Indikator::class, 'id_indikator');
     }
 
-    /**
-     * Relasi ke Rubrik skor yang dipilih (opsional).
-     */
     public function rubrik(): BelongsTo
     {
         return $this->belongsTo(Rubrik::class, 'id_rubrik');

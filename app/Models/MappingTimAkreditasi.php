@@ -16,28 +16,24 @@ class MappingTimAkreditasi extends Model
         'id_project',
         'id_user',
         'id_indikator',
+        'role',
     ];
 
     protected function casts(): array
     {
         return [
             'id_project' => 'integer',
-            'id_user' => 'integer',
+            'id_user' => 'integer', // Disesuaikan dengan API Kelompok 2
             'id_indikator' => 'integer',
+            'role' => 'string',
         ];
     }
 
-    /**
-     * Relasi ke Project Akreditasi.
-     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(ProjectAkreditasi::class, 'id_project');
     }
 
-    /**
-     * Relasi ke Indikator yang ditugaskan.
-     */
     public function indikator(): BelongsTo
     {
         return $this->belongsTo(Indikator::class, 'id_indikator');

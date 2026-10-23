@@ -27,7 +27,7 @@ class ProjectAkreditasi extends Model
     protected function casts(): array
     {
         return [
-            'id_prodi' => 'integer',
+            'id_prodi' => 'integer', // Disesuaikan dengan ID dari API Kelompok 2
             'id_versi_instrumen' => 'integer',
             'id_jenjang' => 'integer',
             'id_jenis_instrumen' => 'integer',
@@ -36,15 +36,7 @@ class ProjectAkreditasi extends Model
     }
 
     /**
-     * Relasi ke Program Studi pemilik project.
-     */
-    public function prodi(): BelongsTo
-    {
-        return $this->belongsTo(Prodi::class, 'id_prodi');
-    }
-
-    /**
-     * Relasi ke Versi Instrumen yang digunakan.
+     * Relasi ke Versi Instrumen.
      */
     public function versiInstrumen(): BelongsTo
     {
@@ -52,7 +44,7 @@ class ProjectAkreditasi extends Model
     }
 
     /**
-     * Relasi ke Jenjang program studi pada project ini.
+     * Relasi ke Jenjang program studi.
      */
     public function jenjang(): BelongsTo
     {
@@ -60,7 +52,7 @@ class ProjectAkreditasi extends Model
     }
 
     /**
-     * Relasi ke Jenis Instrumen yang digunakan.
+     * Relasi ke Jenis Instrumen.
      */
     public function jenisInstrumen(): BelongsTo
     {
@@ -68,7 +60,7 @@ class ProjectAkreditasi extends Model
     }
 
     /**
-     * Relasi ke entri Mapping Tim Akreditasi.
+     * Relasi ke Mapping Tim Akreditasi.
      */
     public function mappingTim(): HasMany
     {
@@ -76,7 +68,7 @@ class ProjectAkreditasi extends Model
     }
 
     /**
-     * Relasi BelongsToMany ke Indikator yang ditugaskan pada project ini.
+     * Relasi BelongsToMany ke Indikator yang ditugaskan.
      */
     public function indikators(): BelongsToMany
     {
@@ -86,7 +78,7 @@ class ProjectAkreditasi extends Model
     }
 
     /**
-     * Relasi ke Lembar Kerja Prodi pada project ini.
+     * Relasi ke Lembar Kerja Prodi.
      */
     public function lembarProdi(): HasMany
     {
@@ -94,7 +86,7 @@ class ProjectAkreditasi extends Model
     }
 
     /**
-     * Relasi ke Self Assessment / Penilaian Mandiri pada project ini.
+     * Relasi ke Self Assessment / Penilaian Mandiri.
      */
     public function selfAssessments(): HasMany
     {
@@ -102,7 +94,7 @@ class ProjectAkreditasi extends Model
     }
 
     /**
-     * Relasi ke Data Audit SPMI yang terhubung dengan project akreditasi ini.
+     * Relasi ke Data Audit SPMI.
      */
     public function dataSpmiAudit(): HasMany
     {
@@ -110,15 +102,7 @@ class ProjectAkreditasi extends Model
     }
 
     /**
-     * Relasi ke Data Keuangan Prodi pada project akreditasi ini.
-     */
-    public function dataKeuanganProdi(): HasMany
-    {
-        return $this->hasMany(DataKeuanganProdi::class, 'id_project');
-    }
-
-    /**
-     * Relasi ke Data Sarpras Prodi pada project akreditasi ini.
+     * Relasi ke Data Sarpras Prodi.
      */
     public function dataSarprasProdi(): HasMany
     {

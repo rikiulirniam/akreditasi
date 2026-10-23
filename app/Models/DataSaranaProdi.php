@@ -24,11 +24,12 @@ class DataSaranaProdi extends Model
         return [
             'id_prasarana' => 'integer',
             'jumlah_unit' => 'integer',
+            'kondisi' => 'string',
         ];
     }
 
     /**
-     * Relasi ke Data Prasarana Prodi (parent).
+     * Relasi ke Data Sarpras Prodi / Prasarana (parent).
      */
     public function prasarana(): BelongsTo
     {

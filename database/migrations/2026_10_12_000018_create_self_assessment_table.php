@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('self_assessment', function (Blueprint $table) {
@@ -19,15 +16,14 @@ return new class extends Migration
             $table->decimal('skor_terbobot', 8, 2)->nullable();
             $table->text('catatan_reviewer')->nullable();
             $table->dateTime('tanggal_penilaian')->nullable();
-            $table->unsignedBigInteger('asesor_id')->nullable()->index();
-            $table->unsignedBigInteger('reviewer_id')->nullable()->index();
+
+            // ID Reviewer dari API Kelompok 2 (tipe integer sesuai ERD, tanpa FK constraint lokal)
+            $table->integer('reviewer_id')->nullable();
+
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('self_assessment');

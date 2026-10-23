@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "78a9c21b-4321-4f12-a1b2-akreditasi-spmi-col",
     "name": "API Akreditasi & SPMI (Laravel 13)",
-    "description": "Postman Collection komprehensif untuk pengujian REST API Penjaminan Mutu Internal (SPMI), Akreditasi Eksternal, dan Sarana Prasarana dengan format response JSON terstandarisasi.",
+    "description": "Postman Collection komprehensif untuk pengujian REST API Penjaminan Mutu Internal (SPMI), Akreditasi Eksternal, dan Sarana Prasarana Tim 3.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -435,13 +435,8 @@
                 ],
                 "url": {
                   "raw": "{{base_url}}/master/kriteria",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "kriteria"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "kriteria"]
                 }
               },
               "event": [
@@ -475,17 +470,12 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id_versi_instrumen\": \"{{versi_id}}\",\n  \"kode_kriteria\": \"K-2\",\n  \"nama_kriteria\": \"Tata Pamong, Tata Kelola, dan Kerja Sama\"\n}"
+                  "raw": "{\n  \"id_instrumen\": \"{{instrumen_id}}\",\n  \"kode_kriteria\": \"K-2\",\n  \"nama_kriteria\": \"Tata Pamong, Tata Kelola, dan Kerja Sama\"\n}"
                 },
                 "url": {
                   "raw": "{{base_url}}/master/kriteria",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "kriteria"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "kriteria"]
                 }
               },
               "event": [
@@ -516,14 +506,8 @@
                 ],
                 "url": {
                   "raw": "{{base_url}}/master/kriteria/{{kriteria_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "kriteria",
-                    "{{kriteria_id}}"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "kriteria", "{{kriteria_id}}"]
                 }
               },
               "event": [
@@ -561,14 +545,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/master/kriteria/{{kriteria_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "kriteria",
-                    "{{kriteria_id}}"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "kriteria", "{{kriteria_id}}"]
                 }
               },
               "event": [
@@ -597,14 +575,8 @@
                 ],
                 "url": {
                   "raw": "{{base_url}}/master/kriteria/{{kriteria_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "kriteria",
-                    "{{kriteria_id}}"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "kriteria", "{{kriteria_id}}"]
                 }
               },
               "event": [
@@ -639,13 +611,8 @@
                 ],
                 "url": {
                   "raw": "{{base_url}}/master/indikator",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "indikator"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "indikator"]
                 }
               },
               "event": [
@@ -683,13 +650,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/master/indikator",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "indikator"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "indikator"]
                 }
               },
               "event": [
@@ -719,14 +681,8 @@
                 ],
                 "url": {
                   "raw": "{{base_url}}/master/indikator/{{indikator_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "indikator",
-                    "{{indikator_id}}"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "indikator", "{{indikator_id}}"]
                 }
               },
               "event": [
@@ -764,14 +720,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/master/indikator/{{indikator_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "indikator",
-                    "{{indikator_id}}"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "indikator", "{{indikator_id}}"]
                 }
               },
               "event": [
@@ -799,14 +749,8 @@
                 ],
                 "url": {
                   "raw": "{{base_url}}/master/indikator/{{indikator_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "indikator",
-                    "{{indikator_id}}"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "indikator", "{{indikator_id}}"]
                 }
               },
               "event": [
@@ -840,13 +784,8 @@
                 ],
                 "url": {
                   "raw": "{{base_url}}/master/rubrik",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "rubrik"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "rubrik"]
                 }
               },
               "event": [
@@ -883,13 +822,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/master/rubrik",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "rubrik"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "rubrik"]
                 }
               },
               "event": [
@@ -919,14 +853,8 @@
                 ],
                 "url": {
                   "raw": "{{base_url}}/master/rubrik/{{rubrik_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "rubrik",
-                    "{{rubrik_id}}"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "rubrik", "{{rubrik_id}}"]
                 }
               },
               "event": [
@@ -963,14 +891,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/master/rubrik/{{rubrik_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "rubrik",
-                    "{{rubrik_id}}"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "rubrik", "{{rubrik_id}}"]
                 }
               },
               "event": [
@@ -998,14 +920,8 @@
                 ],
                 "url": {
                   "raw": "{{base_url}}/master/rubrik/{{rubrik_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "rubrik",
-                    "{{rubrik_id}}"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "rubrik", "{{rubrik_id}}"]
                 }
               },
               "event": [
@@ -1039,13 +955,8 @@
                 ],
                 "url": {
                   "raw": "{{base_url}}/master/standar-mutu",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "standar-mutu"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "standar-mutu"]
                 }
               },
               "event": [
@@ -1082,13 +993,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/master/standar-mutu",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "standar-mutu"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "standar-mutu"]
                 }
               },
               "event": [
@@ -1118,14 +1024,8 @@
                 ],
                 "url": {
                   "raw": "{{base_url}}/master/standar-mutu/{{standar_mutu_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "standar-mutu",
-                    "{{standar_mutu_id}}"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "standar-mutu", "{{standar_mutu_id}}"]
                 }
               },
               "event": [
@@ -1162,14 +1062,8 @@
                 },
                 "url": {
                   "raw": "{{base_url}}/master/standar-mutu/{{standar_mutu_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "standar-mutu",
-                    "{{standar_mutu_id}}"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "standar-mutu", "{{standar_mutu_id}}"]
                 }
               },
               "event": [
@@ -1197,14 +1091,8 @@
                 ],
                 "url": {
                   "raw": "{{base_url}}/master/standar-mutu/{{standar_mutu_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "standar-mutu",
-                    "{{standar_mutu_id}}"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "standar-mutu", "{{standar_mutu_id}}"]
                 }
               },
               "event": [
@@ -1223,209 +1111,10 @@
           ]
         },
         {
-          "name": "Jenis Bukti",
-          "item": [
-            {
-              "name": "5.1 GET Semua Jenis Bukti",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/master/jenis-bukti",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "jenis-bukti"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "5.2 POST Tambah Jenis Bukti",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"nama_jenis_bukti\": \"Sertifikat Akreditasi Internasional\"\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/master/jenis-bukti",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "jenis-bukti"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
-                      "var res = pm.response.json();",
-                      "if (res.data && res.data.id) { pm.environment.set('jenis_bukti_id', res.data.id); }"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "5.3 GET Detail Jenis Bukti",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/master/jenis-bukti/{{jenis_bukti_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "jenis-bukti",
-                    "{{jenis_bukti_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "5.4 PUT Update Jenis Bukti",
-              "request": {
-                "method": "PUT",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"nama_jenis_bukti\": \"Sertifikat Akreditasi Internasional (IABEE/ASIIN)\"\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/master/jenis-bukti/{{jenis_bukti_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "jenis-bukti",
-                    "{{jenis_bukti_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "5.5 DELETE Jenis Bukti",
-              "request": {
-                "method": "DELETE",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/master/jenis-bukti/{{jenis_bukti_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "jenis-bukti",
-                    "{{jenis_bukti_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.environment.set('jenis_bukti_id', '1');"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        {
           "name": "Jenis Pembiayaan",
           "item": [
             {
-              "name": "6.1 GET Semua Jenis Pembiayaan",
+              "name": "5.1 GET Semua Jenis Pembiayaan",
               "request": {
                 "method": "GET",
                 "header": [
@@ -1437,13 +1126,8 @@
                 ],
                 "url": {
                   "raw": "{{base_url}}/master/jenis-pembiayaan",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "jenis-pembiayaan"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "jenis-pembiayaan"]
                 }
               },
               "event": [
@@ -1459,7 +1143,7 @@
               ]
             },
             {
-              "name": "6.2 POST Tambah Jenis Pembiayaan",
+              "name": "5.2 POST Tambah Jenis Pembiayaan",
               "request": {
                 "method": "POST",
                 "header": [
@@ -1476,17 +1160,12 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"nama_pembiayaan\": \"Biaya Sarana dan Prasarana TI\"\n}"
+                  "raw": "{\n  \"nama_pembiayaan\": \"Biaya Inovasi dan Pengabdian Masyarakat\"\n}"
                 },
                 "url": {
                   "raw": "{{base_url}}/master/jenis-pembiayaan",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "jenis-pembiayaan"
-                  ]
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "jenis-pembiayaan"]
                 }
               },
               "event": [
@@ -1496,122 +1175,7 @@
                     "exec": [
                       "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
                       "var res = pm.response.json();",
-                      "if (res.data && res.data.id) { pm.environment.set('jenis_pembiayaan_id', res.data.id); }"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "6.3 GET Detail Jenis Pembiayaan",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/master/jenis-pembiayaan/{{jenis_pembiayaan_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "jenis-pembiayaan",
-                    "{{jenis_pembiayaan_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "6.4 PUT Update Jenis Pembiayaan",
-              "request": {
-                "method": "PUT",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"nama_pembiayaan\": \"Biaya Investasi dan Sarana Prasarana Laboratorium\"\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/master/jenis-pembiayaan/{{jenis_pembiayaan_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "jenis-pembiayaan",
-                    "{{jenis_pembiayaan_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "6.5 DELETE Jenis Pembiayaan",
-              "request": {
-                "method": "DELETE",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/master/jenis-pembiayaan/{{jenis_pembiayaan_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "jenis-pembiayaan",
-                    "{{jenis_pembiayaan_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.environment.set('jenis_pembiayaan_id', '1');"
+                      "if (res.data && res.data.id) { pm.environment.set('pembiayaan_id', res.data.id); }"
                     ],
                     "type": "text/javascript"
                   }
@@ -1623,13 +1187,13 @@
       ]
     },
     {
-      "name": "2. Akreditasi",
+      "name": "2. Akreditasi Project",
       "item": [
         {
-          "name": "Projects",
+          "name": "Project Akreditasi",
           "item": [
             {
-              "name": "7.1 GET Semua Project",
+              "name": "2.1 GET Semua Project",
               "request": {
                 "method": "GET",
                 "header": [
@@ -1640,13 +1204,9 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{base_url}}/projects",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "projects"
-                  ]
+                  "raw": "{{base_url}}/akreditasi/project-akreditasi",
+                  "host": ["{{base_url}}"],
+                  "path": ["akreditasi", "project-akreditasi"]
                 }
               },
               "event": [
@@ -1662,7 +1222,7 @@
               ]
             },
             {
-              "name": "7.2 POST Buat Project Akreditasi",
+              "name": "2.2 POST Buat Project Baru",
               "request": {
                 "method": "POST",
                 "header": [
@@ -1679,16 +1239,12 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id_prodi\": \"{{prodi_id}}\",\n  \"id_versi_instrumen\": \"{{versi_id}}\",\n  \"id_jenjang\": \"{{jenjang_id}}\",\n  \"id_jenis_instrumen\": \"{{jenis_instrumen_id}}\",\n  \"nama_project\": \"Akreditasi Program Studi S1 Teknik Informatika 2026\",\n  \"tahun_target_submit\": 2026,\n  \"status_project\": \"Draft\"\n}"
+                  "raw": "{\n  \"id_prodi\": 101,\n  \"id_versi_instrumen\": 1,\n  \"id_jenjang\": 1,\n  \"id_jenis_instrumen\": 1,\n  \"nama_project\": \"Akreditasi S1 Teknik Informatika 2026\",\n  \"tahun_target_submit\": 2026,\n  \"status_project\": \"Draft\"\n}"
                 },
                 "url": {
-                  "raw": "{{base_url}}/projects",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "projects"
-                  ]
+                  "raw": "{{base_url}}/akreditasi/project-akreditasi",
+                  "host": ["{{base_url}}"],
+                  "path": ["akreditasi", "project-akreditasi"]
                 }
               },
               "event": [
@@ -1698,7 +1254,6 @@
                     "exec": [
                       "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
                       "var res = pm.response.json();",
-                      "pm.test('Project created', function () { pm.expect(res.data.id).to.exist; });",
                       "if (res.data && res.data.id) { pm.environment.set('project_id', res.data.id); }"
                     ],
                     "type": "text/javascript"
@@ -1707,510 +1262,7 @@
               ]
             },
             {
-              "name": "7.3 GET Detail Project",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/projects/{{project_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "projects",
-                    "{{project_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "7.4 PUT Update Project",
-              "request": {
-                "method": "PUT",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"status_project\": \"In Progress\"\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/projects/{{project_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "projects",
-                    "{{project_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Status is In Progress', function () { pm.expect(pm.response.json().data.status_project).to.eql('In Progress'); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "7.5 POST Mapping Tim Akreditasi (Batch/Single)",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"assignments\": [\n    {\n      \"id_user\": \"{{user_id}}\",\n      \"id_indikator\": \"{{indikator_id}}\"\n    },\n    {\n      \"id_user\": 102,\n      \"id_indikator\": \"{{indikator_id}}\"\n    }\n  ]\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/projects/{{project_id}}/mapping-tim",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "projects",
-                    "{{project_id}}",
-                    "mapping-tim"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
-                      "pm.test('Assignments saved', function () { pm.expect(pm.response.json().data.length).to.be.greaterThan(0); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Lembar Prodi",
-          "item": [
-            {
-              "name": "8.1 GET List Lembar Prodi",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/lembar-prodi?id_project={{project_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "lembar-prodi"
-                  ],
-                  "query": [
-                    {
-                      "key": "id_project",
-                      "value": "{{project_id}}",
-                      "description": "Filter per project"
-                    }
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "8.2 POST Simpan / Update Lembar Prodi",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"id_project\": \"{{project_id}}\",\n  \"id_indikator\": \"{{indikator_id}}\",\n  \"penjelasan_prodi\": \"Program Studi Teknik Informatika telah menyelaraskan VMTS dengan fakultas dan universitas sejak tahun 2023 dengan melibatkan para pemangku kepentingan (stakeholder) dan alumni.\"\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/lembar-prodi",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "lembar-prodi"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "var res = pm.response.json();",
-                      "if (res.data && res.data.id) { pm.environment.set('lembar_prodi_id', res.data.id); }"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "8.3 PUT Update Penjelasan Lembar Prodi",
-              "request": {
-                "method": "PUT",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"id_project\": \"{{project_id}}\",\n  \"id_indikator\": \"{{indikator_id}}\",\n  \"penjelasan_prodi\": \"Penjelasan prodi telah diperbarui dengan melampirkan daftar hadir sosialisasi VMTS semester ganjil.\"\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/lembar-prodi",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "lembar-prodi"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "8.4 GET Detail Lembar Prodi",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/lembar-prodi/{{lembar_prodi_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "lembar-prodi",
-                    "{{lembar_prodi_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Bukti Dokumen",
-          "item": [
-            {
-              "name": "9.1 GET Semua Bukti",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/bukti?id_lembar_prodi={{lembar_prodi_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "bukti"
-                  ],
-                  "query": [
-                    {
-                      "key": "id_lembar_prodi",
-                      "value": "{{lembar_prodi_id}}",
-                      "description": "Filter per lembar prodi"
-                    }
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "9.2 POST Simpan Tautan Berkas Bukti",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"id_lembar_prodi\": \"{{lembar_prodi_id}}\",\n  \"id_jenis_bukti\": \"{{jenis_bukti_id}}\",\n  \"deskripsi_bukti\": \"Dokumen SK Dekan tentang Penetapan VMTS Program Studi 2024\",\n  \"link_bukti\": \"https://storage.example.ac.id/bukti/SK_Dekan_Penetapan_VMTS_2024.pdf\",\n  \"masa_berlaku\": \"2028-12-31\",\n  \"status_validasi\": \"Pending\"\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/bukti",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "bukti"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
-                      "var res = pm.response.json();",
-                      "pm.test('Success is true', function () { pm.expect(res.success).to.eql(true); });",
-                      "if (res.data && res.data.id) { pm.environment.set('bukti_id', res.data.id); }"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "9.3 GET Detail Bukti (File URL)",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/bukti/{{bukti_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "bukti",
-                    "{{bukti_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Link bukti exists', function () { pm.expect(pm.response.json().data.link_bukti).to.exist; });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "9.4 PUT Update Status Validasi Bukti",
-              "request": {
-                "method": "PUT",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"status_validasi\": \"Approved\"\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/bukti/{{bukti_id}}/status",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "bukti",
-                    "{{bukti_id}}",
-                    "status"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Status validasi Approved', function () { pm.expect(pm.response.json().data.status_validasi).to.eql('Approved'); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "9.5 PATCH Update Status Validasi Bukti",
-              "request": {
-                "method": "PATCH",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"status_validasi\": \"Revision\"\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/bukti/{{bukti_id}}/status",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "bukti",
-                    "{{bukti_id}}",
-                    "status"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Status validasi Revision', function () { pm.expect(pm.response.json().data.status_validasi).to.eql('Revision'); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "9.6 DELETE Berkas Bukti",
+              "name": "2.3 DELETE Project",
               "request": {
                 "method": "DELETE",
                 "header": [
@@ -2221,14 +1273,9 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{base_url}}/bukti/{{bukti_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "bukti",
-                    "{{bukti_id}}"
-                  ]
+                  "raw": "{{base_url}}/akreditasi/project-akreditasi/{{project_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["akreditasi", "project-akreditasi", "{{project_id}}"]
                 }
               },
               "event": [
@@ -2237,950 +1284,13 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Bukti berhasil dihapus', function () { pm.expect(pm.response.json().success).to.eql(true); });",
-                      "pm.environment.set('bukti_id', '1');"
+                      "pm.test('Project berhasil dihapus', function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                      "pm.environment.set('project_id', '1');"
                     ],
                     "type": "text/javascript"
                   }
                 }
               ]
-            }
-          ]
-        },
-        {
-          "name": "Self Assessment (Reviewer)",
-          "item": [
-            {
-              "name": "10.1 GET List Self Assessment",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/self-assessment?id_project={{project_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "self-assessment"
-                  ],
-                  "query": [
-                    {
-                      "key": "id_project",
-                      "value": "{{project_id}}",
-                      "description": "Filter per project"
-                    }
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "10.2 POST Simpan Penilaian & Hitung Skor Terbobot Otomatis",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"id_project\": \"{{project_id}}\",\n  \"id_indikator\": \"{{indikator_id}}\",\n  \"id_rubrik\": \"{{rubrik_id}}\",\n  \"catatan_reviewer\": \"Dokumen VMTS prodi sangat lengkap, bukti sosialisasi dan SK penetapan terlampir dengan jelas.\",\n  \"asesor_id\": 201,\n  \"reviewer_id\": 301\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/self-assessment",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "self-assessment"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "var res = pm.response.json();",
-                      "pm.test('Skor terbobot terhitung otomatis', function () { pm.expect(parseFloat(res.data.skor_terbobot)).to.be.greaterThan(0); });",
-                      "if (res.data && res.data.id) { pm.environment.set('self_assessment_id', res.data.id); }"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "10.3 GET Detail Self Assessment",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/self-assessment/{{self_assessment_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "self-assessment",
-                    "{{self_assessment_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "10.4 DELETE Self Assessment",
-              "request": {
-                "method": "DELETE",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/self-assessment/{{self_assessment_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "self-assessment",
-                    "{{self_assessment_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.environment.set('self_assessment_id', '1');"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "3. SPMI & Audit",
-      "item": [
-        {
-          "name": "11.1 GET List Audit SPMI",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/spmi-audit?id_project={{project_id}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "spmi-audit"
-              ],
-              "query": [
-                {
-                  "key": "id_project",
-                  "value": "{{project_id}}",
-                  "description": "Filter per project"
-                }
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "11.2 POST Tambah Temuan Audit SPMI",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id_project\": \"{{project_id}}\",\n  \"id_standar\": \"{{standar_mutu_id}}\",\n  \"id_indikator\": \"{{indikator_id}}\",\n  \"jenis_kegiatan\": \"AMI\",\n  \"tanggal_pelaksanaan\": \"2026-03-15\",\n  \"tahun_audit\": 2026,\n  \"temuan\": \"Mekanisme survei pemahaman VMTS pada mahasiswa baru belum dilakukan secara terpusat.\",\n  \"status_penyelesaian\": \"Open\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/spmi-audit",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "spmi-audit"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
-                  "var res = pm.response.json();",
-                  "if (res.data && res.data.id) { pm.environment.set('spmi_audit_id', res.data.id); }"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "11.3 GET Detail Temuan Audit SPMI",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/spmi-audit/{{spmi_audit_id}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "spmi-audit",
-                "{{spmi_audit_id}}"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "11.4 PUT Update Temuan Audit SPMI",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"temuan\": \"Mekanisme survei pemahaman VMTS pada mahasiswa baru belum dilakukan secara terpusat (Diperbarui)\",\n  \"status_penyelesaian\": \"In Progress\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/spmi-audit/{{spmi_audit_id}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "spmi-audit",
-                "{{spmi_audit_id}}"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "11.5 PUT Update Khusus Tindak Lanjut Temuan Audit",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"tindak_lanjut\": \"Unit Penjaminan Mutu telah mengintegrasikan formulir kuesioner ke portal akademik mahasiswa.\",\n  \"status_penyelesaian\": \"Resolved\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/spmi-audit/{{spmi_audit_id}}/tindak-lanjut",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "spmi-audit",
-                "{{spmi_audit_id}}",
-                "tindak-lanjut"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('Tindak lanjut terisi', function () { pm.expect(pm.response.json().data.tindak_lanjut).to.include('portal akademik'); });"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "11.6 PATCH Update Khusus Tindak Lanjut Temuan Audit",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"tindak_lanjut\": \"Telah dilakukan monitoring berkala terhadap pengisian kuesioner di portal.\",\n  \"status_penyelesaian\": \"Closed\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/spmi-audit/{{spmi_audit_id}}/tindak-lanjut",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "spmi-audit",
-                "{{spmi_audit_id}}",
-                "tindak-lanjut"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('Status Closed', function () { pm.expect(pm.response.json().data.status_penyelesaian).to.eql('Closed'); });"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "11.7 DELETE Temuan Audit SPMI",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/spmi-audit/{{spmi_audit_id}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "spmi-audit",
-                "{{spmi_audit_id}}"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                  "pm.environment.set('spmi_audit_id', '1');"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "4. Sarana & Prasarana",
-      "item": [
-        {
-          "name": "Prasarana Prodi (Sarpras)",
-          "item": [
-            {
-              "name": "12.1 GET Semua Prasarana Prodi",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/sarpras-prodi?id_project={{project_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "sarpras-prodi"
-                  ],
-                  "query": [
-                    {
-                      "key": "id_project",
-                      "value": "{{project_id}}",
-                      "description": "Filter per project"
-                    }
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "12.2 POST Tambah Data Prasarana Prodi",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"id_project\": \"{{project_id}}\",\n  \"kapasitas\": 50,\n  \"keterangan\": \"Laboratorium Rekayasa Perangkat Lunak dan Jaringan\"\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/sarpras-prodi",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "sarpras-prodi"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
-                      "var res = pm.response.json();",
-                      "if (res.data && res.data.id) { pm.environment.set('sarpras_prodi_id', res.data.id); }"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "12.3 GET Detail Prasarana Prodi",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/sarpras-prodi/{{sarpras_prodi_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "sarpras-prodi",
-                    "{{sarpras_prodi_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Data prasarana returned', function () { pm.expect(pm.response.json().data.id).to.exist; });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "12.4 PUT Update Prasarana Prodi",
-              "request": {
-                "method": "PUT",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"kapasitas\": 60,\n  \"keterangan\": \"Laboratorium Rekayasa Perangkat Lunak dan Cloud Computing (Diperbarui)\"\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/sarpras-prodi/{{sarpras_prodi_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "sarpras-prodi",
-                    "{{sarpras_prodi_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Kapasitas updated', function () { pm.expect(pm.response.json().data.kapasitas).to.eql(60); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Sarana Prodi",
-          "item": [
-            {
-              "name": "13.1 GET Semua Sarana Prodi",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/sarana-prodi?id_prasarana={{sarpras_prodi_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "sarana-prodi"
-                  ],
-                  "query": [
-                    {
-                      "key": "id_prasarana",
-                      "value": "{{sarpras_prodi_id}}",
-                      "description": "Filter per prasarana"
-                    }
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "13.2 POST Tambah Data Sarana Prodi",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"id_prasarana\": \"{{sarpras_prodi_id}}\",\n  \"jumlah_unit\": 45,\n  \"kondisi\": \"Sangat Baik\",\n  \"keterangan\": \"Unit PC Core i7 RAM 32GB SSD 1TB\"\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/sarana-prodi",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "sarana-prodi"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
-                      "var res = pm.response.json();",
-                      "if (res.data && res.data.id) { pm.environment.set('sarana_prodi_id', res.data.id); }"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "13.3 GET Detail Sarana Prodi",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/sarana-prodi/{{sarana_prodi_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "sarana-prodi",
-                    "{{sarana_prodi_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "13.4 PUT Update Sarana Prodi",
-              "request": {
-                "method": "PUT",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"jumlah_unit\": 50,\n  \"kondisi\": \"Sangat Baik\",\n  \"keterangan\": \"Unit PC Core i7 RAM 32GB SSD 1TB (Penambahan 5 Unit)\"\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/sarana-prodi/{{sarana_prodi_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "sarana-prodi",
-                    "{{sarana_prodi_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Jumlah unit updated', function () { pm.expect(pm.response.json().data.jumlah_unit).to.eql(50); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "13.5 DELETE Sarana Prodi",
-              "request": {
-                "method": "DELETE",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/sarana-prodi/{{sarana_prodi_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "sarana-prodi",
-                    "{{sarana_prodi_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.environment.set('sarana_prodi_id', '1');"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "13.6 DELETE Prasarana Prodi",
-              "request": {
-                "method": "DELETE",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/sarpras-prodi/{{sarpras_prodi_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "sarpras-prodi",
-                    "{{sarpras_prodi_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.environment.set('sarpras_prodi_id', '1');"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "5. Clean Up / Hapus Data Uji",
-      "item": [
-        {
-          "name": "14.1 DELETE Lembar Kerja Prodi",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/lembar-prodi/{{lembar_prodi_id}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "lembar-prodi",
-                "{{lembar_prodi_id}}"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('Lembar prodi berhasil dihapus', function () { pm.expect(pm.response.json().success).to.eql(true); });",
-                  "pm.environment.set('lembar_prodi_id', '1');"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "14.2 DELETE Project Akreditasi",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/projects/{{project_id}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "projects",
-                "{{project_id}}"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('Project berhasil dihapus', function () { pm.expect(pm.response.json().success).to.eql(true); });",
-                  "pm.environment.set('project_id', '1');"
-                ],
-                "type": "text/javascript"
-              }
             }
           ]
         }

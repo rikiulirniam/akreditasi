@@ -35,25 +35,16 @@ class DataSpmiAudit extends Model
         ];
     }
 
-    /**
-     * Relasi ke Project Akreditasi.
-     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(ProjectAkreditasi::class, 'id_project');
     }
 
-    /**
-     * Relasi ke Standar Mutu yang diaudit.
-     */
     public function standarMutu(): BelongsTo
     {
         return $this->belongsTo(StandarMutu::class, 'id_standar');
     }
 
-    /**
-     * Relasi ke Indikator terkait audit SPMI (opsional).
-     */
     public function indikator(): BelongsTo
     {
         return $this->belongsTo(Indikator::class, 'id_indikator');

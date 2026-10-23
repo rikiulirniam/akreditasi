@@ -21,18 +21,6 @@
       "enabled": true
     },
     {
-      "key": "subkriteria_id",
-      "value": "1",
-      "type": "default",
-      "enabled": true
-    },
-    {
-      "key": "prodi_id",
-      "value": "1",
-      "type": "default",
-      "enabled": true
-    },
-    {
       "key": "jenjang_id",
       "value": "1",
       "type": "default",
@@ -45,7 +33,19 @@
       "enabled": true
     },
     {
+      "key": "instrumen_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
       "key": "kriteria_id",
+      "value": "1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "subkriteria_id",
       "value": "1",
       "type": "default",
       "enabled": true
@@ -69,12 +69,6 @@
       "enabled": true
     },
     {
-      "key": "jenis_bukti_id",
-      "value": "1",
-      "type": "default",
-      "enabled": true
-    },
-    {
       "key": "jenis_pembiayaan_id",
       "value": "1",
       "type": "default",
@@ -82,18 +76,6 @@
     },
     {
       "key": "project_id",
-      "value": "1",
-      "type": "default",
-      "enabled": true
-    },
-    {
-      "key": "lembar_prodi_id",
-      "value": "1",
-      "type": "default",
-      "enabled": true
-    },
-    {
-      "key": "bukti_id",
       "value": "1",
       "type": "default",
       "enabled": true
@@ -119,6 +101,12 @@
     {
       "key": "sarana_prodi_id",
       "value": "1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "prodi_id",
+      "value": "101",
       "type": "default",
       "enabled": true
     },

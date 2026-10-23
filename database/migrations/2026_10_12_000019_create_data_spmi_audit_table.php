@@ -13,10 +13,15 @@ return new class extends Migration
     {
         Schema::create('data_spmi_audit', function (Blueprint $table) {
             $table->id();
+
+            // Relasi ke project lokal dan master lokal
             $table->foreignId('id_project')->constrained('project_akreditasi')->cascadeOnDelete();
             $table->foreignId('id_standar')->constrained('standar_mutu')->cascadeOnDelete();
             $table->foreignId('id_indikator')->nullable()->constrained('indikator')->nullOnDelete();
-            $table->enum('jenis_kegiatan', ['PPEPP', 'AMI', 'RTM']);
+
+            // Ditambahkan nullable() agar sesuai dengan aturan validation request
+            $table->enum('jenis_kegiatan', ['PPEPP', 'AMI', 'RTM'])->nullable();
+
             $table->date('tanggal_pelaksanaan');
             $table->year('tahun_audit');
             $table->text('temuan')->nullable();

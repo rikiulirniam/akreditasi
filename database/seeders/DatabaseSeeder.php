@@ -6,13 +6,12 @@ use App\Models\Bobot;
 use App\Models\DataSaranaProdi;
 use App\Models\DataSarprasProdi;
 use App\Models\Indikator;
-use App\Models\JenisBukti;
+use App\Models\Instrumen;
 use App\Models\JenisInstrumen;
 use App\Models\JenisPembiayaan;
 use App\Models\Jenjang;
 use App\Models\Kriteria;
 use App\Models\LembagaAkreditasi;
-use App\Models\Prodi;
 use App\Models\ProjectAkreditasi;
 use App\Models\Rubrik;
 use App\Models\StandarMutu;
@@ -27,17 +26,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Data Master Prodi
-        $prodi = Prodi::firstOrCreate(
-            ['kode_prodi' => 'IF-S1'],
-            [
-                'id_upps' => null,
-                'nama_prodi' => 'Teknik Informatika (S1)',
-                'akreditasi' => 'Unggul',
-            ]
-        );
-
-        // 2. Lembaga Akreditasi & Versi Instrumen
+        // 1. Lembaga Akreditasi & Versi Instrumen
         $lembaga = LembagaAkreditasi::firstOrCreate(
             ['nama_lembaga' => 'LAM-INFOKOM'],
             ['keterangan' => 'Lembaga Akreditasi Mandiri Informatika dan Komputer']
@@ -51,13 +40,20 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 3. Jenjang & Jenis Instrumen
+        // 2. Jenjang & Jenis Instrumen
         $jenjang = Jenjang::firstOrCreate(['nama_jenjang' => 'S1']);
         $jenisInstrumen = JenisInstrumen::firstOrCreate(['nama_jenis' => 'Akreditasi Program Studi (APS)']);
 
-        // 4. Struktur Kriteria, Subkriteria, Indikator
+        // 3. Central Bridge: Instrumen (UUID) - Disesuaikan dengan migrasi
+        $instrumen = Instrumen::firstOrCreate([
+            'id_versi_instrumen' => $versi->id,
+            'id_jenjang'         => $jenjang->id,
+            'id_jenis_instrumen' => $jenisInstrumen->id,
+        ]);
+
+        // 4. Struktur Kriteria, Subkriteria, Indikator (Terkoneksi ke Instrumen)
         $kriteria = Kriteria::firstOrCreate(
-            ['kode_kriteria' => 'K-1', 'id_versi_instrumen' => $versi->id],
+            ['kode_kriteria' => 'K-1', 'id_instrumen' => $instrumen->id],
             ['nama_kriteria' => 'Visi, Misi, Tujuan, dan Strategi']
         );
 
@@ -94,7 +90,7 @@ class DatabaseSeeder extends Seeder
             ['nilai_bobot' => 3.50]
         );
 
-        // 6. Standar Mutu, Jenis Bukti, & Jenis Pembiayaan
+        // 6. Standar Mutu & Jenis Pembiayaan (Pending Module)
         StandarMutu::firstOrCreate(
             ['kode_standar' => 'STD-VMTS-01'],
             [
@@ -103,14 +99,23 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        JenisBukti::firstOrCreate(['nama_jenis_bukti' => 'Surat Keputusan (SK)']);
-        JenisBukti::firstOrCreate(['nama_jenis_bukti' => 'Laporan Evaluasi Diri (LED)']);
-
         JenisPembiayaan::firstOrCreate(['nama_pembiayaan' => 'Biaya Operasional Pendidikan']);
         JenisPembiayaan::firstOrCreate(['nama_pembiayaan' => 'Biaya Penelitian dan Pengabdian']);
 
-        // 7. Contoh Data Sarpras & Sarana (1-to-many)
-        $project = ProjectAkreditasi::first();
+        // 7. Project Akreditasi (Gunakan ID Prodi Dummy tanpa Model Prodi)
+        $project = ProjectAkreditasi::firstOrCreate(
+            ['nama_project' => 'Akreditasi S1 Teknik Informatika 2026'],
+            [
+                'id_prodi' => 101, // Simulasi ID Prodi dari API Kelompok 2
+                'id_versi_instrumen' => $versi->id,
+                'id_jenjang' => $jenjang->id,
+                'id_jenis_instrumen' => $jenisInstrumen->id,
+                'tahun_target_submit' => 2026,
+                'status_project' => 'Draft',
+            ]
+        );
+
+        // 8. Contoh Data Sarpras & Sarana (1-to-many)
         if ($project) {
             $prasarana = DataSarprasProdi::firstOrCreate(
                 ['id_project' => $project->id, 'keterangan' => 'Laboratorium Komputer Lanjut'],
