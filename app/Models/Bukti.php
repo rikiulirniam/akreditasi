@@ -15,8 +15,8 @@ class Bukti extends Model
     protected $fillable = [
         'id_lembar_prodi',
         'id_jenis_bukti',
-        'nama_file',
-        'file_path',
+        'deskripsi_bukti',
+        'link_bukti',
         'tanggal_up',
         'masa_berlaku',
         'status_validasi',

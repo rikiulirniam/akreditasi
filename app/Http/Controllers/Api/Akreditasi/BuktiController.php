@@ -10,7 +10,6 @@ use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
 
 class BuktiController extends Controller
 {
@@ -34,21 +33,17 @@ class BuktiController extends Controller
     }
 
     /**
-     * Upload berkas bukti ke storage Laravel dan simpan data record ke database.
+     * Menyimpan data tautan/link bukti ke database.
      */
     public function store(StoreBuktiRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        $uploadedFile = $request->file('file');
-
-        $originalName = $validated['nama_file'] ?? $uploadedFile->getClientOriginalName();
-        $storedPath = $uploadedFile->store('bukti', 'public');
 
         $bukti = Bukti::create([
             'id_lembar_prodi' => $validated['id_lembar_prodi'],
             'id_jenis_bukti' => $validated['id_jenis_bukti'],
-            'nama_file' => $originalName,
-            'file_path' => $storedPath,
+            'deskripsi_bukti' => $validated['deskripsi_bukti'] ?? null,
+            'link_bukti' => $validated['link_bukti'],
             'tanggal_up' => Carbon::now(),
             'masa_berlaku' => $validated['masa_berlaku'] ?? null,
             'status_validasi' => $validated['status_validasi'] ?? 'Pending',
@@ -56,7 +51,7 @@ class BuktiController extends Controller
 
         $bukti->load(['lembarProdi', 'jenisBukti']);
 
-        return $this->successResponse($bukti, 'Berkas bukti berhasil diunggah', 201);
+        return $this->successResponse($bukti, 'Data bukti berhasil ditambahkan', 201);
     }
 
     public function show(int $id): JsonResponse
@@ -67,10 +62,7 @@ class BuktiController extends Controller
             return $this->errorResponse('Berkas bukti tidak ditemukan', null, 404);
         }
 
-        $buktiArray = $bukti->toArray();
-        $buktiArray['file_url'] = Storage::disk('public')->url($bukti->file_path);
-
-        return $this->successResponse($buktiArray, 'Detail berkas bukti berhasil diambil');
+        return $this->successResponse($bukti, 'Detail berkas bukti berhasil diambil');
     }
 
     /**
@@ -105,10 +97,6 @@ class BuktiController extends Controller
 
         if (! $bukti) {
             return $this->errorResponse('Berkas bukti tidak ditemukan', null, 404);
-        }
-
-        if (Storage::disk('public')->exists($bukti->file_path)) {
-            Storage::disk('public')->delete($bukti->file_path);
         }
 
         $bukti->delete();

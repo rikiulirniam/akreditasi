@@ -1,5 +1,5 @@
 {
-  "id": "c1f7b82e-9d21-4f11-8be3-akreditasi-env",
+  "id": "c1f7b82e-9d21-4f11-8be3-9b2e4f118be3",
   "name": "Akreditasi & SPMI API Environment",
   "values": [
     {
@@ -39,12 +39,6 @@
       "enabled": true
     },
     {
-      "key": "jenis_bukti_id",
-      "value": "1",
-      "type": "default",
-      "enabled": true
-    },
-    {
       "key": "kriteria_id",
       "value": "1",
       "type": "default",
@@ -64,6 +58,12 @@
     },
     {
       "key": "standar_mutu_id",
+      "value": "1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "jenis_bukti_id",
       "value": "1",
       "type": "default",
       "enabled": true
@@ -103,8 +103,26 @@
       "value": "1",
       "type": "default",
       "enabled": true
+    },
+    {
+      "key": "sarpras_prodi_id",
+      "value": "1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "sarana_prodi_id",
+      "value": "1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_id",
+      "value": "1",
+      "type": "default",
+      "enabled": true
     }
   ],
   "_postman_variable_scope": "environment",
-  "_postman_exported_using": "Postman/10.0.0"
+  "_postman_exported_using": "Postman/11.0.0"
 }
