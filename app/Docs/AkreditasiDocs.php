@@ -12,14 +12,10 @@ class AkreditasiDocs
     #[OA\Get(
         path: '/projects',
         summary: 'Mendapatkan daftar project akreditasi',
-        description: 'Menampilkan list project akreditasi dengan filter id_prodi dan status.',
+        description: 'Menampilkan list project akreditasi.',
         tags: ['Akreditasi - Project'],
-        parameters: [
-            new OA\Parameter(name: 'id_prodi', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Prodi'),
-            new OA\Parameter(name: 'status', in: 'query', required: false, schema: new OA\Schema(type: 'string'), description: 'Filter berdasarkan status project')
-        ],
         responses: [
-            new OA\Response(response: 200, description: 'Berhasil memuat daftar project akreditasi', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess'))
+            new OA\Response(response: 200, description: 'Berhasil memuat daftar project akreditasi', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess')),
         ]
     )]
     #[OA\Post(
@@ -29,21 +25,21 @@ class AkreditasiDocs
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['id_prodi', 'id_versi_instrumen', 'id_jenjang', 'id_jenis_instrumen', 'tahun_akreditasi', 'status'],
+                required: ['id_prodi', 'id_versi_instrumen', 'id_jenjang', 'id_jenis_instrumen', 'nama_project', 'tahun_target_submit'],
                 properties: [
-                    new OA\Property(property: 'id_prodi', type: 'integer', example: 1),
-                    new OA\Property(property: 'id_versi_instrumen', type: 'integer', example: 1),
-                    new OA\Property(property: 'id_jenjang', type: 'integer', example: 1),
-                    new OA\Property(property: 'id_jenis_instrumen', type: 'integer', example: 1),
-                    new OA\Property(property: 'tahun_akreditasi', type: 'string', example: '2026/2027'),
-                    new OA\Property(property: 'status', type: 'string', example: 'draft'),
-                    new OA\Property(property: 'target_peringkat', type: 'string', example: 'Unggul', nullable: true)
+                    new OA\Property(property: 'id_prodi', type: 'integer', example: 1, description: 'ID Program Studi'),
+                    new OA\Property(property: 'id_versi_instrumen', type: 'integer', example: 1, description: 'ID Versi Instrumen'),
+                    new OA\Property(property: 'id_jenjang', type: 'integer', example: 1, description: 'ID Jenjang'),
+                    new OA\Property(property: 'id_jenis_instrumen', type: 'integer', example: 1, description: 'ID Jenis Instrumen'),
+                    new OA\Property(property: 'nama_project', type: 'string', example: 'Akreditasi Program Studi D4 Rekayasa Perangkat Lunak 2026'),
+                    new OA\Property(property: 'tahun_target_submit', type: 'integer', example: 2026, description: 'Tahun target submit berkas akreditasi (4 digit)'),
+                    new OA\Property(property: 'status_project', type: 'string', example: 'draft', nullable: true, description: 'Status project (misal: draft, pengisian, review, submit)'),
                 ]
             )
         ),
         responses: [
             new OA\Response(response: 201, description: 'Project akreditasi berhasil dibuat', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError'))
+            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
         ]
     )]
     #[OA\Get(
@@ -51,11 +47,11 @@ class AkreditasiDocs
         summary: 'Mendapatkan detail project akreditasi',
         tags: ['Akreditasi - Project'],
         parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
             new OA\Response(response: 200, description: 'Detail project berhasil dimuat', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound'))
+            new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
     #[OA\Put(
@@ -63,27 +59,26 @@ class AkreditasiDocs
         summary: 'Memperbarui project akreditasi',
         tags: ['Akreditasi - Project'],
         parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['id_prodi', 'id_versi_instrumen', 'id_jenjang', 'id_jenis_instrumen', 'tahun_akreditasi', 'status'],
                 properties: [
                     new OA\Property(property: 'id_prodi', type: 'integer', example: 1),
                     new OA\Property(property: 'id_versi_instrumen', type: 'integer', example: 1),
                     new OA\Property(property: 'id_jenjang', type: 'integer', example: 1),
                     new OA\Property(property: 'id_jenis_instrumen', type: 'integer', example: 1),
-                    new OA\Property(property: 'tahun_akreditasi', type: 'string', example: '2026/2027'),
-                    new OA\Property(property: 'status', type: 'string', example: 'pengisian'),
-                    new OA\Property(property: 'target_peringkat', type: 'string', example: 'Baik Sekali', nullable: true)
+                    new OA\Property(property: 'nama_project', type: 'string', example: 'Akreditasi Program Studi D4 Rekayasa Perangkat Lunak 2026 (Updated)'),
+                    new OA\Property(property: 'tahun_target_submit', type: 'integer', example: 2026),
+                    new OA\Property(property: 'status_project', type: 'string', example: 'pengisian'),
                 ]
             )
         ),
         responses: [
             new OA\Response(response: 200, description: 'Project berhasil diperbarui', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
             new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
-            new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound'))
+            new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
     #[OA\Delete(
@@ -91,187 +86,185 @@ class AkreditasiDocs
         summary: 'Menghapus project akreditasi',
         tags: ['Akreditasi - Project'],
         parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
             new OA\Response(response: 200, description: 'Project berhasil dihapus', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound'))
+            new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
     #[OA\Post(
         path: '/projects/{id}/mapping-tim',
-        summary: 'Menyimpan pembagian tugas tim per indikator',
-        description: 'Menugaskan user (dosen/PIC) untuk mengisi indikator tertentu pada suatu project akreditasi.',
-        tags: ['Akreditasi - Project'],
+        summary: 'Menyimpan pembagian tugas tim per indikator untuk project tertentu',
+        description: 'Menugaskan user/dosen untuk indikator pada project akreditasi (mendukung format single assignment atau batch assignments).',
+        tags: ['Akreditasi - Mapping Tim'],
         parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi')
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
         ],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['id_user', 'id_indikator', 'role'],
                 properties: [
-                    new OA\Property(property: 'id_user', type: 'integer', example: 101, description: 'ID User / Dosen penyusun'),
-                    new OA\Property(property: 'id_indikator', type: 'integer', example: 1),
-                    new OA\Property(property: 'role', type: 'string', example: 'Penyusun', description: 'Peran dalam tim (Ketua / Penyusun / Reviewer)')
+                    new OA\Property(property: 'id_user', type: 'integer', example: 101, description: 'Diisi jika single penugasan'),
+                    new OA\Property(property: 'id_indikator', type: 'integer', example: 1, description: 'Diisi jika single penugasan'),
+                    new OA\Property(property: 'role', type: 'string', example: 'Penyusun', nullable: true),
+                    new OA\Property(
+                        property: 'assignments',
+                        type: 'array',
+                        description: 'Diisi jika batch penugasan sekaligus',
+                        items: new OA\Items(
+                            properties: [
+                                new OA\Property(property: 'id_user', type: 'integer', example: 101),
+                                new OA\Property(property: 'id_indikator', type: 'integer', example: 1),
+                                new OA\Property(property: 'role', type: 'string', example: 'Penyusun', nullable: true),
+                            ]
+                        )
+                    ),
                 ]
             )
         ),
         responses: [
-            new OA\Response(response: 200, description: 'Mapping tim berhasil disimpan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 201, description: 'Pembagian tugas tim akreditasi berhasil disimpan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
             new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
-            new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound'))
+            new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
     public function projectDocs() {}
 
     // ==========================================
-    // LEMBAR PRODI
+    // MAPPING TIM AKREDITASI
     // ==========================================
     #[OA\Get(
-        path: '/lembar-prodi',
-        summary: 'Mendapatkan narasi lembar prodi',
-        description: 'Mengambil catatan atau narasi lembar kerja prodi berdasarkan id_project dan id_indikator.',
-        tags: ['Akreditasi - Lembar Prodi'],
-        parameters: [
-            new OA\Parameter(name: 'id_project', in: 'query', required: true, schema: new OA\Schema(type: 'integer')),
-            new OA\Parameter(name: 'id_indikator', in: 'query', required: true, schema: new OA\Schema(type: 'integer'))
-        ],
+        path: '/mapping-tim',
+        summary: 'Mendapatkan daftar semua penugasan tim akreditasi',
+        description: 'Menampilkan list seluruh mapping penugasan tim beserta relasi project dan indikator.',
+        tags: ['Akreditasi - Mapping Tim'],
         responses: [
-            new OA\Response(response: 200, description: 'Lembar prodi berhasil dimuat', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 404, description: 'Lembar prodi belum diisi atau tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound'))
+            new OA\Response(response: 200, description: 'Daftar penugasan berhasil dimuat', content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'data', type: 'array', items: new OA\Items(type: 'object')),
+                ]
+            )),
         ]
     )]
     #[OA\Post(
-        path: '/lembar-prodi',
-        summary: 'Menyimpan atau memperbarui narasi lembar prodi',
-        description: 'Operator atau dosen mengisi narasi penjelasan prodi untuk indikator terkait.',
-        tags: ['Akreditasi - Lembar Prodi'],
+        path: '/mapping-tim',
+        summary: 'Menyimpan penugasan tim akreditasi',
+        description: 'Endpoint umum untuk menyimpan penugasan tim baik single record maupun batch array.',
+        tags: ['Akreditasi - Mapping Tim'],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['id_project', 'id_indikator', 'penjelasan_prodi'],
+                required: ['id_project'],
                 properties: [
                     new OA\Property(property: 'id_project', type: 'integer', example: 1),
-                    new OA\Property(property: 'id_indikator', type: 'integer', example: 1),
-                    new OA\Property(property: 'penjelasan_prodi', type: 'string', example: 'Program studi telah merumuskan visi keilmuan yang terintegrasi dengan rencana strategis fakultas.')
+                    new OA\Property(property: 'id_user', type: 'integer', example: 101, description: 'Wajib jika bukan batch assignments'),
+                    new OA\Property(property: 'id_indikator', type: 'integer', example: 1, description: 'Wajib jika bukan batch assignments'),
+                    new OA\Property(property: 'role', type: 'string', example: 'Penyusun', nullable: true),
+                    new OA\Property(
+                        property: 'assignments',
+                        type: 'array',
+                        items: new OA\Items(
+                            properties: [
+                                new OA\Property(property: 'id_user', type: 'integer', example: 101),
+                                new OA\Property(property: 'id_indikator', type: 'integer', example: 1),
+                                new OA\Property(property: 'role', type: 'string', example: 'Penyusun', nullable: true),
+                            ]
+                        )
+                    ),
                 ]
             )
         ),
         responses: [
-            new OA\Response(response: 200, description: 'Lembar prodi berhasil disimpan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError'))
-        ]
-    )]
-    public function lembarProdiDocs() {}
-
-    // ==========================================
-    // BUKTI DUKUNG
-    // ==========================================
-    #[OA\Post(
-        path: '/bukti',
-        summary: 'Upload berkas bukti dukung',
-        description: 'Mengunggah file bukti dokumen (pdf, doc, docx, xlsx, zip, jpg, png max 20MB) atau menyertakan tautan eksternal.',
-        tags: ['Akreditasi - Bukti'],
-        requestBody: new OA\RequestBody(
-            required: true,
-            content: new OA\MediaType(
-                mediaType: 'multipart/form-data',
-                schema: new OA\Schema(
-                    required: ['id_lembar_prodi', 'id_jenis_bukti', 'nama_bukti', 'uploaded_by'],
-                    properties: [
-                        new OA\Property(property: 'id_lembar_prodi', type: 'integer', example: 1),
-                        new OA\Property(property: 'id_jenis_bukti', type: 'integer', example: 1),
-                        new OA\Property(property: 'nama_bukti', type: 'string', example: 'SK Penetapan Visi Misi Prodi'),
-                        new OA\Property(property: 'file_dokumen', type: 'string', format: 'binary', description: 'File berkas fisik'),
-                        new OA\Property(property: 'tautan_eksternal', type: 'string', example: 'https://prodi.ac.id/dokumen/sk-visi-misi.pdf', nullable: true),
-                        new OA\Property(property: 'uploaded_by', type: 'integer', example: 101, description: 'ID User Pengunggah')
-                    ]
-                )
-            )
-        ),
-        responses: [
-            new OA\Response(response: 201, description: 'Bukti dukung berhasil diunggah', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError'))
-        ]
-    )]
-    #[OA\Put(
-        path: '/bukti/{id}/status',
-        summary: 'Memperbarui status validasi bukti',
-        description: 'Reviewer/asesor menyetujui, menolak, atau meminta revisi bukti dukung.',
-        tags: ['Akreditasi - Bukti'],
-        parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Berkas Bukti')
-        ],
-        requestBody: new OA\RequestBody(
-            required: true,
-            content: new OA\JsonContent(
-                required: ['status_validasi', 'validated_by'],
+            new OA\Response(response: 201, description: 'Penugasan berhasil disimpan', content: new OA\JsonContent(
                 properties: [
-                    new OA\Property(property: 'status_validasi', type: 'string', enum: ['Menunggu', 'Disetujui', 'Ditolak', 'Perlu Revisi'], example: 'Disetujui'),
-                    new OA\Property(property: 'catatan_validasi', type: 'string', example: 'Dokumen SK telah lengkap dan ditandatangani Dekan.', nullable: true),
-                    new OA\Property(property: 'validated_by', type: 'integer', example: 201, description: 'ID Asesor / Reviewer')
+                    new OA\Property(property: 'message', type: 'string', example: 'Penugasan berhasil disimpan'),
+                    new OA\Property(property: 'data', type: 'object'),
                 ]
-            )
-        ),
-        responses: [
-            new OA\Response(response: 200, description: 'Status validasi berhasil diperbarui', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            )),
             new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
-            new OA\Response(response: 404, description: 'Bukti tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound'))
         ]
     )]
     #[OA\Delete(
-        path: '/bukti/{id}',
-        summary: 'Menghapus berkas bukti',
-        description: 'Menghapus catatan bukti dan berkas fisik pada storage Laravel.',
-        tags: ['Akreditasi - Bukti'],
+        path: '/mapping-tim/{id}',
+        summary: 'Menghapus penugasan tim akreditasi',
+        tags: ['Akreditasi - Mapping Tim'],
         parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Penugasan Mapping Tim'),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'Berkas bukti berhasil dihapus', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 404, description: 'Bukti tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound'))
+            new OA\Response(response: 200, description: 'Penugasan berhasil dihapus', content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'message', type: 'string', example: 'Penugasan berhasil dihapus'),
+                ]
+            )),
+            new OA\Response(response: 404, description: 'Penugasan tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
-    public function buktiDocs() {}
+    public function mappingTimDocs() {}
 
     // ==========================================
     // SELF ASSESSMENT
     // ==========================================
+    #[OA\Get(
+        path: '/self-assessment',
+        summary: 'Mendapatkan daftar penilaian mandiri',
+        description: 'Menampilkan list penilaian mandiri dengan opsional filter id_project dan id_indikator.',
+        tags: ['Akreditasi - Self Assessment'],
+        parameters: [
+            new OA\Parameter(name: 'id_project', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Project'),
+            new OA\Parameter(name: 'id_indikator', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Indikator'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Berhasil memuat daftar self-assessment', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/self-assessment/{id}',
+        summary: 'Mendapatkan detail penilaian mandiri',
+        tags: ['Akreditasi - Self Assessment'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Detail self-assessment berhasil dimuat', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 404, description: 'Data tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
+    #[OA\Delete(
+        path: '/self-assessment/{id}',
+        summary: 'Menghapus data penilaian mandiri',
+        tags: ['Akreditasi - Self Assessment'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Data self-assessment berhasil dihapus', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 404, description: 'Data tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
     #[OA\Post(
         path: '/self-assessment',
         summary: 'Mengisi atau memperbarui penilaian mandiri (Self Assessment)',
-        description: 'Reviewer memilih rubrik penilaian. Sistem secara otomatis menghitung skor_terbobot = skor * nilai_bobot.',
+        description: 'Menyimpan penilaian reviewer untuk indikator pada project. Jika id_rubrik disertakan, sistem secara otomatis menghitung skor_terbobot = rubrik.skor * bobot.nilai_bobot.',
         tags: ['Akreditasi - Self Assessment'],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['id_project', 'id_indikator', 'id_rubrik', 'id_reviewer'],
+                required: ['id_project', 'id_indikator'],
                 properties: [
                     new OA\Property(property: 'id_project', type: 'integer', example: 1),
                     new OA\Property(property: 'id_indikator', type: 'integer', example: 1),
-                    new OA\Property(property: 'id_rubrik', type: 'integer', example: 1),
-                    new OA\Property(property: 'id_reviewer', type: 'integer', example: 301),
-                    new OA\Property(property: 'catatan_reviewer', type: 'string', example: 'Bukti dukung sangat komprehensif dan implementasi terlaksana dengan sangat baik.', nullable: true)
+                    new OA\Property(property: 'id_rubrik', type: 'integer', example: 1, nullable: true),
+                    new OA\Property(property: 'reviewer_id', type: 'integer', example: 301, nullable: true, description: 'ID User Reviewer'),
+                    new OA\Property(property: 'catatan_reviewer', type: 'string', example: 'Bukti dukung sangat komprehensif dan implementasi terlaksana dengan sangat baik.', nullable: true),
+                    new OA\Property(property: 'tanggal_penilaian', type: 'string', format: 'date', example: '2026-10-24', nullable: true),
                 ]
             )
         ),
         responses: [
-            new OA\Response(response: 200, description: 'Penilaian mandiri berhasil disimpan dan skor terbobot terhitung otomatis', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError'))
-        ]
-    )]
-    #[OA\Get(
-        path: '/self-assessment/rekap/{projectId}',
-        summary: 'Mendapatkan rekapitulasi penilaian mandiri per project',
-        description: 'Menghitung dan mengelompokkan total nilai skor terbobot per indikator dan total keseluruhan untuk project akreditasi.',
-        tags: ['Akreditasi - Self Assessment'],
-        parameters: [
-            new OA\Parameter(name: 'projectId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi')
-        ],
-        responses: [
-            new OA\Response(response: 200, description: 'Rekapitulasi berhasil dihitung dan dimuat', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound'))
+            new OA\Response(response: 200, description: 'Penilaian mandiri berhasil disimpan dengan perhitungan skor terbobot otomatis', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
         ]
     )]
     public function selfAssessmentDocs() {}

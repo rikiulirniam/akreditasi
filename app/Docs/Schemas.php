@@ -48,6 +48,4 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'errors', type: 'null', example: null),
     ]
 )]
-class Schemas
-{
-}
+class Schemas {}

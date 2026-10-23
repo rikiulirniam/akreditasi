@@ -17,10 +17,10 @@ class SpmiDocs
         parameters: [
             new OA\Parameter(name: 'id_prodi', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter ID Program Studi'),
             new OA\Parameter(name: 'tahun', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter Tahun Audit'),
-            new OA\Parameter(name: 'status_audit', in: 'query', required: false, schema: new OA\Schema(type: 'string'), description: 'Filter status (Open / Closed / In Progress)')
+            new OA\Parameter(name: 'status_audit', in: 'query', required: false, schema: new OA\Schema(type: 'string'), description: 'Filter status (Open / Closed / In Progress)'),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'Berhasil memuat daftar audit SPMI', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess'))
+            new OA\Response(response: 200, description: 'Berhasil memuat daftar audit SPMI', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess')),
         ]
     )]
     #[OA\Post(
@@ -41,13 +41,13 @@ class SpmiDocs
                     new OA\Property(property: 'akar_masalah', type: 'string', example: 'Keterbatasan waktu koordinasi tim kurikulum pada semester gasal.', nullable: true),
                     new OA\Property(property: 'rekomendasi', type: 'string', example: 'Lakukan workshop review SOP dan penyelarasan RPS serentak sebelum semester genap.', nullable: true),
                     new OA\Property(property: 'status_audit', type: 'string', example: 'Open'),
-                    new OA\Property(property: 'tanggal_audit', type: 'string', format: 'date', example: '2026-10-15')
+                    new OA\Property(property: 'tanggal_audit', type: 'string', format: 'date', example: '2026-10-15'),
                 ]
             )
         ),
         responses: [
             new OA\Response(response: 201, description: 'Data audit SPMI berhasil ditambahkan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError'))
+            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
         ]
     )]
     #[OA\Get(
@@ -55,11 +55,11 @@ class SpmiDocs
         summary: 'Mendapatkan detail temuan audit SPMI',
         tags: ['SPMI - Audit Mutu Internal'],
         parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
             new OA\Response(response: 200, description: 'Detail audit SPMI berhasil dimuat', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 404, description: 'Data audit SPMI tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound'))
+            new OA\Response(response: 404, description: 'Data audit SPMI tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
     #[OA\Put(
@@ -67,7 +67,7 @@ class SpmiDocs
         summary: 'Memperbarui data audit SPMI',
         tags: ['SPMI - Audit Mutu Internal'],
         parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         requestBody: new OA\RequestBody(
             required: true,
@@ -83,14 +83,14 @@ class SpmiDocs
                     new OA\Property(property: 'akar_masalah', type: 'string', example: 'Akar masalah diperbarui.', nullable: true),
                     new OA\Property(property: 'rekomendasi', type: 'string', example: 'Rekomendasi audit diperbarui.', nullable: true),
                     new OA\Property(property: 'status_audit', type: 'string', example: 'In Progress'),
-                    new OA\Property(property: 'tanggal_audit', type: 'string', format: 'date', example: '2026-10-15')
+                    new OA\Property(property: 'tanggal_audit', type: 'string', format: 'date', example: '2026-10-15'),
                 ]
             )
         ),
         responses: [
             new OA\Response(response: 200, description: 'Data audit SPMI berhasil diperbarui', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
             new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
-            new OA\Response(response: 404, description: 'Data audit SPMI tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound'))
+            new OA\Response(response: 404, description: 'Data audit SPMI tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
     #[OA\Delete(
@@ -98,11 +98,11 @@ class SpmiDocs
         summary: 'Menghapus data audit SPMI',
         tags: ['SPMI - Audit Mutu Internal'],
         parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
             new OA\Response(response: 200, description: 'Data audit SPMI berhasil dihapus', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 404, description: 'Data audit SPMI tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound'))
+            new OA\Response(response: 404, description: 'Data audit SPMI tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
     #[OA\Put(
@@ -111,7 +111,7 @@ class SpmiDocs
         description: 'Auditee (Ketua Prodi / Gugus Mutu) mengisi rencana tindak lanjut, tanggal efektif, dan evaluasi hasil perbaikan.',
         tags: ['SPMI - Audit Mutu Internal'],
         parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Audit SPMI')
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Audit SPMI'),
         ],
         requestBody: new OA\RequestBody(
             required: true,
@@ -121,14 +121,14 @@ class SpmiDocs
                     new OA\Property(property: 'rencana_tindak_lanjut', type: 'string', example: 'Mengadakan rapat konsinyasi penyelarasan RPS dan revisi SOP pembelajaran.'),
                     new OA\Property(property: 'status_tindak_lanjut', type: 'string', enum: ['Belum Dilaksanakan', 'Sedang Berjalan', 'Selesai', 'Efektif'], example: 'Selesai'),
                     new OA\Property(property: 'tanggal_efektif', type: 'string', format: 'date', example: '2026-11-01', nullable: true),
-                    new OA\Property(property: 'evaluasi_efektivitas', type: 'string', example: 'Seluruh RPS telah sesuai panduan kurikulum OBE terbaru.', nullable: true)
+                    new OA\Property(property: 'evaluasi_efektivitas', type: 'string', example: 'Seluruh RPS telah sesuai panduan kurikulum OBE terbaru.', nullable: true),
                 ]
             )
         ),
         responses: [
             new OA\Response(response: 200, description: 'Tindak lanjut audit SPMI berhasil diperbarui', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
             new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
-            new OA\Response(response: 404, description: 'Data audit SPMI tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound'))
+            new OA\Response(response: 404, description: 'Data audit SPMI tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
     public function spmiAuditDocs() {}
