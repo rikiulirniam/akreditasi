@@ -13,10 +13,15 @@ return new class extends Migration
     {
         Schema::create('project_akreditasi', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_prodi')->constrained('prodi')->cascadeOnDelete();
+
+            // ID Prodi dari API Kelompok 2 (tanpa FK constraint lokal)
+            $table->integer('id_prodi');
+
+            // Foreign Keys ke master instrumen lokal
             $table->foreignId('id_versi_instrumen')->constrained('versi_instrumen')->cascadeOnDelete();
             $table->foreignId('id_jenjang')->constrained('jenjang')->cascadeOnDelete();
             $table->foreignId('id_jenis_instrumen')->constrained('jenis_instrumen')->cascadeOnDelete();
+
             $table->string('nama_project');
             $table->year('tahun_target_submit');
             $table->string('status_project')->default('Draft');

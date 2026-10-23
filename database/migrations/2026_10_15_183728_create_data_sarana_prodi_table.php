@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('data_sarana_prodi', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_prasarana')->nullable()->constrained('data_sarpras_prodi')->nullOnDelete();
-            $table->integer('jumlah_unit')->nullable();
-            $table->string('kondisi')->nullable();
+
+            // Mengacu ke parent data_sarpras_prodi dengan cascadeOnDelete
+            $table->foreignId('id_prasarana')->constrained('data_sarpras_prodi')->cascadeOnDelete();
+
+            $table->integer('jumlah_unit')->default(0);
+            $table->string('kondisi');
             $table->text('keterangan')->nullable();
             $table->timestamps();
         });

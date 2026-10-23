@@ -34,30 +34,28 @@ class SelfAssessmentController extends Controller
         return $this->successResponse($data, 'Data penilaian mandiri (self assessment) berhasil diambil');
     }
 
-    /**
-     * Menyimpan/memperbarui penilaian mandiri reviewer dan menghitung skor terbobot otomatis.
-     * Skor terbobot = skor rubrik * nilai bobot indikator
-     */
     public function storeOrUpdate(StoreSelfAssessmentRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
-        $project = ProjectAkreditasi::findOrFail($validated['id_project']);
-        $rubrik = Rubrik::findOrFail($validated['id_rubrik']);
+        $skorTerbobot = null;
 
-        // Cari bobot indikator berdasarkan jenis instrumen dan jenjang dari project
-        $bobot = Bobot::where('id_indikator', $validated['id_indikator'])
-            ->where('id_jenis_instrumen', $project->id_jenis_instrumen)
-            ->where('id_jenjang', $project->id_jenjang)
-            ->first();
+        if (! empty($validated['id_rubrik'])) {
+            $project = ProjectAkreditasi::findOrFail($validated['id_project']);
+            $rubrik = Rubrik::findOrFail($validated['id_rubrik']);
 
-        // Jika bobot spesifik kombinasi tidak ditemukan, cari bobot indikator yang ada
-        if (! $bobot) {
-            $bobot = Bobot::where('id_indikator', $validated['id_indikator'])->first();
+            $bobot = Bobot::where('id_indikator', $validated['id_indikator'])
+                ->where('id_jenis_instrumen', $project->id_jenis_instrumen)
+                ->where('id_jenjang', $project->id_jenjang)
+                ->first();
+
+            if (! $bobot) {
+                $bobot = Bobot::where('id_indikator', $validated['id_indikator'])->first();
+            }
+
+            $nilaiBobot = $bobot ? (float) $bobot->nilai_bobot : 1.0;
+            $skorTerbobot = round((float) $rubrik->skor * $nilaiBobot, 2);
         }
-
-        $nilaiBobot = $bobot ? (float) $bobot->nilai_bobot : 1.0;
-        $skorTerbobot = round((float) $rubrik->skor * $nilaiBobot, 2);
 
         $assessment = SelfAssessment::updateOrCreate(
             [
@@ -65,11 +63,10 @@ class SelfAssessmentController extends Controller
                 'id_indikator' => $validated['id_indikator'],
             ],
             [
-                'id_rubrik' => $validated['id_rubrik'],
+                'id_rubrik' => $validated['id_rubrik'] ?? null,
                 'skor_terbobot' => $skorTerbobot,
                 'catatan_reviewer' => $validated['catatan_reviewer'] ?? null,
                 'tanggal_penilaian' => $validated['tanggal_penilaian'] ?? Carbon::now(),
-                'asesor_id' => $validated['asesor_id'] ?? null,
                 'reviewer_id' => $validated['reviewer_id'] ?? null,
             ]
         );
