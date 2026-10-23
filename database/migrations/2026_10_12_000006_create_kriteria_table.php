@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('kriteria', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_versi_instrumen')->constrained('versi_instrumen')->cascadeOnDelete();
+            $table->foreignUuid('id_instrumen')->constrained('instrumen')->cascadeOnDelete();
             $table->string('kode_kriteria');
             $table->string('nama_kriteria');
             $table->timestamps();

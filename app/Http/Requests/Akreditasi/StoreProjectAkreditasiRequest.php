@@ -9,7 +9,7 @@ class StoreProjectAkreditasiRequest extends BaseApiRequest
     public function rules(): array
     {
         return [
-            'id_prodi' => 'required|integer|exists:prodi,id',
+            'id_prodi' => 'required', // Hapus exists:prodi,id
             'id_versi_instrumen' => 'required|integer|exists:versi_instrumen,id',
             'id_jenjang' => 'required|integer|exists:jenjang,id',
             'id_jenis_instrumen' => 'required|integer|exists:jenis_instrumen,id',
