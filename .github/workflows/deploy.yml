@@ -13,41 +13,50 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Environment File (.env)
+      - name: Deploy to /var/www/api-akreditasi
         run: |
-          # Periksa dan salin file .env persisten dari server jika tersedia
-          if [ -f /var/www/api-akreditasi/.env ]; then
-            echo "Menggunakan .env persisten dari /var/www/api-akreditasi/.env"
-            cp /var/www/api-akreditasi/.env .env
-          elif [ -f /var/www/.env ]; then
-            echo "Menggunakan .env dari /var/www/.env"
-            cp /var/www/.env .env
-          elif [ -f ../../.env ]; then
-            echo "Menggunakan .env dari direktori runner"
-            cp ../../.env .env
-          elif [ ! -f .env ]; then
-            echo "Perhatian: .env tidak ditemukan. Menyalin dari .env.example..."
-            cp .env.example .env
-            php artisan key:generate --force
+          TARGET_DIR="/var/www/api-akreditasi"
+          echo "Memulai deployment ke $TARGET_DIR..."
+
+          if [ -d "$TARGET_DIR/.git" ]; then
+            echo "Direktori $TARGET_DIR adalah git repo. Melakukan fetch dan reset ke origin/main..."
+            cd "$TARGET_DIR"
+            git fetch origin main
+            git reset --hard origin/main
+          else
+            echo "Melakukan sinkronisasi file dari runner workspace ke $TARGET_DIR..."
+            sudo rsync -av --delete \
+              --exclude='.env' \
+              --exclude='storage/' \
+              --exclude='.git/' \
+              ./ "$TARGET_DIR/"
+            cd "$TARGET_DIR"
           fi
 
-      - name: Install Dependencies
-        run: |
+          echo "Menginstall dependensi Composer..."
           composer install --no-dev --optimize-autoloader
 
-      - name: Run Database Migrations & Optimization
-        run: |
+          echo "Menjalankan migrasi database..."
           php artisan storage:link || true
           php artisan migrate --force
+
+          echo "Regenerate Swagger API Documentation..."
+          php artisan l5-swagger:generate || true
+
+          echo "Membersihkan dan memperbarui cache Laravel..."
+          php artisan config:clear
+          php artisan route:clear
+          php artisan view:clear
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache
 
-      - name: Reload PHP-FPM / Application
-        run: |
-          # Pilih salah satu sesuai dengan setup server Anda:
-          # Jika menggunakan PHP-FPM (misal php8.2-fpm / php8.3-fpm):
-          sudo systemctl reload php8.3-fpm || sudo systemctl reload php-fpm || true
+          echo "Menyesuaikan izin direktori storage dan cache..."
+          sudo chown -R www-data:www-data storage bootstrap/cache || true
+          sudo chmod -R 775 storage bootstrap/cache || true
 
-          # ATAU jika menggunakan Laravel Queue Worker:
+          echo "Reloading PHP-FPM dan Queue..."
+          sudo systemctl reload php8.4-fpm || sudo systemctl reload php8.3-fpm || sudo systemctl reload php-fpm || true
           php artisan queue:restart || true
+
+          echo "Deployment berhasil diselesaikan!"
