@@ -513,81 +513,62 @@ class MasterDataDocs
     public function standarMutuDocs() {}
 
     // ==========================================
-    // JENIS BUKTI
+    // INSTRUMEN
     // ==========================================
     #[OA\Get(
-        path: '/master/jenis-bukti',
-        summary: 'Mendapatkan daftar jenis bukti dukung',
-        tags: ['Master Data - Jenis Bukti'],
+        path: '/master/instrumen',
+        summary: 'Mendapatkan daftar master instrumen akreditasi',
+        description: 'Menampilkan list instrumen akreditasi (jembatan versi_instrumen, jenjang, jenis_instrumen, dan kriteria).',
+        tags: ['Master Data - Instrumen'],
         responses: [
-            new OA\Response(response: 200, description: 'Berhasil memuat daftar jenis bukti', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess')),
+            new OA\Response(response: 200, description: 'Berhasil memuat daftar instrumen', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess')),
         ]
     )]
     #[OA\Post(
-        path: '/master/jenis-bukti',
-        summary: 'Menambahkan jenis bukti baru',
-        tags: ['Master Data - Jenis Bukti'],
+        path: '/master/instrumen',
+        summary: 'Menambahkan instrumen akreditasi baru',
+        tags: ['Master Data - Instrumen'],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['nama_jenis'],
+                required: ['id_versi_instrumen', 'id_jenjang', 'id_jenis_instrumen'],
                 properties: [
-                    new OA\Property(property: 'nama_jenis', type: 'string', example: 'Surat Keputusan (SK)'),
+                    new OA\Property(property: 'id_versi_instrumen', type: 'integer', example: 1, description: 'ID Versi Instrumen'),
+                    new OA\Property(property: 'id_jenjang', type: 'integer', example: 1, description: 'ID Jenjang Pendidikan'),
+                    new OA\Property(property: 'id_jenis_instrumen', type: 'integer', example: 1, description: 'ID Jenis Instrumen'),
                 ]
             )
         ),
         responses: [
-            new OA\Response(response: 201, description: 'Jenis bukti berhasil ditambahkan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 201, description: 'Instrumen berhasil ditambahkan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
             new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
         ]
     )]
     #[OA\Get(
-        path: '/master/jenis-bukti/{id}',
-        summary: 'Mendapatkan detail jenis bukti',
-        tags: ['Master Data - Jenis Bukti'],
+        path: '/master/instrumen/{id}',
+        summary: 'Mendapatkan detail instrumen akreditasi',
+        tags: ['Master Data - Instrumen'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'Detail jenis bukti berhasil dimuat', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 404, description: 'Jenis bukti tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
-        ]
-    )]
-    #[OA\Put(
-        path: '/master/jenis-bukti/{id}',
-        summary: 'Memperbarui jenis bukti',
-        tags: ['Master Data - Jenis Bukti'],
-        parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
-        ],
-        requestBody: new OA\RequestBody(
-            required: true,
-            content: new OA\JsonContent(
-                required: ['nama_jenis'],
-                properties: [
-                    new OA\Property(property: 'nama_jenis', type: 'string', example: 'Surat Keputusan Rektor'),
-                ]
-            )
-        ),
-        responses: [
-            new OA\Response(response: 200, description: 'Jenis bukti berhasil diperbarui', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
-            new OA\Response(response: 404, description: 'Jenis bukti tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+            new OA\Response(response: 200, description: 'Detail instrumen berhasil dimuat', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 404, description: 'Instrumen tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
     #[OA\Delete(
-        path: '/master/jenis-bukti/{id}',
-        summary: 'Menghapus jenis bukti',
-        tags: ['Master Data - Jenis Bukti'],
+        path: '/master/instrumen/{id}',
+        summary: 'Menghapus instrumen akreditasi',
+        tags: ['Master Data - Instrumen'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'Jenis bukti berhasil dihapus', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 404, description: 'Jenis bukti tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+            new OA\Response(response: 200, description: 'Data instrumen berhasil dihapus', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 404, description: 'Instrumen tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
-    public function jenisBuktiDocs() {}
+    public function instrumenDocs() {}
 
     // ==========================================
     // JENIS PEMBIAYAAN
