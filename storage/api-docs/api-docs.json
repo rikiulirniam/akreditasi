@@ -7,8 +7,12 @@
     },
     "servers": [
         {
-            "url": "http://127.0.0.1:8000/api/v1",
-            "description": "Local Development Server API v1"
+            "url": "https://akreditasi.fayra.my.id/api/v1",
+            "description": "Production Server API v1"
+        },
+        {
+            "url": "/api/v1",
+            "description": "Current Domain Server"
         }
     ],
     "paths": {

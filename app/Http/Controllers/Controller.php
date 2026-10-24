@@ -10,8 +10,12 @@ use OpenApi\Attributes as OA;
     description: 'Dokumentasi interaktif OpenAPI / Swagger untuk backend REST API SPMI dan Akreditasi.'
 )]
 #[OA\Server(
-    url: 'http://127.0.0.1:8000/api/v1',
-    description: 'Local Development Server API v1'
+    url: 'https://akreditasi.fayra.my.id/api/v1',
+    description: 'Production Server API v1'
+)]
+#[OA\Server(
+    url: '/api/v1',
+    description: 'Current Domain Server'
 )]
 abstract class Controller
 {
