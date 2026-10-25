@@ -4,7 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Throwable;
 
 return new class extends Migration
 {
@@ -20,41 +19,56 @@ return new class extends Migration
             });
         }
 
+        $isMysql = DB::getDriverName() === 'mysql';
+
         // 2. Jika id_versi_instrumen masih ada, buat nullable dan lepas foreign key jika terpasang
         if (Schema::hasColumn('kriteria', 'id_versi_instrumen')) {
-            $fkVersiExists = DB::table('information_schema.TABLE_CONSTRAINTS')
-                ->where('CONSTRAINT_SCHEMA', DB::getDatabaseName())
-                ->where('TABLE_NAME', 'kriteria')
-                ->where('CONSTRAINT_NAME', 'kriteria_id_versi_instrumen_foreign')
-                ->exists();
+            if ($isMysql) {
+                $fkVersiExists = DB::table('information_schema.TABLE_CONSTRAINTS')
+                    ->where('CONSTRAINT_SCHEMA', DB::getDatabaseName())
+                    ->where('TABLE_NAME', 'kriteria')
+                    ->where('CONSTRAINT_NAME', 'kriteria_id_versi_instrumen_foreign')
+                    ->exists();
 
-            if ($fkVersiExists) {
-                Schema::table('kriteria', function (Blueprint $table) {
-                    $table->dropForeign('kriteria_id_versi_instrumen_foreign');
-                });
+                if ($fkVersiExists) {
+                    Schema::table('kriteria', function (Blueprint $table) {
+                        $table->dropForeign('kriteria_id_versi_instrumen_foreign');
+                    });
+                }
             }
 
             try {
-                DB::statement('ALTER TABLE `kriteria` MODIFY `id_versi_instrumen` BIGINT UNSIGNED NULL');
+                if ($isMysql) {
+                    DB::statement('ALTER TABLE `kriteria` MODIFY `id_versi_instrumen` BIGINT UNSIGNED NULL');
+                }
             } catch (Throwable $e) {
                 // Abaikan jika database engine tidak mendukung modify sintaks
             }
         }
 
         // 3. Tambahkan foreign key id_instrumen jika belum terpasang
-        $fkInstrumenExists = DB::table('information_schema.TABLE_CONSTRAINTS')
-            ->where('CONSTRAINT_SCHEMA', DB::getDatabaseName())
-            ->where('TABLE_NAME', 'kriteria')
-            ->where('CONSTRAINT_NAME', 'kriteria_id_instrumen_foreign')
-            ->exists();
+        if (Schema::hasTable('instrumen')) {
+            $fkInstrumenExists = false;
+            if ($isMysql) {
+                $fkInstrumenExists = DB::table('information_schema.TABLE_CONSTRAINTS')
+                    ->where('CONSTRAINT_SCHEMA', DB::getDatabaseName())
+                    ->where('TABLE_NAME', 'kriteria')
+                    ->where('CONSTRAINT_NAME', 'kriteria_id_instrumen_foreign')
+                    ->exists();
+            }
 
-        if (! $fkInstrumenExists && Schema::hasTable('instrumen')) {
-            Schema::table('kriteria', function (Blueprint $table) {
-                $table->foreign('id_instrumen')
-                    ->references('id')
-                    ->on('instrumen')
-                    ->cascadeOnDelete();
-            });
+            if (! $fkInstrumenExists) {
+                try {
+                    Schema::table('kriteria', function (Blueprint $table) {
+                        $table->foreign('id_instrumen')
+                            ->references('id')
+                            ->on('instrumen')
+                            ->cascadeOnDelete();
+                    });
+                } catch (Throwable $e) {
+                    // Abaikan jika FK sudah ada
+                }
+            }
         }
     }
 
@@ -64,16 +78,11 @@ return new class extends Migration
     public function down(): void
     {
         if (Schema::hasColumn('kriteria', 'id_instrumen')) {
-            $fkInstrumenExists = DB::table('information_schema.TABLE_CONSTRAINTS')
-                ->where('CONSTRAINT_SCHEMA', DB::getDatabaseName())
-                ->where('TABLE_NAME', 'kriteria')
-                ->where('CONSTRAINT_NAME', 'kriteria_id_instrumen_foreign')
-                ->exists();
-
-            if ($fkInstrumenExists) {
+            try {
                 Schema::table('kriteria', function (Blueprint $table) {
-                    $table->dropForeign('kriteria_id_instrumen_foreign');
+                    $table->dropForeign(['id_instrumen']);
                 });
+            } catch (Throwable $e) {
             }
 
             Schema::table('kriteria', function (Blueprint $table) {
