@@ -279,6 +279,7 @@ export interface MappingTimAkreditasi {
   id_project: number;
   id_user: number;
   id_indikator: number;
+  role: 'ADMINISTRATOR' | 'REVIEWER' | 'DOSEN' | 'KAPRODI'; // Selalu 'DOSEN' untuk anggota tim akreditasi
 }
 
 export interface LembarProdi {

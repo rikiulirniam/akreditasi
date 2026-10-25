@@ -27,6 +27,16 @@ class MappingTimAkreditasi extends Model
         ];
     }
 
+    protected $appends = ['role'];
+
+    /**
+     * Anggota tim akreditasi yang dipetakan pada indikator/butir selalu ber-role DOSEN.
+     */
+    public function getRoleAttribute(): string
+    {
+        return $this->attributes['role'] ?? 'DOSEN';
+    }
+
     public function project(): BelongsTo
     {
         return $this->belongsTo(ProjectAkreditasi::class, 'id_project');
