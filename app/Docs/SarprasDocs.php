@@ -31,7 +31,6 @@ class SarprasDocs
                 required: ['id_project'],
                 properties: [
                     new OA\Property(property: 'id_project', type: 'integer', example: 1),
-                    new OA\Property(property: 'kapasitas', type: 'integer', example: 40, nullable: true),
                     new OA\Property(property: 'keterangan', type: 'string', example: 'Laboratorium Rekayasa Perangkat Lunak Gedung A', nullable: true),
                 ]
             )
@@ -64,7 +63,6 @@ class SarprasDocs
             required: true,
             content: new OA\JsonContent(
                 properties: [
-                    new OA\Property(property: 'kapasitas', type: 'integer', example: 45, nullable: true),
                     new OA\Property(property: 'keterangan', type: 'string', example: 'Laboratorium RPL Gedung A (Renovasi)', nullable: true),
                 ]
             )

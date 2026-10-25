@@ -15,7 +15,6 @@ class DataSarprasProdi extends Model
 
     protected $fillable = [
         'id_project',
-        'kapasitas',
         'keterangan',
     ];
 
@@ -23,7 +22,6 @@ class DataSarprasProdi extends Model
     {
         return [
             'id_project' => 'integer',
-            'kapasitas' => 'integer',
         ];
     }
 
