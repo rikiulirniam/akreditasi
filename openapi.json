@@ -1,0 +1,3733 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "REST API Sistem Penjaminan Mutu Internal (SPMI) dan Akreditasi",
+        "description": "Dokumentasi interaktif OpenAPI / Swagger untuk backend REST API SPMI dan Akreditasi.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https://akreditasi.fayra.my.id/api/v1",
+            "description": "Production Server API v1"
+        },
+        {
+            "url": "/api/v1",
+            "description": "Current Domain Server"
+        }
+    ],
+    "paths": {
+        "/projects": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Mendapatkan daftar project akreditasi",
+                "description": "Menampilkan list project akreditasi.",
+                "operationId": "9035343aff8fddc2aab5b01dbf171e8d",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar project akreditasi",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Membuat project akreditasi baru",
+                "operationId": "c8a9ca6f000b74b22c39db34d4976b6c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_prodi",
+                                    "id_versi_instrumen",
+                                    "id_jenjang",
+                                    "id_jenis_instrumen",
+                                    "nama_project",
+                                    "tahun_target_submit"
+                                ],
+                                "properties": {
+                                    "id_prodi": {
+                                        "description": "ID Program Studi",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "id_versi_instrumen": {
+                                        "description": "ID Versi Instrumen",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "id_jenjang": {
+                                        "description": "ID Jenjang",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "id_jenis_instrumen": {
+                                        "description": "ID Jenis Instrumen",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "nama_project": {
+                                        "type": "string",
+                                        "example": "Akreditasi Program Studi D4 Rekayasa Perangkat Lunak 2026"
+                                    },
+                                    "tahun_target_submit": {
+                                        "description": "Tahun target submit berkas akreditasi (4 digit)",
+                                        "type": "integer",
+                                        "example": 2026
+                                    },
+                                    "status_project": {
+                                        "description": "Status project (misal: draft, pengisian, review, submit)",
+                                        "type": "string",
+                                        "example": "draft",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Project akreditasi berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/{id}": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Mendapatkan detail project akreditasi",
+                "operationId": "45f8e57c6cda3650c0a3ce049561cc84",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail project berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Project tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Memperbarui project akreditasi",
+                "operationId": "9c584b251582d415364164e7ea29f61d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id_prodi": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "id_versi_instrumen": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "id_jenjang": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "id_jenis_instrumen": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "nama_project": {
+                                        "type": "string",
+                                        "example": "Akreditasi Program Studi D4 Rekayasa Perangkat Lunak 2026 (Updated)"
+                                    },
+                                    "tahun_target_submit": {
+                                        "type": "integer",
+                                        "example": 2026
+                                    },
+                                    "status_project": {
+                                        "type": "string",
+                                        "example": "pengisian"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Project berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Project tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Menghapus project akreditasi",
+                "operationId": "9158286a47edde770ee2b608cb746a8b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Project berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Project tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/{id}/mapping-tim": {
+            "post": {
+                "tags": [
+                    "Akreditasi - Mapping Tim"
+                ],
+                "summary": "Menyimpan pembagian tugas tim per indikator untuk project tertentu",
+                "description": "Menugaskan user/dosen untuk indikator pada project akreditasi (mendukung format single assignment atau batch assignments).",
+                "operationId": "04332f5a32217a970b7a7645b7ed35f7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Project Akreditasi",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id_user": {
+                                        "description": "Diisi jika single penugasan",
+                                        "type": "integer",
+                                        "example": 101
+                                    },
+                                    "id_indikator": {
+                                        "description": "Diisi jika single penugasan",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "Penyusun",
+                                        "nullable": true
+                                    },
+                                    "assignments": {
+                                        "description": "Diisi jika batch penugasan sekaligus",
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "id_user": {
+                                                    "type": "integer",
+                                                    "example": 101
+                                                },
+                                                "id_indikator": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "Penyusun",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pembagian tugas tim akreditasi berhasil disimpan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Project tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/mapping-tim": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Mapping Tim"
+                ],
+                "summary": "Mendapatkan daftar semua penugasan tim akreditasi",
+                "description": "Menampilkan list seluruh mapping penugasan tim beserta relasi project dan indikator.",
+                "operationId": "58420c71b3e7f9dc5112c6d17f0f65de",
+                "responses": {
+                    "200": {
+                        "description": "Daftar penugasan berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Akreditasi - Mapping Tim"
+                ],
+                "summary": "Menyimpan penugasan tim akreditasi",
+                "description": "Endpoint umum untuk menyimpan penugasan tim baik single record maupun batch array.",
+                "operationId": "2f7b8944bb65b7f755bb44c23574f4c0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_project"
+                                ],
+                                "properties": {
+                                    "id_project": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "id_user": {
+                                        "description": "Wajib jika bukan batch assignments",
+                                        "type": "integer",
+                                        "example": 101
+                                    },
+                                    "id_indikator": {
+                                        "description": "Wajib jika bukan batch assignments",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "Penyusun",
+                                        "nullable": true
+                                    },
+                                    "assignments": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "id_user": {
+                                                    "type": "integer",
+                                                    "example": 101
+                                                },
+                                                "id_indikator": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "Penyusun",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Penugasan berhasil disimpan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Penugasan berhasil disimpan"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/mapping-tim/{id}": {
+            "delete": {
+                "tags": [
+                    "Akreditasi - Mapping Tim"
+                ],
+                "summary": "Menghapus penugasan tim akreditasi",
+                "operationId": "3cc310580309b8f352d26353847ddcb8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Penugasan Mapping Tim",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Penugasan berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Penugasan berhasil dihapus"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Penugasan tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/self-assessment": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Self Assessment"
+                ],
+                "summary": "Mendapatkan daftar penilaian mandiri",
+                "description": "Menampilkan list penilaian mandiri dengan opsional filter id_project dan id_indikator.",
+                "operationId": "521b2cf7e8d70a1ae51f14e065d56bde",
+                "parameters": [
+                    {
+                        "name": "id_project",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Project",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "id_indikator",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Indikator",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar self-assessment",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Akreditasi - Self Assessment"
+                ],
+                "summary": "Mengisi atau memperbarui penilaian mandiri (Self Assessment)",
+                "description": "Menyimpan penilaian reviewer untuk indikator pada project. Jika id_rubrik disertakan, sistem secara otomatis menghitung skor_terbobot = rubrik.skor * bobot.nilai_bobot.",
+                "operationId": "41b71d115346ec8623b8c5537cdc73e1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_project",
+                                    "id_indikator"
+                                ],
+                                "properties": {
+                                    "id_project": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "id_indikator": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "id_rubrik": {
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
+                                    },
+                                    "reviewer_id": {
+                                        "description": "ID User Reviewer",
+                                        "type": "integer",
+                                        "example": 301,
+                                        "nullable": true
+                                    },
+                                    "catatan_reviewer": {
+                                        "type": "string",
+                                        "example": "Bukti dukung sangat komprehensif dan implementasi terlaksana dengan sangat baik.",
+                                        "nullable": true
+                                    },
+                                    "tanggal_penilaian": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-10-24",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Penilaian mandiri berhasil disimpan dengan perhitungan skor terbobot otomatis",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/self-assessment/{id}": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Self Assessment"
+                ],
+                "summary": "Mendapatkan detail penilaian mandiri",
+                "operationId": "52325af7dcbf7b1be4973c37306fcdc1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail self-assessment berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Data tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Akreditasi - Self Assessment"
+                ],
+                "summary": "Menghapus data penilaian mandiri",
+                "operationId": "1b2b1b332629b0b3919e8aa80c4d582d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data self-assessment berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Data tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/lembaga-akreditasi": {
+            "get": {
+                "tags": [
+                    "Master Data - Lembaga Akreditasi"
+                ],
+                "summary": "Mendapatkan daftar lembaga akreditasi",
+                "description": "Menampilkan list master lembaga akreditasi (misal: LAM INFOKOM, BAN-PT).",
+                "operationId": "b0794330f788ab241557dd07797bb15e",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar lembaga akreditasi",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Master Data - Lembaga Akreditasi"
+                ],
+                "summary": "Menambahkan lembaga akreditasi baru",
+                "operationId": "8bfd2d3f8d736b93541c98719ae11a92",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama_lembaga"
+                                ],
+                                "properties": {
+                                    "nama_lembaga": {
+                                        "type": "string",
+                                        "example": "LAM INFOKOM"
+                                    },
+                                    "keterangan": {
+                                        "type": "string",
+                                        "example": "Lembaga Akreditasi Mandiri Informatika dan Komputer",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Lembaga akreditasi berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/lembaga-akreditasi/{id}": {
+            "get": {
+                "tags": [
+                    "Master Data - Lembaga Akreditasi"
+                ],
+                "summary": "Mendapatkan detail lembaga akreditasi",
+                "operationId": "4ab92159401d6a53a412f3670b4d0c50",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail lembaga akreditasi berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Lembaga akreditasi tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Master Data - Lembaga Akreditasi"
+                ],
+                "summary": "Memperbarui data lembaga akreditasi",
+                "operationId": "97ac937a007749a9cc974365323b44d1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nama_lembaga": {
+                                        "type": "string",
+                                        "example": "LAM INFOKOM"
+                                    },
+                                    "keterangan": {
+                                        "type": "string",
+                                        "example": "Keterangan diperbarui",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lembaga akreditasi berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Lembaga akreditasi tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Master Data - Lembaga Akreditasi"
+                ],
+                "summary": "Menghapus lembaga akreditasi",
+                "operationId": "0b491d0b65b01e6095ff988de817acfc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lembaga akreditasi berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Lembaga akreditasi tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/versi-instrumen": {
+            "get": {
+                "tags": [
+                    "Master Data - Versi Instrumen"
+                ],
+                "summary": "Mendapatkan daftar versi instrumen akreditasi",
+                "description": "Menampilkan list versi instrumen dengan filter id_lembaga dan status_aktif.",
+                "operationId": "3b5b98039c9bb10856b97452f1a730ae",
+                "parameters": [
+                    {
+                        "name": "id_lembaga",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Lembaga",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "status_aktif",
+                        "in": "query",
+                        "description": "Filter status aktif (true/false)",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar versi instrumen",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Master Data - Versi Instrumen"
+                ],
+                "summary": "Menambahkan versi instrumen baru",
+                "operationId": "c4246129c64409f346722432923889be",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_lembaga",
+                                    "nomor_versi",
+                                    "tanggal_berlaku"
+                                ],
+                                "properties": {
+                                    "id_lembaga": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "nomor_versi": {
+                                        "type": "string",
+                                        "example": "2.1"
+                                    },
+                                    "tanggal_berlaku": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-01-25"
+                                    },
+                                    "status_aktif": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Versi instrumen berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/versi-instrumen/{id}": {
+            "get": {
+                "tags": [
+                    "Master Data - Versi Instrumen"
+                ],
+                "summary": "Mendapatkan detail versi instrumen",
+                "operationId": "1af6c7770031ad4014b4a7d276f877c1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail versi instrumen berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Versi instrumen tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Master Data - Versi Instrumen"
+                ],
+                "summary": "Memperbarui data versi instrumen",
+                "operationId": "4a355a91a9f44dc53a420e62aee094ba",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id_lembaga": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "nomor_versi": {
+                                        "type": "string",
+                                        "example": "2.1"
+                                    },
+                                    "tanggal_berlaku": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-01-25"
+                                    },
+                                    "status_aktif": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Versi instrumen berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Versi instrumen tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Master Data - Versi Instrumen"
+                ],
+                "summary": "Menghapus versi instrumen",
+                "operationId": "0710a2d7e0c6fed663b833986ecdb1b2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Versi instrumen berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Versi instrumen tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/kriteria": {
+            "get": {
+                "tags": [
+                    "Master Data - Kriteria"
+                ],
+                "summary": "Mendapatkan daftar kriteria",
+                "description": "Menampilkan list master kriteria dengan opsional filter id_versi_instrumen.",
+                "operationId": "306a4957b0b574014ff5844e3c2b6c24",
+                "parameters": [
+                    {
+                        "name": "id_versi_instrumen",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Versi Instrumen",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar kriteria",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Master Data - Kriteria"
+                ],
+                "summary": "Menambahkan kriteria baru",
+                "operationId": "091eeb60202155a952ea0adcb609464c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_versi_instrumen",
+                                    "kode_kriteria",
+                                    "nama_kriteria"
+                                ],
+                                "properties": {
+                                    "id_versi_instrumen": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "kode_kriteria": {
+                                        "type": "string",
+                                        "example": "C.1"
+                                    },
+                                    "nama_kriteria": {
+                                        "type": "string",
+                                        "example": "Visi, Misi, Tujuan, dan Strategi"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Kriteria berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/kriteria/{id}": {
+            "get": {
+                "tags": [
+                    "Master Data - Kriteria"
+                ],
+                "summary": "Mendapatkan detail kriteria",
+                "operationId": "30ad85562dcd6bb393e36a1bda3e1661",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail kriteria berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Kriteria tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Master Data - Kriteria"
+                ],
+                "summary": "Memperbarui kriteria",
+                "operationId": "d20131cf61b27705d7a9f55fc9c0232e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_versi_instrumen",
+                                    "kode_kriteria",
+                                    "nama_kriteria"
+                                ],
+                                "properties": {
+                                    "id_versi_instrumen": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "kode_kriteria": {
+                                        "type": "string",
+                                        "example": "C.1"
+                                    },
+                                    "nama_kriteria": {
+                                        "type": "string",
+                                        "example": "Visi, Misi, Tujuan, dan Strategi Revisi"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Kriteria berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Kriteria tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Master Data - Kriteria"
+                ],
+                "summary": "Menghapus kriteria",
+                "operationId": "654fbed25c54f190d56d7b00d30e026d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Kriteria berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Kriteria tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/indikator": {
+            "get": {
+                "tags": [
+                    "Master Data - Indikator"
+                ],
+                "summary": "Mendapatkan daftar indikator",
+                "description": "Menampilkan list master indikator dengan opsional filter id_subkriteria.",
+                "operationId": "6c5ef3efa59099f7e9885c9025df4e07",
+                "parameters": [
+                    {
+                        "name": "id_subkriteria",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Subkriteria",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar indikator",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Master Data - Indikator"
+                ],
+                "summary": "Menambahkan indikator baru",
+                "operationId": "686da2691946578ae68db1f13805a981",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_subkriteria",
+                                    "kode_indikator",
+                                    "nama_indikator"
+                                ],
+                                "properties": {
+                                    "id_subkriteria": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "kode_indikator": {
+                                        "type": "string",
+                                        "example": "IND-1.1"
+                                    },
+                                    "nama_indikator": {
+                                        "type": "string",
+                                        "example": "Kejelasan dan Realisme Visi Misi"
+                                    },
+                                    "deskripsi": {
+                                        "type": "string",
+                                        "example": "Visi keilmuan PS mencerminkan keunikan dan masa depan prodi.",
+                                        "nullable": true
+                                    },
+                                    "standar_minimum": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 3,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Indikator berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/indikator/{id}": {
+            "get": {
+                "tags": [
+                    "Master Data - Indikator"
+                ],
+                "summary": "Mendapatkan detail indikator",
+                "operationId": "b267be6bffb6d032d0b41cf18bf3f13f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail indikator berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Indikator tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Master Data - Indikator"
+                ],
+                "summary": "Memperbarui indikator",
+                "operationId": "3ff59d4039dfff25da4ee6438b745c87",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_subkriteria",
+                                    "kode_indikator",
+                                    "nama_indikator"
+                                ],
+                                "properties": {
+                                    "id_subkriteria": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "kode_indikator": {
+                                        "type": "string",
+                                        "example": "IND-1.1"
+                                    },
+                                    "nama_indikator": {
+                                        "type": "string",
+                                        "example": "Kejelasan dan Realisme Visi Misi Revisi"
+                                    },
+                                    "deskripsi": {
+                                        "type": "string",
+                                        "example": "Deskripsi diperbarui.",
+                                        "nullable": true
+                                    },
+                                    "standar_minimum": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 3.5,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Indikator berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Indikator tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Master Data - Indikator"
+                ],
+                "summary": "Menghapus indikator",
+                "operationId": "8ad9d38af9ab2f01781668666c33715a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Indikator berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Indikator tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/rubrik": {
+            "get": {
+                "tags": [
+                    "Master Data - Rubrik"
+                ],
+                "summary": "Mendapatkan daftar rubrik penilaian",
+                "description": "Menampilkan list master rubrik penilaian dengan opsional filter id_indikator.",
+                "operationId": "11016d390345dadbc6ce49f9b3d35e75",
+                "parameters": [
+                    {
+                        "name": "id_indikator",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Indikator",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar rubrik",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Master Data - Rubrik"
+                ],
+                "summary": "Menambahkan rubrik penilaian baru",
+                "operationId": "59a83079ca571f065e8ac592935e86ac",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_indikator",
+                                    "skor",
+                                    "deskripsi_kondisi"
+                                ],
+                                "properties": {
+                                    "id_indikator": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "skor": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 4
+                                    },
+                                    "deskripsi_kondisi": {
+                                        "type": "string",
+                                        "example": "Visi keilmuan PS sangat jelas, realistis, dan gayut dengan visi PT."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Rubrik berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/rubrik/{id}": {
+            "get": {
+                "tags": [
+                    "Master Data - Rubrik"
+                ],
+                "summary": "Mendapatkan detail rubrik",
+                "operationId": "123dbdc4d98bb30c885d13b1bb518c9d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail rubrik berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Rubrik tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Master Data - Rubrik"
+                ],
+                "summary": "Memperbarui rubrik",
+                "operationId": "3be73e58b194030a19f53a6040ffbec0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_indikator",
+                                    "skor",
+                                    "deskripsi_kondisi"
+                                ],
+                                "properties": {
+                                    "id_indikator": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "skor": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 4
+                                    },
+                                    "deskripsi_kondisi": {
+                                        "type": "string",
+                                        "example": "Deskripsi kondisi penilaian diperbarui."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Rubrik berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Rubrik tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Master Data - Rubrik"
+                ],
+                "summary": "Menghapus rubrik",
+                "operationId": "f089470d7a3068d35ff6151d79ba9da0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rubrik berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Rubrik tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/standar-mutu": {
+            "get": {
+                "tags": [
+                    "Master Data - Standar Mutu"
+                ],
+                "summary": "Mendapatkan daftar standar mutu",
+                "operationId": "66d26f1c92ea1d72a1e290b2e335a4c7",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar standar mutu",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Master Data - Standar Mutu"
+                ],
+                "summary": "Menambahkan standar mutu baru",
+                "operationId": "f6d23eefc8f89bc0ccf4d2db36cdc851",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "kode_standar",
+                                    "nama_standar",
+                                    "pernyataan_standar"
+                                ],
+                                "properties": {
+                                    "kode_standar": {
+                                        "type": "string",
+                                        "example": "SM-01"
+                                    },
+                                    "nama_standar": {
+                                        "type": "string",
+                                        "example": "Standar Kompetensi Lulusan"
+                                    },
+                                    "pernyataan_standar": {
+                                        "type": "string",
+                                        "example": "Program studi wajib menetapkan profil dan capaian pembelajaran lulusan."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Standar mutu berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/standar-mutu/{id}": {
+            "get": {
+                "tags": [
+                    "Master Data - Standar Mutu"
+                ],
+                "summary": "Mendapatkan detail standar mutu",
+                "operationId": "dd421413bcbfc220ad60e48e88a2d098",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail standar mutu berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Standar mutu tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Master Data - Standar Mutu"
+                ],
+                "summary": "Memperbarui standar mutu",
+                "operationId": "10e284a469839b265ac62bbfb26cf525",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "kode_standar",
+                                    "nama_standar",
+                                    "pernyataan_standar"
+                                ],
+                                "properties": {
+                                    "kode_standar": {
+                                        "type": "string",
+                                        "example": "SM-01"
+                                    },
+                                    "nama_standar": {
+                                        "type": "string",
+                                        "example": "Standar Kompetensi Lulusan Revisi"
+                                    },
+                                    "pernyataan_standar": {
+                                        "type": "string",
+                                        "example": "Pernyataan standar diperbarui."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Standar mutu berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Standar mutu tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Master Data - Standar Mutu"
+                ],
+                "summary": "Menghapus standar mutu",
+                "operationId": "4d18b4db2d915f91b41d6924c4fd6a1e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Standar mutu berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Standar mutu tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/instrumen": {
+            "get": {
+                "tags": [
+                    "Master Data - Instrumen"
+                ],
+                "summary": "Mendapatkan daftar master instrumen akreditasi",
+                "description": "Menampilkan list instrumen akreditasi (jembatan versi_instrumen, jenjang, jenis_instrumen, dan kriteria).",
+                "operationId": "ef7208677bcd170b7495044ac04b2840",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar instrumen",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Master Data - Instrumen"
+                ],
+                "summary": "Menambahkan instrumen akreditasi baru",
+                "operationId": "b681a7b4eb17649c696bb2da41192557",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_versi_instrumen",
+                                    "id_jenjang",
+                                    "id_jenis_instrumen"
+                                ],
+                                "properties": {
+                                    "id_versi_instrumen": {
+                                        "description": "ID Versi Instrumen",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "id_jenjang": {
+                                        "description": "ID Jenjang Pendidikan",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "id_jenis_instrumen": {
+                                        "description": "ID Jenis Instrumen",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Instrumen berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/instrumen/{id}": {
+            "get": {
+                "tags": [
+                    "Master Data - Instrumen"
+                ],
+                "summary": "Mendapatkan detail instrumen akreditasi",
+                "operationId": "6efef7045c8223d916badab59afa625d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail instrumen berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Instrumen tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Master Data - Instrumen"
+                ],
+                "summary": "Menghapus instrumen akreditasi",
+                "operationId": "fd9afdec447bb95f53a88b15ef53b7d4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data instrumen berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Instrumen tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/jenis-pembiayaan": {
+            "get": {
+                "tags": [
+                    "Master Data - Jenis Pembiayaan"
+                ],
+                "summary": "Mendapatkan daftar jenis pembiayaan",
+                "operationId": "4b8c464b3f9b2ccb5ca5e7b753b7b691",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar jenis pembiayaan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Master Data - Jenis Pembiayaan"
+                ],
+                "summary": "Menambahkan jenis pembiayaan baru",
+                "operationId": "ade89390beddca063a08a6a6fc6db40e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama_pembiayaan",
+                                    "kategori"
+                                ],
+                                "properties": {
+                                    "nama_pembiayaan": {
+                                        "type": "string",
+                                        "example": "Biaya Operasional Pendidikan"
+                                    },
+                                    "kategori": {
+                                        "type": "string",
+                                        "example": "operasional"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Jenis pembiayaan berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/jenis-pembiayaan/{id}": {
+            "get": {
+                "tags": [
+                    "Master Data - Jenis Pembiayaan"
+                ],
+                "summary": "Mendapatkan detail jenis pembiayaan",
+                "operationId": "2cdf0152746915bfa48cc26119070f7f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail jenis pembiayaan berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Jenis pembiayaan tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Master Data - Jenis Pembiayaan"
+                ],
+                "summary": "Memperbarui jenis pembiayaan",
+                "operationId": "942db301785c7c1957594c371d437970",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama_pembiayaan",
+                                    "kategori"
+                                ],
+                                "properties": {
+                                    "nama_pembiayaan": {
+                                        "type": "string",
+                                        "example": "Biaya Operasional Mahasiswa"
+                                    },
+                                    "kategori": {
+                                        "type": "string",
+                                        "example": "operasional"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Jenis pembiayaan berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Jenis pembiayaan tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Master Data - Jenis Pembiayaan"
+                ],
+                "summary": "Menghapus jenis pembiayaan",
+                "operationId": "25f7674cf96a25efdc05eec27497b626",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Jenis pembiayaan berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Jenis pembiayaan tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sarpras-prodi": {
+            "get": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Mendapatkan daftar data prasarana prodi",
+                "description": "Menampilkan list data prasarana dengan opsional filter id_project.",
+                "operationId": "ccd16183c49e979531c03428a3fa5840",
+                "parameters": [
+                    {
+                        "name": "id_project",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Project Akreditasi",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar prasarana",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Menambahkan data prasarana prodi baru",
+                "operationId": "94f1117de527d28c5def3af861cbd4b4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_project"
+                                ],
+                                "properties": {
+                                    "id_project": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "kapasitas": {
+                                        "type": "integer",
+                                        "example": 40,
+                                        "nullable": true
+                                    },
+                                    "keterangan": {
+                                        "type": "string",
+                                        "example": "Laboratorium Rekayasa Perangkat Lunak Gedung A",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Data prasarana berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sarpras-prodi/{id}": {
+            "get": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Mendapatkan detail data prasarana prodi",
+                "operationId": "f9b4c53208b2c1e5d4a4007a7a4e9dd6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail prasarana berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Prasarana tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Memperbarui data prasarana prodi",
+                "operationId": "127beec472a5d3531aa4d557342605bf",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "kapasitas": {
+                                        "type": "integer",
+                                        "example": 45,
+                                        "nullable": true
+                                    },
+                                    "keterangan": {
+                                        "type": "string",
+                                        "example": "Laboratorium RPL Gedung A (Renovasi)",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Data prasarana berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Prasarana tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Menghapus data prasarana prodi",
+                "operationId": "0034ea9afb1f32e1ab85f7c9669cd79a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data prasarana berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Prasarana tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sarana-prodi": {
+            "get": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Mendapatkan daftar data sarana prodi",
+                "description": "Menampilkan list data sarana dengan opsional filter id_prasarana.",
+                "operationId": "7b6510cf537aa2805cf138e37bfa39b2",
+                "parameters": [
+                    {
+                        "name": "id_prasarana",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Prasarana",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar sarana",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Menambahkan data sarana prodi baru",
+                "operationId": "64ed3f739ac6149fe25c2087385a8d8a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_prasarana",
+                                    "nama_sarana"
+                                ],
+                                "properties": {
+                                    "id_prasarana": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "nama_sarana": {
+                                        "type": "string",
+                                        "example": "PC Workstation Core i7 32GB RAM"
+                                    },
+                                    "jumlah": {
+                                        "type": "integer",
+                                        "example": 30,
+                                        "nullable": true
+                                    },
+                                    "kondisi": {
+                                        "type": "string",
+                                        "example": "Baik",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Data sarana berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sarana-prodi/{id}": {
+            "get": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Mendapatkan detail data sarana prodi",
+                "operationId": "169000b73b2a7fc2c71668c1bf3aa6dc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail sarana berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Sarana tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Memperbarui data sarana prodi",
+                "operationId": "9c7e59bb7e789ee478c3dd8ac25aed02",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nama_sarana": {
+                                        "type": "string",
+                                        "example": "PC Workstation Core i7 32GB RAM (Upgrade SSD)",
+                                        "nullable": true
+                                    },
+                                    "jumlah": {
+                                        "type": "integer",
+                                        "example": 35,
+                                        "nullable": true
+                                    },
+                                    "kondisi": {
+                                        "type": "string",
+                                        "example": "Sangat Baik",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Data sarana berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Sarana tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Sarpras - Sarana & Prasarana"
+                ],
+                "summary": "Menghapus data sarana prodi",
+                "operationId": "442674ed5935068e9a5e2da9344bf78a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data sarana berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Sarana tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/spmi-audit": {
+            "get": {
+                "tags": [
+                    "SPMI - Audit Mutu Internal"
+                ],
+                "summary": "Mendapatkan daftar data audit SPMI",
+                "description": "Menampilkan list data audit SPMI dengan filter id_prodi, tahun, dan status_audit.",
+                "operationId": "b6039ac073a99b798902a9cc40fa9354",
+                "parameters": [
+                    {
+                        "name": "id_prodi",
+                        "in": "query",
+                        "description": "Filter ID Program Studi",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "tahun",
+                        "in": "query",
+                        "description": "Filter Tahun Audit",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "status_audit",
+                        "in": "query",
+                        "description": "Filter status (Open / Closed / In Progress)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar audit SPMI",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "SPMI - Audit Mutu Internal"
+                ],
+                "summary": "Menambahkan temuan audit SPMI baru",
+                "operationId": "f9268df9eeb02a689bfc888c66e611df",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_prodi",
+                                    "id_standar_mutu",
+                                    "id_auditor",
+                                    "tahun",
+                                    "hasil_audit",
+                                    "kondisi_temuan",
+                                    "status_audit",
+                                    "tanggal_audit"
+                                ],
+                                "properties": {
+                                    "id_prodi": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "id_standar_mutu": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "id_auditor": {
+                                        "type": "integer",
+                                        "example": 401
+                                    },
+                                    "tahun": {
+                                        "type": "integer",
+                                        "example": 2026
+                                    },
+                                    "hasil_audit": {
+                                        "description": "Kesesuaian / Ketidaksesuaian Mayor / Minor / Observasi",
+                                        "type": "string",
+                                        "example": "Observasi"
+                                    },
+                                    "kondisi_temuan": {
+                                        "type": "string",
+                                        "example": "Dokumen SOP pelaksanaan RPS belum diperbarui sesuai kurikulum OBE terbaru."
+                                    },
+                                    "akar_masalah": {
+                                        "type": "string",
+                                        "example": "Keterbatasan waktu koordinasi tim kurikulum pada semester gasal.",
+                                        "nullable": true
+                                    },
+                                    "rekomendasi": {
+                                        "type": "string",
+                                        "example": "Lakukan workshop review SOP dan penyelarasan RPS serentak sebelum semester genap.",
+                                        "nullable": true
+                                    },
+                                    "status_audit": {
+                                        "type": "string",
+                                        "example": "Open"
+                                    },
+                                    "tanggal_audit": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-10-15"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Data audit SPMI berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/spmi-audit/{id}": {
+            "get": {
+                "tags": [
+                    "SPMI - Audit Mutu Internal"
+                ],
+                "summary": "Mendapatkan detail temuan audit SPMI",
+                "operationId": "56692597fdb10c8502da82e76a1714c0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail audit SPMI berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Data audit SPMI tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "SPMI - Audit Mutu Internal"
+                ],
+                "summary": "Memperbarui data audit SPMI",
+                "operationId": "12b20a3753a50de0f373cd30bc333adc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_prodi",
+                                    "id_standar_mutu",
+                                    "id_auditor",
+                                    "tahun",
+                                    "hasil_audit",
+                                    "kondisi_temuan",
+                                    "status_audit",
+                                    "tanggal_audit"
+                                ],
+                                "properties": {
+                                    "id_prodi": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "id_standar_mutu": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "id_auditor": {
+                                        "type": "integer",
+                                        "example": 401
+                                    },
+                                    "tahun": {
+                                        "type": "integer",
+                                        "example": 2026
+                                    },
+                                    "hasil_audit": {
+                                        "type": "string",
+                                        "example": "Ketidaksesuaian Minor"
+                                    },
+                                    "kondisi_temuan": {
+                                        "type": "string",
+                                        "example": "Revisi kondisi temuan audit oleh auditor."
+                                    },
+                                    "akar_masalah": {
+                                        "type": "string",
+                                        "example": "Akar masalah diperbarui.",
+                                        "nullable": true
+                                    },
+                                    "rekomendasi": {
+                                        "type": "string",
+                                        "example": "Rekomendasi audit diperbarui.",
+                                        "nullable": true
+                                    },
+                                    "status_audit": {
+                                        "type": "string",
+                                        "example": "In Progress"
+                                    },
+                                    "tanggal_audit": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-10-15"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Data audit SPMI berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Data audit SPMI tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "SPMI - Audit Mutu Internal"
+                ],
+                "summary": "Menghapus data audit SPMI",
+                "operationId": "45176ab23822cbff18ebd703674413e0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data audit SPMI berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Data audit SPMI tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/spmi-audit/{id}/tindak-lanjut": {
+            "put": {
+                "tags": [
+                    "SPMI - Audit Mutu Internal"
+                ],
+                "summary": "Memperbarui tindak lanjut temuan audit SPMI",
+                "description": "Auditee (Ketua Prodi / Gugus Mutu) mengisi rencana tindak lanjut, tanggal efektif, dan evaluasi hasil perbaikan.",
+                "operationId": "ecf469bd314443cfb2d8e0e55cea46c2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Audit SPMI",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "rencana_tindak_lanjut",
+                                    "status_tindak_lanjut"
+                                ],
+                                "properties": {
+                                    "rencana_tindak_lanjut": {
+                                        "type": "string",
+                                        "example": "Mengadakan rapat konsinyasi penyelarasan RPS dan revisi SOP pembelajaran."
+                                    },
+                                    "status_tindak_lanjut": {
+                                        "type": "string",
+                                        "example": "Selesai",
+                                        "enum": [
+                                            "Belum Dilaksanakan",
+                                            "Sedang Berjalan",
+                                            "Selesai",
+                                            "Efektif"
+                                        ]
+                                    },
+                                    "tanggal_efektif": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-11-01",
+                                        "nullable": true
+                                    },
+                                    "evaluasi_efektivitas": {
+                                        "type": "string",
+                                        "example": "Seluruh RPS telah sesuai panduan kurikulum OBE terbaru.",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tindak lanjut audit SPMI berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Data audit SPMI tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ApiResponseSuccess": {
+                "title": "Standar Respons Sukses",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Data berhasil diproses."
+                    },
+                    "data": {
+                        "type": "object"
+                    },
+                    "errors": {
+                        "type": "null",
+                        "example": null
+                    }
+                },
+                "type": "object"
+            },
+            "ApiResponseListSuccess": {
+                "title": "Standar Respons Daftar Data",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Data berhasil dimuat."
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "errors": {
+                        "type": "null",
+                        "example": null
+                    }
+                },
+                "type": "object"
+            },
+            "ApiResponseValidationError": {
+                "title": "Standar Respons Error Validasi (422)",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Validasi data gagal."
+                    },
+                    "data": {
+                        "type": "null",
+                        "example": null
+                    },
+                    "errors": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ApiResponseNotFound": {
+                "title": "Standar Respons Tidak Ditemukan (404)",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Data tidak ditemukan."
+                    },
+                    "data": {
+                        "type": "null",
+                        "example": null
+                    },
+                    "errors": {
+                        "type": "null",
+                        "example": null
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Master Data - Lembaga Akreditasi",
+            "description": "Manajemen Data Master Lembaga Akreditasi (LAM INFOKOM, BAN-PT, dll)"
+        },
+        {
+            "name": "Master Data - Versi Instrumen",
+            "description": "Manajemen Versi Instrumen Akreditasi (1.0, 2.0, 2.1, dll)"
+        },
+        {
+            "name": "Master Data - Instrumen",
+            "description": "Manajemen Instrumen Akreditasi (Jembatan Versi Instrumen, Jenjang, dan Jenis Instrumen)"
+        },
+        {
+            "name": "Master Data - Kriteria",
+            "description": "Manajemen Data Master Kriteria"
+        },
+        {
+            "name": "Master Data - Indikator",
+            "description": "Manajemen Data Master Indikator"
+        },
+        {
+            "name": "Master Data - Rubrik",
+            "description": "Manajemen Data Master Rubrik Penilaian"
+        },
+        {
+            "name": "Master Data - Standar Mutu",
+            "description": "Manajemen Data Master Standar Mutu"
+        },
+        {
+            "name": "Master Data - Jenis Pembiayaan",
+            "description": "Manajemen Data Master Jenis Pembiayaan"
+        },
+        {
+            "name": "Akreditasi - Project",
+            "description": "Manajemen Project Akreditasi"
+        },
+        {
+            "name": "Akreditasi - Mapping Tim",
+            "description": "Pembagian Tugas dan Penugasan Tim Akreditasi"
+        },
+        {
+            "name": "Akreditasi - Self Assessment",
+            "description": "Penilaian Mandiri oleh Reviewer & Asesor"
+        },
+        {
+            "name": "SPMI - Audit Mutu Internal",
+            "description": "Audit SPMI dan Tindak Lanjut Temuan"
+        },
+        {
+            "name": "Sarpras - Sarana & Prasarana",
+            "description": "Manajemen Data Sarana dan Prasarana Program Studi"
+        }
+    ]
+}
