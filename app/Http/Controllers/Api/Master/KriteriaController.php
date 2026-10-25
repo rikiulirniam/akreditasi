@@ -15,7 +15,7 @@ class KriteriaController extends Controller
 
     public function index(): JsonResponse
     {
-        $data = Kriteria::with(['versiInstrumen', 'subkriteria'])->latest()->get();
+        $data = Kriteria::with(['instrumen.versiInstrumen', 'instrumen.jenjang', 'instrumen.jenisInstrumen', 'subkriteria'])->latest()->get();
 
         return $this->successResponse($data, 'Data kriteria berhasil diambil');
     }
@@ -29,7 +29,7 @@ class KriteriaController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $kriteria = Kriteria::with(['versiInstrumen', 'subkriteria.indikator'])->find($id);
+        $kriteria = Kriteria::with(['instrumen.versiInstrumen', 'instrumen.jenjang', 'instrumen.jenisInstrumen', 'subkriteria.indikator'])->find($id);
 
         if (! $kriteria) {
             return $this->errorResponse('Kriteria tidak ditemukan', null, 404);

@@ -9,7 +9,7 @@ class UpdateKriteriaRequest extends BaseApiRequest
     public function rules(): array
     {
         return [
-            'id_versi_instrumen' => 'sometimes|required|integer|exists:versi_instrumen,id',
+            'id_instrumen' => 'sometimes|required|uuid|exists:instrumen,id',
             'kode_kriteria' => 'sometimes|required|string|max:50',
             'nama_kriteria' => 'sometimes|required|string|max:255',
         ];

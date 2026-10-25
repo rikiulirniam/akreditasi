@@ -1257,19 +1257,8 @@
                     "Master Data - Kriteria"
                 ],
                 "summary": "Mendapatkan daftar kriteria",
-                "description": "Menampilkan list master kriteria dengan opsional filter id_versi_instrumen.",
+                "description": "Menampilkan list master kriteria dengan relasi instrumen dan subkriteria.",
                 "operationId": "306a4957b0b574014ff5844e3c2b6c24",
-                "parameters": [
-                    {
-                        "name": "id_versi_instrumen",
-                        "in": "query",
-                        "description": "Filter berdasarkan ID Versi Instrumen",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Berhasil memuat daftar kriteria",
@@ -1295,14 +1284,16 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "id_versi_instrumen",
+                                    "id_instrumen",
                                     "kode_kriteria",
                                     "nama_kriteria"
                                 ],
                                 "properties": {
-                                    "id_versi_instrumen": {
-                                        "type": "integer",
-                                        "example": 1
+                                    "id_instrumen": {
+                                        "description": "UUID Instrumen",
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": "a0000000-0000-0000-0000-000000000001"
                                     },
                                     "kode_kriteria": {
                                         "type": "string",
@@ -1310,7 +1301,7 @@
                                     },
                                     "nama_kriteria": {
                                         "type": "string",
-                                        "example": "Visi, Misi, Tujuan, dan Strategi"
+                                        "example": "Budaya Mutu"
                                     }
                                 },
                                 "type": "object"
@@ -1403,15 +1394,12 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "id_versi_instrumen",
-                                    "kode_kriteria",
-                                    "nama_kriteria"
-                                ],
                                 "properties": {
-                                    "id_versi_instrumen": {
-                                        "type": "integer",
-                                        "example": 1
+                                    "id_instrumen": {
+                                        "description": "UUID Instrumen",
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": "a0000000-0000-0000-0000-000000000001"
                                     },
                                     "kode_kriteria": {
                                         "type": "string",
@@ -1419,7 +1407,7 @@
                                     },
                                     "nama_kriteria": {
                                         "type": "string",
-                                        "example": "Visi, Misi, Tujuan, dan Strategi Revisi"
+                                        "example": "Budaya Mutu"
                                     }
                                 },
                                 "type": "object"
