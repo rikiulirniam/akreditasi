@@ -729,18 +729,35 @@ class LamInfokomSeeder extends Seeder
         // =========================================================================
         // 12. DATA SPMI AUDIT DEMO
         // =========================================================================
+        // Pastikan kolom tahun_audit ada di database (non-destruktif)
+        if (Schema::hasTable('data_spmi_audit') && ! Schema::hasColumn('data_spmi_audit', 'tahun_audit')) {
+            try {
+                Schema::table('data_spmi_audit', function (Blueprint $table) {
+                    $table->year('tahun_audit')->nullable()->default(date('Y'));
+                });
+            } catch (\Throwable $e) {
+                // Abaikan jika sudah ada
+            }
+        }
+
         $stdSpmi1 = StandarMutu::where('kode_standar', 'STD-INFOKOM-01')->first();
         $stdSpmi3 = StandarMutu::where('kode_standar', 'STD-INFOKOM-03')->first();
         $stdSpmi6 = StandarMutu::where('kode_standar', 'STD-INFOKOM-06')->first();
 
+        $hasTahunAudit = Schema::hasColumn('data_spmi_audit', 'tahun_audit');
+
         if ($stdSpmi1) {
+            $match1 = [
+                'id_project' => $projectDiploma->id,
+                'id_standar' => $stdSpmi1->id,
+                'jenis_kegiatan' => 'AMI',
+            ];
+            if ($hasTahunAudit) {
+                $match1['tahun_audit'] = 2025;
+            }
+
             DataSpmiAudit::firstOrCreate(
-                [
-                    'id_project' => $projectDiploma->id,
-                    'id_standar' => $stdSpmi1->id,
-                    'tahun_audit' => 2025,
-                    'jenis_kegiatan' => 'AMI',
-                ],
+                $match1,
                 [
                     'tanggal_pelaksanaan' => '2025-11-15',
                     'temuan' => 'Capaian Pembelajaran Lulusan (CPL) aspek rekayasa sistem berbasis cloud telah melampaui target minimum indikator kinerja utama.',
@@ -751,13 +768,17 @@ class LamInfokomSeeder extends Seeder
         }
 
         if ($stdSpmi3) {
+            $match3 = [
+                'id_project' => $projectDiploma->id,
+                'id_standar' => $stdSpmi3->id,
+                'jenis_kegiatan' => 'RTM',
+            ];
+            if ($hasTahunAudit) {
+                $match3['tahun_audit'] = 2025;
+            }
+
             DataSpmiAudit::firstOrCreate(
-                [
-                    'id_project' => $projectDiploma->id,
-                    'id_standar' => $stdSpmi3->id,
-                    'tahun_audit' => 2025,
-                    'jenis_kegiatan' => 'RTM',
-                ],
+                $match3,
                 [
                     'tanggal_pelaksanaan' => '2025-12-05',
                     'temuan' => 'Metode Project-Based Learning pada semester 5 memerlukan integrasi repository industri nyata.',
@@ -768,13 +789,17 @@ class LamInfokomSeeder extends Seeder
         }
 
         if ($stdSpmi6) {
+            $match6 = [
+                'id_project' => $projectSarjanaTerapan->id,
+                'id_standar' => $stdSpmi6->id,
+                'jenis_kegiatan' => 'PPEPP',
+            ];
+            if ($hasTahunAudit) {
+                $match6['tahun_audit'] = 2026;
+            }
+
             DataSpmiAudit::firstOrCreate(
-                [
-                    'id_project' => $projectSarjanaTerapan->id,
-                    'id_standar' => $stdSpmi6->id,
-                    'tahun_audit' => 2026,
-                    'jenis_kegiatan' => 'PPEPP',
-                ],
+                $match6,
                 [
                     'tanggal_pelaksanaan' => '2026-01-20',
                     'temuan' => 'Kebutuhan GPU server untuk praktikum Deep Learning dan Computer Vision meningkat.',
