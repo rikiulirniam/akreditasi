@@ -22,6 +22,8 @@ use App\Models\Subkriteria;
 use App\Models\VersiInstrumen;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class LamInfokomSeeder extends Seeder
 {
@@ -528,11 +530,38 @@ class LamInfokomSeeder extends Seeder
         // =========================================================================
         // 9. PROJECT AKREDITASI DEMO (DIPLOMA & SARJANA TERAPAN)
         // =========================================================================
+        // Lepas foreign key lama ke prodi jika masih menempel di MySQL
+        if (DB::getDriverName() === 'mysql') {
+            try {
+                DB::statement('ALTER TABLE `project_akreditasi` DROP FOREIGN KEY `project_akreditasi_id_prodi_foreign`');
+            } catch (\Throwable $e) {
+                // Abaikan jika constraint sudah tidak ada
+            }
+        }
+
+        // Jika tabel prodi lama masih ada di database, pastikan entri prodi ada agar tidak melanggar constraint
+        $idProdiD3 = 201;
+        $idProdiD4 = 202;
+        if (Schema::hasTable('prodi')) {
+            try {
+                DB::table('prodi')->insertOrIgnore([
+                    ['id' => 201, 'nama_prodi' => 'D3 Teknik Informatika', 'created_at' => now(), 'updated_at' => now()],
+                    ['id' => 202, 'nama_prodi' => 'D4 Rekayasa Perangkat Lunak', 'created_at' => now(), 'updated_at' => now()],
+                ]);
+            } catch (\Throwable $e) {
+                $firstProdi = DB::table('prodi')->value('id');
+                if ($firstProdi) {
+                    $idProdiD3 = $firstProdi;
+                    $idProdiD4 = $firstProdi;
+                }
+            }
+        }
+
         // Project 1: Program Diploma (D3 Teknik Informatika)
         $projectDiploma = ProjectAkreditasi::firstOrCreate(
             ['nama_project' => 'Akreditasi Program Studi D3 Teknik Informatika 2026'],
             [
-                'id_prodi' => 201, // Simulasi ID Prodi dari API Kelompok 2
+                'id_prodi' => $idProdiD3, // ID Prodi
                 'id_versi_instrumen' => $versi->id,
                 'id_jenjang' => $jenjangDiploma->id,
                 'id_jenis_instrumen' => $jenisUnggul->id,
@@ -545,7 +574,7 @@ class LamInfokomSeeder extends Seeder
         $projectSarjanaTerapan = ProjectAkreditasi::firstOrCreate(
             ['nama_project' => 'Akreditasi Program Studi D4 Rekayasa Perangkat Lunak 2026'],
             [
-                'id_prodi' => 202, // Simulasi ID Prodi dari API Kelompok 2
+                'id_prodi' => $idProdiD4, // ID Prodi
                 'id_versi_instrumen' => $versi->id,
                 'id_jenjang' => $jenjangSarjanaTerapan->id,
                 'id_jenis_instrumen' => $jenisUnggul->id,
