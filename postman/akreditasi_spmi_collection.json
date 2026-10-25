@@ -235,8 +235,8 @@
                   }
                 ],
                 "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"id_subkriteria\": \"{{subkriteria_id}}\",\n  \"kode_indikator\": \"IND-1.1.2\",\n  \"deskripsi_indikator\": \"Tingkat pemahaman civitas akademika terhadap visi dan misi\",\n  \"parameter_penilaian\": \"Hasil survei pemahaman dan kuesioner berkala\"\n}"
+                    "mode": "raw",
+                    "raw": "{\n  \"id_subkriteria\": \"{{subkriteria_id}}\",\n  \"kode_indikator\": \"IND-1.1.2\",\n  \"deskripsi_indikator\": \"Tingkat pemahaman civitas akademika terhadap visi dan misi\",\n  \"bobot\": 3.75\n}"
                 },
                 "url": {
                   "raw": "{{base_url}}/master/indikator",

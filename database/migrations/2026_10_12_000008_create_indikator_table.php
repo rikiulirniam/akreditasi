@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('id_subkriteria')->constrained('subkriteria')->cascadeOnDelete();
             $table->string('kode_indikator');
             $table->text('deskripsi_indikator');
-            $table->text('parameter_penilaian');
+            $table->decimal('bobot', 8, 2); // 8 digit total, 2 angka di belakang koma
             $table->timestamps();
         });
     }
