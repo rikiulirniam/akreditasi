@@ -15,13 +15,20 @@ class DataSarprasProdi extends Model
 
     protected $fillable = [
         'id_project',
+        'kapasitas',
         'keterangan',
+        'id_sarana',
+        'jumlah_unit',
+        'kondisi',
     ];
 
     protected function casts(): array
     {
         return [
             'id_project' => 'integer',
+            'kapasitas' => 'integer',
+            'id_sarana' => 'integer',
+            'jumlah_unit' => 'integer',
         ];
     }
 

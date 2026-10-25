@@ -20,6 +20,7 @@ use App\Models\SelfAssessment;
 use App\Models\StandarMutu;
 use App\Models\Subkriteria;
 use App\Models\VersiInstrumen;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -530,24 +531,27 @@ class LamInfokomSeeder extends Seeder
         // =========================================================================
         // 9. PROJECT AKREDITASI DEMO (DIPLOMA & SARJANA TERAPAN)
         // =========================================================================
-        // Lepas foreign key lama ke prodi jika masih menempel di MySQL
-        if (DB::getDriverName() === 'mysql') {
-            try {
-                DB::statement('ALTER TABLE `project_akreditasi` DROP FOREIGN KEY `project_akreditasi_id_prodi_foreign`');
-            } catch (\Throwable $e) {
-                // Abaikan jika constraint sudah tidak ada
-            }
-        }
-
-        // Jika tabel prodi lama masih ada di database, pastikan entri prodi ada agar tidak melanggar constraint
+        // Jika tabel prodi ada di database, pastikan entri prodi ada atau gunakan id yang tersedia
         $idProdiD3 = 201;
         $idProdiD4 = 202;
         if (Schema::hasTable('prodi')) {
             try {
-                DB::table('prodi')->insertOrIgnore([
-                    ['id' => 201, 'nama_prodi' => 'D3 Teknik Informatika', 'created_at' => now(), 'updated_at' => now()],
-                    ['id' => 202, 'nama_prodi' => 'D4 Rekayasa Perangkat Lunak', 'created_at' => now(), 'updated_at' => now()],
-                ]);
+                $columns = Schema::getColumnListing('prodi');
+                $namaCol = in_array('nama_prodi', $columns) ? 'nama_prodi' : (in_array('nama', $columns) ? 'nama' : null);
+
+                $dataD3 = ['id' => 201];
+                $dataD4 = ['id' => 202];
+                if ($namaCol) {
+                    $dataD3[$namaCol] = 'D3 Teknik Informatika';
+                    $dataD4[$namaCol] = 'D4 Rekayasa Perangkat Lunak';
+                }
+                if (in_array('created_at', $columns)) {
+                    $dataD3['created_at'] = now();
+                    $dataD3['updated_at'] = now();
+                    $dataD4['created_at'] = now();
+                    $dataD4['updated_at'] = now();
+                }
+                DB::table('prodi')->insertOrIgnore([$dataD3, $dataD4]);
             } catch (\Throwable $e) {
                 $firstProdi = DB::table('prodi')->value('id');
                 if ($firstProdi) {
@@ -590,6 +594,7 @@ class LamInfokomSeeder extends Seeder
             [
                 'project' => $projectDiploma,
                 'nama_lab' => 'Laboratorium Rekayasa Perangkat Lunak & Basis Data',
+                'kapasitas' => 40,
                 'sarana' => [
                     ['jumlah_unit' => 40, 'kondisi' => 'Baik', 'keterangan' => 'PC Workstation Intel Core i7 13700, 32GB DDR5, SSD 1TB, Dual Monitor 24"'],
                     ['jumlah_unit' => 1, 'kondisi' => 'Baik', 'keterangan' => 'Smart Interactive Projector 4K Ultra HD & Motorized Screen'],
@@ -599,6 +604,7 @@ class LamInfokomSeeder extends Seeder
             [
                 'project' => $projectDiploma,
                 'nama_lab' => 'Laboratorium Jaringan Komputer, IoT, & Cloud Sandbox',
+                'kapasitas' => 36,
                 'sarana' => [
                     ['jumlah_unit' => 36, 'kondisi' => 'Baik', 'keterangan' => 'Workstation Dual-NIC Gigabit, 16GB RAM, SSD NVMe'],
                     ['jumlah_unit' => 6, 'kondisi' => 'Baik', 'keterangan' => 'Cisco Catalyst Switch 2960 Series & Router Rack Simulator'],
@@ -608,6 +614,7 @@ class LamInfokomSeeder extends Seeder
             [
                 'project' => $projectSarjanaTerapan,
                 'nama_lab' => 'Studio Pengembangan Kecerdasan Buatan & Multimedia',
+                'kapasitas' => 35,
                 'sarana' => [
                     ['jumlah_unit' => 35, 'kondisi' => 'Baik', 'keterangan' => 'High-End AI Workstation Core i9, GPU Nvidia RTX 4080 16GB, 64GB RAM'],
                     ['jumlah_unit' => 1, 'kondisi' => 'Baik', 'keterangan' => 'Local AI Inference Server Dell PowerEdge R750xa Dual Xeon'],
@@ -615,30 +622,53 @@ class LamInfokomSeeder extends Seeder
             ],
         ];
 
-        // Bersihkan kolom legacy pada data_sarpras_prodi jika masih ada di database
+        // Perbaiki kolom-kolom yang sudah ada di database agar nullable (tidak menghapus kolom)
         if (Schema::hasTable('data_sarpras_prodi')) {
-            try {
-                $legacyCols = array_values(array_intersect(
-                    ['id_sarana', 'jumlah_unit', 'kondisi'],
-                    Schema::getColumnListing('data_sarpras_prodi')
-                ));
-                if (! empty($legacyCols)) {
-                    Schema::table('data_sarpras_prodi', function (Blueprint $table) use ($legacyCols) {
-                        $table->dropColumn($legacyCols);
-                    });
+            if (DB::getDriverName() === 'mysql') {
+                try {
+                    if (Schema::hasColumn('data_sarpras_prodi', 'id_sarana')) {
+                        DB::statement('ALTER TABLE `data_sarpras_prodi` MODIFY `id_sarana` BIGINT UNSIGNED NULL DEFAULT NULL');
+                    }
+                    if (Schema::hasColumn('data_sarpras_prodi', 'jumlah_unit')) {
+                        DB::statement('ALTER TABLE `data_sarpras_prodi` MODIFY `jumlah_unit` INT NULL DEFAULT 0');
+                    }
+                    if (Schema::hasColumn('data_sarpras_prodi', 'kondisi')) {
+                        DB::statement("ALTER TABLE `data_sarpras_prodi` MODIFY `kondisi` VARCHAR(255) NULL DEFAULT 'Baik'");
+                    }
+                } catch (\Throwable $e) {
+                    // Abaikan jika sudah nullable
                 }
-            } catch (\Throwable $e) {
-                // Ignore jika gagal atau sudah tidak ada
+            }
+
+            if (! Schema::hasColumn('data_sarpras_prodi', 'kapasitas')) {
+                try {
+                    Schema::table('data_sarpras_prodi', function (Blueprint $table) {
+                        $table->integer('kapasitas')->nullable()->default(0);
+                    });
+                } catch (\Throwable $e) {
+                    // Abaikan jika sudah ada
+                }
             }
         }
 
         foreach ($sarprasData as $data) {
-            $prasarana = DataSarprasProdi::firstOrCreate(
-                [
-                    'id_project' => $data['project']->id,
-                    'keterangan' => $data['nama_lab'],
-                ]
-            );
+            $insertMatch = [
+                'id_project' => $data['project']->id,
+                'keterangan' => $data['nama_lab'],
+            ];
+            $extraAttributes = [];
+
+            if (Schema::hasColumn('data_sarpras_prodi', 'kapasitas')) {
+                $extraAttributes['kapasitas'] = $data['kapasitas'] ?? 0;
+            }
+            if (Schema::hasColumn('data_sarpras_prodi', 'jumlah_unit')) {
+                $extraAttributes['jumlah_unit'] = 0;
+            }
+            if (Schema::hasColumn('data_sarpras_prodi', 'kondisi')) {
+                $extraAttributes['kondisi'] = 'Baik';
+            }
+
+            $prasarana = DataSarprasProdi::firstOrCreate($insertMatch, $extraAttributes);
 
             foreach ($data['sarana'] as $sar) {
                 DataSaranaProdi::firstOrCreate(

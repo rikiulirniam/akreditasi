@@ -2549,7 +2549,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id_project\": 1,\n  \"keterangan\": \"Laboratorium Rekayasa Perangkat Lunak Gedung A\"\n}"
+                  "raw": "{\n  \"id_project\": 1,\n  \"kapasitas\": 45,\n  \"keterangan\": \"Laboratorium Rekayasa Perangkat Lunak Gedung A\"\n}"
                 }
               },
               "event": [
@@ -2628,7 +2628,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"keterangan\": \"Laboratorium Rekayasa Perangkat Lunak Gedung A (Renovasi)\"\n}"
+                  "raw": "{\n  \"kapasitas\": 50,\n  \"keterangan\": \"Laboratorium Rekayasa Perangkat Lunak Gedung A (Renovasi)\"\n}"
                 }
               },
               "event": [

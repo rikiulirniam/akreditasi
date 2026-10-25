@@ -10,6 +10,7 @@ class UpdateDataSarprasProdiRequest extends BaseApiRequest
     {
         return [
             'id_project' => 'sometimes|required|integer|exists:project_akreditasi,id',
+            'kapasitas' => 'nullable|integer|min:0',
             'keterangan' => 'nullable|string',
         ];
     }
