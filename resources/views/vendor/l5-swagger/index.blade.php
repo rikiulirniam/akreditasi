@@ -141,7 +141,29 @@
 
             requestInterceptor: function(request) {
                 request.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}';
+                const savedToken = localStorage.getItem('jwt_auth_token');
+                if (savedToken && !request.headers['Authorization']) {
+                    request.headers['Authorization'] = 'Bearer ' + savedToken;
+                }
                 return request;
+            },
+
+            responseInterceptor: function(response) {
+                try {
+                    // Otomatis tangkap access_token saat login berhasil
+                    const data = response.obj || JSON.parse(response.data || '{}');
+                    const token = data?.data?.authorization?.access_token;
+                    if (token) {
+                        localStorage.setItem('jwt_auth_token', token);
+                        if (window.ui && typeof window.ui.preauthorizeApiKey === 'function') {
+                            window.ui.preauthorizeApiKey('BearerAuth', token);
+                            console.log('Swagger UI: JWT Token berhasil diautentikasi secara otomatis!');
+                        }
+                    }
+                } catch (e) {
+                    // Abaikan jika respons bukan JSON auth
+                }
+                return response;
             },
 
             presets: [
@@ -157,8 +179,7 @@
             docExpansion : "{!! config('l5-swagger.defaults.ui.display.doc_expansion', 'none') !!}",
             deepLinking: true,
             filter: {!! config('l5-swagger.defaults.ui.display.filter') ? 'true' : 'false' !!},
-            persistAuthorization: "{!! config('l5-swagger.defaults.ui.authorization.persist_authorization') ? 'true' : 'false' !!}",
-
+            persistAuthorization: true,
         })
 
         window.ui = ui

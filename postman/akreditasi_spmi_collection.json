@@ -60,8 +60,11 @@
                   "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
                   "var jsonData = pm.response.json();",
                   "if (jsonData.data && jsonData.data.authorization && jsonData.data.authorization.access_token) {",
-                  "    pm.environment.set('jwt_token', jsonData.data.authorization.access_token);",
-                  "    console.log('Token JWT otomatis tersimpan ke environment!');",
+                  "    var token = jsonData.data.authorization.access_token;",
+                  "    pm.environment.set('jwt_token', token);",
+                  "    pm.collectionVariables.set('jwt_token', token);",
+                  "    pm.globals.set('jwt_token', token);",
+                  "    console.log('Token JWT otomatis tersimpan ke environment, collection, & globals!');",
                   "}"
                 ],
                 "type": "text/javascript"
