@@ -418,13 +418,8 @@
                   ]
                 },
                 "body": {
-                    "mode": "raw",
-                    "raw": "{\n  \"id_subkriteria\": \"{{subkriteria_id}}\",\n  \"kode_indikator\": \"IND-1.1.2\",\n  \"deskripsi_indikator\": \"Tingkat pemahaman civitas akademika terhadap visi dan misi\",\n  \"bobot\": 3.75\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/master/indikator",
-                  "host": ["{{base_url}}"],
-                  "path": ["master", "indikator"]
+                  "mode": "raw",
+                  "raw": "{\n  \"id_lembaga\": 1,\n  \"nomor_versi\": \"2026.1\",\n  \"tanggal_berlaku\": \"2026-01-01\",\n  \"status_aktif\": true\n}"
                 }
               },
               "event": [
@@ -669,7 +664,8 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Memiliki relasi kriterias', function () { pm.expect(pm.response.json().data).to.have.property('kriterias'); });"
                     ],
                     "type": "text/javascript"
                   }
@@ -779,7 +775,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id_instrumen\": 1,\n  \"kode_kriteria\": \"C.1\",\n  \"nama_kriteria\": \"Visi, Misi, Tujuan, dan Strategi\",\n  \"urutan\": 1\n}"
+                  "raw": "{\n  \"id_instrumen\": \"{{instrumen_id}}\",\n  \"kode_kriteria\": \"C.1\",\n  \"nama_kriteria\": \"Visi, Misi, Tujuan, dan Strategi\"\n}"
                 }
               },
               "event": [
@@ -824,7 +820,8 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Memiliki relasi subkriteria', function () { pm.expect(pm.response.json().data).to.have.property('subkriteria'); });"
                     ],
                     "type": "text/javascript"
                   }
@@ -914,6 +911,214 @@
           ]
         },
         {
+          "name": "Subkriteria",
+          "item": [
+            {
+              "name": "1.6 GET Semua Subkriteria",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/master/subkriteria?id_kriteria={{kriteria_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "master",
+                    "subkriteria"
+                  ],
+                  "query": [
+                    {
+                      "key": "id_kriteria",
+                      "value": "{{kriteria_id}}",
+                      "description": "Filter berdasarkan ID Kriteria"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "1.7 POST Tambah Subkriteria",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/master/subkriteria",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "master",
+                    "subkriteria"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id_kriteria\": 1,\n  \"kode_subkriteria\": \"C.1.1\",\n  \"nama_subkriteria\": \"Kebijakan dan Perencanaan Strategis VMTS\"\n}"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
+                      "var res = pm.response.json();",
+                      "if (res.data && res.data.id) { pm.environment.set('subkriteria_id', res.data.id); }"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "1.8 GET Detail Subkriteria",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/master/subkriteria/{{subkriteria_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "master",
+                    "subkriteria",
+                    "{{subkriteria_id}}"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Memiliki relasi indikator', function () { pm.expect(pm.response.json().data).to.have.property('indikator'); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "1.9 PUT Update Subkriteria",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/master/subkriteria/{{subkriteria_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "master",
+                    "subkriteria",
+                    "{{subkriteria_id}}"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nama_subkriteria\": \"Kebijakan dan Perencanaan Strategis VMTS (Diperbarui)\"\n}"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "1.10 DELETE Subkriteria",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/master/subkriteria/{{subkriteria_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "master",
+                    "subkriteria",
+                    "{{subkriteria_id}}"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.environment.set('subkriteria_id', '1');"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "Indikator",
           "item": [
             {
@@ -928,13 +1133,20 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{base_url}}/master/indikator",
+                  "raw": "{{base_url}}/master/indikator?id_subkriteria={{subkriteria_id}}",
                   "host": [
                     "{{base_url}}"
                   ],
                   "path": [
                     "master",
                     "indikator"
+                  ],
+                  "query": [
+                    {
+                      "key": "id_subkriteria",
+                      "value": "{{subkriteria_id}}",
+                      "description": "Filter berdasarkan ID Subkriteria"
+                    }
                   ]
                 }
               },
@@ -978,7 +1190,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id_kriteria\": 1,\n  \"nomor_urut\": 1,\n  \"nama_indikator\": \"Kejelasan, Kerealistikan, dan Pengesahan VMTS\",\n  \"deskripsi\": \"Keberadaan dan kejelasan visi, misi, tujuan, dan sasaran strategis program studi.\",\n  \"dokumen_dibutuhkan\": \"SK Renstra, SK VMTS, Berita Acara Penyusunan\"\n}"
+                  "raw": "{\n  \"id_subkriteria\": 1,\n  \"kode_indikator\": \"IND-1.1\",\n  \"deskripsi_indikator\": \"Kejelasan, Kerealistikan, dan Pengesahan VMTS Program Studi\",\n  \"bobot\": 4.00\n}"
                 }
               },
               "event": [
@@ -1023,7 +1235,8 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Memiliki relasi rubriks', function () { pm.expect(pm.response.json().data).to.have.property('rubriks'); });"
                     ],
                     "type": "text/javascript"
                   }
@@ -1059,7 +1272,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"nama_indikator\": \"Kejelasan VMTS dan Dokumen Pendukung Lengkap\",\n  \"deskripsi\": \"Deskripsi indikator disempurnakan.\"\n}"
+                  "raw": "{\n  \"deskripsi_indikator\": \"Kejelasan VMTS dan Dokumen Pendukung Lengkap serta Tersosialisasikan\",\n  \"bobot\": 4.00\n}"
                 }
               },
               "event": [
@@ -1127,13 +1340,20 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{base_url}}/master/rubrik",
+                  "raw": "{{base_url}}/master/rubrik?id_indikator={{indikator_id}}",
                   "host": [
                     "{{base_url}}"
                   ],
                   "path": [
                     "master",
                     "rubrik"
+                  ],
+                  "query": [
+                    {
+                      "key": "id_indikator",
+                      "value": "{{indikator_id}}",
+                      "description": "Filter berdasarkan ID Indikator"
+                    }
                   ]
                 }
               },
@@ -1177,7 +1397,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id_indikator\": 1,\n  \"skor\": 4,\n  \"deskripsi\": \"VMTS sangat jelas, realistis, dan mencerminkan keunikan program studi bereputasi internasional.\"\n}"
+                  "raw": "{\n  \"id_indikator\": 1,\n  \"skor\": 4,\n  \"deskripsi_rubrik\": \"VMTS sangat jelas, realistis, dan mencerminkan keunikan program studi bereputasi internasional.\"\n}"
                 }
               },
               "event": [
@@ -1258,7 +1478,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"skor\": 3.5,\n  \"deskripsi\": \"VMTS jelas dan realistis dengan penyesuaian kriteria nasional.\"\n}"
+                  "raw": "{\n  \"skor\": 4,\n  \"deskripsi_rubrik\": \"VMTS sangat jelas dan mencakup seluruh sasaran strategis institusi (Revisi)\"\n}"
                 }
               },
               "event": [

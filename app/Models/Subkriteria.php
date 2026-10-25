@@ -41,4 +41,12 @@ class Subkriteria extends Model
     {
         return $this->hasMany(Indikator::class, 'id_subkriteria');
     }
+
+    /**
+     * Alias relasi ke Indikator.
+     */
+    public function indikators(): HasMany
+    {
+        return $this->hasMany(Indikator::class, 'id_subkriteria');
+    }
 }

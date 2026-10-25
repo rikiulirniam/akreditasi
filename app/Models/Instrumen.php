@@ -48,7 +48,23 @@ class Instrumen extends Model
         return $this->belongsTo(JenisInstrumen::class, 'id_jenis_instrumen');
     }
 
+    /**
+     * Alias relasi ke Jenis Instrumen / Akreditasi.
+     */
+    public function jenisAkreditasi(): BelongsTo
+    {
+        return $this->belongsTo(JenisInstrumen::class, 'id_jenis_instrumen');
+    }
+
     public function kriterias(): HasMany
+    {
+        return $this->hasMany(Kriteria::class, 'id_instrumen');
+    }
+
+    /**
+     * Alias relasi ke Kriteria.
+     */
+    public function kriteria(): HasMany
     {
         return $this->hasMany(Kriteria::class, 'id_instrumen');
     }

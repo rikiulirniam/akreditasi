@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Master\KriteriaController;
 use App\Http\Controllers\Api\Master\LembagaAkreditasiController;
 use App\Http\Controllers\Api\Master\RubrikController;
 use App\Http\Controllers\Api\Master\StandarMutuController;
+use App\Http\Controllers\Api\Master\SubkriteriaController;
 use App\Http\Controllers\Api\Master\VersiInstrumenController;
 use App\Http\Controllers\Api\Sarpras\DataSaranaProdiController;
 use App\Http\Controllers\Api\Sarpras\DataSarprasProdiController;
@@ -65,6 +66,9 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
             Route::get('kriteria', [KriteriaController::class, 'index']);
             Route::get('kriteria/{id}', [KriteriaController::class, 'show']);
 
+            Route::get('subkriteria', [SubkriteriaController::class, 'index']);
+            Route::get('subkriteria/{id}', [SubkriteriaController::class, 'show']);
+
             Route::get('indikator', [IndikatorController::class, 'index']);
             Route::get('indikator/{id}', [IndikatorController::class, 'show']);
 
@@ -85,11 +89,30 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
             Route::apiResource('instrumen', InstrumenController::class)->except(['index', 'show']);
             Route::apiResource('jenjang', JenjangController::class)->except(['index', 'show']);
             Route::apiResource('kriteria', KriteriaController::class)->except(['index', 'show']);
+            Route::apiResource('subkriteria', SubkriteriaController::class)->except(['index', 'show']);
             Route::apiResource('indikator', IndikatorController::class)->except(['index', 'show']);
             Route::apiResource('rubrik', RubrikController::class)->except(['index', 'show']);
             Route::apiResource('standar-mutu', StandarMutuController::class)->except(['index', 'show']);
             Route::apiResource('jenis-pembiayaan', JenisPembiayaanController::class)->except(['index', 'show']);
         });
+    });
+
+    // Direct alias endpoint untuk akses master instrumen & kriteria tanpa prefix /master/
+    Route::middleware('role:administrator,kaprodi,reviewer,dosen')->group(function () {
+        Route::get('instrumen', [InstrumenController::class, 'index']);
+        Route::get('instrumen/{id}', [InstrumenController::class, 'show']);
+
+        Route::get('kriteria', [KriteriaController::class, 'index']);
+        Route::get('kriteria/{id}', [KriteriaController::class, 'show']);
+
+        Route::get('subkriteria', [SubkriteriaController::class, 'index']);
+        Route::get('subkriteria/{id}', [SubkriteriaController::class, 'show']);
+
+        Route::get('indikator', [IndikatorController::class, 'index']);
+        Route::get('indikator/{id}', [IndikatorController::class, 'show']);
+
+        Route::get('rubrik', [RubrikController::class, 'index']);
+        Route::get('rubrik/{id}', [RubrikController::class, 'show']);
     });
 
     /*

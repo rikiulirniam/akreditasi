@@ -6,44 +6,70 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Master\StoreSubkriteriaRequest;
 use App\Http\Requests\Master\UpdateSubkriteriaRequest;
 use App\Models\Subkriteria;
+use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class SubkriteriaController extends Controller
 {
-    public function index(): JsonResponse
-    {
-        $subkriteria = Subkriteria::with('kriteria')->get();
+    use ApiResponseTrait;
 
-        return response()->json(['success' => true, 'data' => $subkriteria]);
+    public function index(Request $request): JsonResponse
+    {
+        $query = Subkriteria::with('kriteria');
+
+        if ($request->filled('id_kriteria')) {
+            $query->where('id_kriteria', $request->query('id_kriteria'));
+        }
+
+        $subkriteria = $query->orderBy('kode_subkriteria')->get();
+
+        return $this->successResponse($subkriteria, 'Data subkriteria berhasil diambil');
     }
 
     public function store(StoreSubkriteriaRequest $request): JsonResponse
     {
         $subkriteria = Subkriteria::create($request->validated());
+        $subkriteria->load('kriteria');
 
-        return response()->json(['success' => true, 'message' => 'Subkriteria berhasil ditambahkan', 'data' => $subkriteria], 201);
+        return $this->successResponse($subkriteria, 'Subkriteria berhasil ditambahkan', 201);
     }
 
-    public function show($id): JsonResponse
+    public function show(int $id): JsonResponse
     {
-        $subkriteria = Subkriteria::with('kriteria')->findOrFail($id);
+        $subkriteria = Subkriteria::with(['kriteria', 'indikator'])->find($id);
 
-        return response()->json(['success' => true, 'data' => $subkriteria]);
+        if (! $subkriteria) {
+            return $this->errorResponse('Subkriteria tidak ditemukan', null, 404);
+        }
+
+        return $this->successResponse($subkriteria, 'Detail subkriteria berhasil diambil');
     }
 
-    public function update(UpdateSubkriteriaRequest $request, $id): JsonResponse
+    public function update(UpdateSubkriteriaRequest $request, int $id): JsonResponse
     {
-        $subkriteria = Subkriteria::findOrFail($id);
+        $subkriteria = Subkriteria::find($id);
+
+        if (! $subkriteria) {
+            return $this->errorResponse('Subkriteria tidak ditemukan', null, 404);
+        }
+
         $subkriteria->update($request->validated());
+        $subkriteria->load('kriteria');
 
-        return response()->json(['success' => true, 'message' => 'Subkriteria berhasil diperbarui', 'data' => $subkriteria]);
+        return $this->successResponse($subkriteria, 'Subkriteria berhasil diperbarui');
     }
 
-    public function destroy($id): JsonResponse
+    public function destroy(int $id): JsonResponse
     {
-        $subkriteria = Subkriteria::findOrFail($id);
+        $subkriteria = Subkriteria::find($id);
+
+        if (! $subkriteria) {
+            return $this->errorResponse('Subkriteria tidak ditemukan', null, 404);
+        }
+
         $subkriteria->delete();
 
-        return response()->json(['success' => true, 'message' => 'Subkriteria berhasil dihapus']);
+        return $this->successResponse(null, 'Subkriteria berhasil dihapus');
     }
 }
