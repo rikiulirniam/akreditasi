@@ -615,6 +615,23 @@ class LamInfokomSeeder extends Seeder
             ],
         ];
 
+        // Bersihkan kolom legacy pada data_sarpras_prodi jika masih ada di database
+        if (Schema::hasTable('data_sarpras_prodi')) {
+            try {
+                $legacyCols = array_values(array_intersect(
+                    ['id_sarana', 'jumlah_unit', 'kondisi'],
+                    Schema::getColumnListing('data_sarpras_prodi')
+                ));
+                if (! empty($legacyCols)) {
+                    Schema::table('data_sarpras_prodi', function (Blueprint $table) use ($legacyCols) {
+                        $table->dropColumn($legacyCols);
+                    });
+                }
+            } catch (\Throwable $e) {
+                // Ignore jika gagal atau sudah tidak ada
+            }
+        }
+
         foreach ($sarprasData as $data) {
             $prasarana = DataSarprasProdi::firstOrCreate(
                 [
