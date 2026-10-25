@@ -2,7 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Bobot;
+use App\Models\DataSaranaProdi;
+use App\Models\DataSarprasProdi;
 use App\Models\Indikator;
 use App\Models\Instrumen;
 use App\Models\JenisInstrumen;
@@ -64,11 +65,11 @@ class DatabaseSeeder extends Seeder
             ['kode_indikator' => 'IND-1.1.1', 'id_subkriteria' => $subkriteria->id],
             [
                 'deskripsi_indikator' => 'Kesesuaian Visi, Misi, Tujuan dan Strategi Program Studi dengan UPPS',
-                'parameter_penilaian' => 'Dokumen VMTS, sosialisasi, dan ketercapaian target jangka panjang',
+                'bobot'               => 3.50, // <-- Disesuaikan ke kolom bobot baru
             ]
         );
 
-        // 5. Rubrik Skor & Bobot
+        // 5. Rubrik Skor
         Rubrik::firstOrCreate(
             ['id_indikator' => $indikator->id, 'skor' => 4],
             ['deskripsi_rubrik' => 'Sangat Baik: VMTS sangat jelas, realistis, dan terdokumentasi lengkap']
@@ -77,15 +78,6 @@ class DatabaseSeeder extends Seeder
         Rubrik::firstOrCreate(
             ['id_indikator' => $indikator->id, 'skor' => 3],
             ['deskripsi_rubrik' => 'Baik: VMTS jelas dan memiliki bukti sosialisasi berkala']
-        );
-
-        Bobot::firstOrCreate(
-            [
-                'id_indikator' => $indikator->id,
-                'id_jenis_instrumen' => $jenisInstrumen->id,
-                'id_jenjang' => $jenjang->id,
-            ],
-            ['nilai_bobot' => 3.50]
         );
 
         // 6. Standar Mutu & Jenis Pembiayaan (Pending Module)

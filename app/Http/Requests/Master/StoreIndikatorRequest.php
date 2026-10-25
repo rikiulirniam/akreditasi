@@ -12,7 +12,7 @@ class StoreIndikatorRequest extends BaseApiRequest
             'id_subkriteria' => 'required|integer|exists:subkriteria,id',
             'kode_indikator' => 'required|string|max:50',
             'deskripsi_indikator' => 'required|string',
-            'parameter_penilaian' => 'required|string',
+            'bobot' => 'required|numeric|between:0,999999.99',
         ];
     }
 }

@@ -18,13 +18,14 @@ class Indikator extends Model
         'id_subkriteria',
         'kode_indikator',
         'deskripsi_indikator',
-        'parameter_penilaian',
+        'bobot',
     ];
 
     protected function casts(): array
     {
         return [
             'id_subkriteria' => 'integer',
+            'bobot'          => 'decimal:2',
         ];
     }
 
@@ -42,14 +43,6 @@ class Indikator extends Model
     public function rubriks(): HasMany
     {
         return $this->hasMany(Rubrik::class, 'id_indikator');
-    }
-
-    /**
-     * Relasi ke Bobot penilaian indikator pada berbagai jenjang & jenis instrumen.
-     */
-    public function bobots(): HasMany
-    {
-        return $this->hasMany(Bobot::class, 'id_indikator');
     }
 
     /**
