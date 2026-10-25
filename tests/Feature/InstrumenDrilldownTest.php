@@ -65,9 +65,13 @@ class InstrumenDrilldownTest extends TestCase
                         'id',
                         'jenjang' => ['id', 'nama_jenjang'],
                         'jenis_instrumen' => ['id', 'nama_jenis'],
+                        'kriterias_count',
+                        'kriteria_count',
                     ],
                 ],
-            ]);
+            ])
+            ->assertJsonPath('data.0.kriterias_count', 1)
+            ->assertJsonPath('data.0.kriteria_count', 1);
 
         // Pastikan relasi kriterias tidak dimuat di index
         $this->assertArrayNotHasKey('kriterias', $response->json('data.0'));
@@ -98,51 +102,27 @@ class InstrumenDrilldownTest extends TestCase
             'nama_kriteria' => 'Kriteria Mahasiswa',
         ]);
 
+        Subkriteria::create([
+            'id_kriteria' => $kriteriaA->id,
+            'kode_subkriteria' => 'A.1',
+            'nama_subkriteria' => 'Subkriteria Tata Kelola',
+        ]);
+
         $response = $this->withHeader('Authorization', 'Bearer '.$this->token)
             ->getJson('/api/v1/instrumen/'.$instrumen->id);
 
         $response->assertStatus(200)
             ->assertJsonPath('data.id', $instrumen->id)
+            ->assertJsonPath('data.kriterias_count', 2)
+            ->assertJsonPath('data.kriteria_count', 2)
             ->assertJsonCount(2, 'data.kriterias')
             ->assertJsonPath('data.kriterias.0.kode_kriteria', 'A')
-            ->assertJsonPath('data.kriterias.1.kode_kriteria', 'B');
+            ->assertJsonPath('data.kriterias.0.subkriteria_count', 1)
+            ->assertJsonPath('data.kriterias.1.kode_kriteria', 'B')
+            ->assertJsonPath('data.kriterias.1.subkriteria_count', 0);
     }
 
-    public function test_get_kriteria_show_returns_subkriteria(): void
-    {
-        $lembaga = LembagaAkreditasi::create(['nama_lembaga' => 'LAM-INFOKOM']);
-        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'status_aktif' => true, 'tanggal_berlaku' => '2026-01-25']);
-        $jenjang = Jenjang::create(['nama_jenjang' => 'Diploma Tiga', 'kode_jenjang' => 'D3']);
-        $jenis = JenisInstrumen::create(['nama_jenis' => 'Akreditasi Pertama']);
-
-        $instrumen = Instrumen::create([
-            'id_versi_instrumen' => $versi->id,
-            'id_jenjang' => $jenjang->id,
-            'id_jenis_instrumen' => $jenis->id,
-        ]);
-
-        $kriteria = Kriteria::create([
-            'id_instrumen' => $instrumen->id,
-            'kode_kriteria' => 'C',
-            'nama_kriteria' => 'Kriteria Kurikulum',
-        ]);
-
-        Subkriteria::create([
-            'id_kriteria' => $kriteria->id,
-            'kode_subkriteria' => 'C.1',
-            'nama_subkriteria' => 'Subkriteria Capaian Pembelajaran',
-        ]);
-
-        $response = $this->withHeader('Authorization', 'Bearer '.$this->token)
-            ->getJson('/api/v1/kriteria/'.$kriteria->id);
-
-        $response->assertStatus(200)
-            ->assertJsonPath('data.id', $kriteria->id)
-            ->assertJsonCount(1, 'data.subkriteria')
-            ->assertJsonPath('data.subkriteria.0.kode_subkriteria', 'C.1');
-    }
-
-    public function test_get_subkriteria_show_returns_indikator(): void
+    public function test_get_kriteria_index_and_show_returns_subkriteria_count(): void
     {
         $lembaga = LembagaAkreditasi::create(['nama_lembaga' => 'LAM-INFOKOM']);
         $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'status_aktif' => true, 'tanggal_berlaku' => '2026-01-25']);
@@ -170,20 +150,87 @@ class InstrumenDrilldownTest extends TestCase
         Indikator::create([
             'id_subkriteria' => $subkriteria->id,
             'kode_indikator' => 'IND-C.1.1',
+            'deskripsi_indikator' => 'Kesesuaian CPL',
+            'bobot' => 3.0,
+        ]);
+
+        // Test GET index
+        $indexResponse = $this->withHeader('Authorization', 'Bearer '.$this->token)
+            ->getJson('/api/v1/kriteria?id_instrumen='.$instrumen->id);
+
+        $indexResponse->assertStatus(200)
+            ->assertJsonPath('data.0.subkriteria_count', 1);
+
+        // Test GET show
+        $showResponse = $this->withHeader('Authorization', 'Bearer '.$this->token)
+            ->getJson('/api/v1/kriteria/'.$kriteria->id);
+
+        $showResponse->assertStatus(200)
+            ->assertJsonPath('data.id', $kriteria->id)
+            ->assertJsonPath('data.subkriteria_count', 1)
+            ->assertJsonCount(1, 'data.subkriteria')
+            ->assertJsonPath('data.subkriteria.0.kode_subkriteria', 'C.1')
+            ->assertJsonPath('data.subkriteria.0.indikator_count', 1);
+    }
+
+    public function test_get_subkriteria_index_and_show_returns_indikator_count(): void
+    {
+        $lembaga = LembagaAkreditasi::create(['nama_lembaga' => 'LAM-INFOKOM']);
+        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'status_aktif' => true, 'tanggal_berlaku' => '2026-01-25']);
+        $jenjang = Jenjang::create(['nama_jenjang' => 'Diploma Tiga', 'kode_jenjang' => 'D3']);
+        $jenis = JenisInstrumen::create(['nama_jenis' => 'Akreditasi Pertama']);
+
+        $instrumen = Instrumen::create([
+            'id_versi_instrumen' => $versi->id,
+            'id_jenjang' => $jenjang->id,
+            'id_jenis_instrumen' => $jenis->id,
+        ]);
+
+        $kriteria = Kriteria::create([
+            'id_instrumen' => $instrumen->id,
+            'kode_kriteria' => 'C',
+            'nama_kriteria' => 'Kriteria Kurikulum',
+        ]);
+
+        $subkriteria = Subkriteria::create([
+            'id_kriteria' => $kriteria->id,
+            'kode_subkriteria' => 'C.1',
+            'nama_subkriteria' => 'Subkriteria Capaian Pembelajaran',
+        ]);
+
+        $indikator = Indikator::create([
+            'id_subkriteria' => $subkriteria->id,
+            'kode_indikator' => 'IND-C.1.1',
             'deskripsi_indikator' => 'Struktur kurikulum selaras dengan CPL',
             'bobot' => 3.5,
         ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer '.$this->token)
+        Rubrik::create([
+            'id_indikator' => $indikator->id,
+            'skor' => 4,
+            'deskripsi_rubrik' => 'Sangat Baik',
+        ]);
+
+        // Test GET index
+        $indexResponse = $this->withHeader('Authorization', 'Bearer '.$this->token)
+            ->getJson('/api/v1/subkriteria?id_kriteria='.$kriteria->id);
+
+        $indexResponse->assertStatus(200)
+            ->assertJsonPath('data.0.indikator_count', 1);
+
+        // Test GET show
+        $showResponse = $this->withHeader('Authorization', 'Bearer '.$this->token)
             ->getJson('/api/v1/subkriteria/'.$subkriteria->id);
 
-        $response->assertStatus(200)
+        $showResponse->assertStatus(200)
             ->assertJsonPath('data.id', $subkriteria->id)
+            ->assertJsonPath('data.indikator_count', 1)
             ->assertJsonCount(1, 'data.indikator')
-            ->assertJsonPath('data.indikator.0.kode_indikator', 'IND-C.1.1');
+            ->assertJsonPath('data.indikator.0.kode_indikator', 'IND-C.1.1')
+            ->assertJsonPath('data.indikator.0.rubriks_count', 1);
     }
 
-    public function test_get_indikator_show_returns_rubriks(): void
+    public function test_get_indikator_index_and_show_returns_rubriks_count(): void
     {
         $lembaga = LembagaAkreditasi::create(['nama_lembaga' => 'LAM-INFOKOM']);
         $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'status_aktif' => true, 'tanggal_berlaku' => '2026-01-25']);
@@ -221,11 +268,22 @@ class InstrumenDrilldownTest extends TestCase
             'deskripsi_rubrik' => 'Sangat Baik (Unggul)',
         ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer '.$this->token)
+        // Test GET index
+        $indexResponse = $this->withHeader('Authorization', 'Bearer '.$this->token)
+            ->getJson('/api/v1/indikator?id_subkriteria='.$subkriteria->id);
+
+        $indexResponse->assertStatus(200)
+            ->assertJsonPath('data.0.rubriks_count', 1)
+            ->assertJsonPath('data.0.rubrik_count', 1);
+
+        // Test GET show
+        $showResponse = $this->withHeader('Authorization', 'Bearer '.$this->token)
             ->getJson('/api/v1/indikator/'.$indikator->id);
 
-        $response->assertStatus(200)
+        $showResponse->assertStatus(200)
             ->assertJsonPath('data.id', $indikator->id)
+            ->assertJsonPath('data.rubriks_count', 1)
+            ->assertJsonPath('data.rubrik_count', 1)
             ->assertJsonCount(1, 'data.rubriks')
             ->assertJsonPath('data.rubriks.0.skor', 4);
     }

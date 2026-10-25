@@ -178,7 +178,7 @@ class MasterDataDocs
     #[OA\Get(
         path: '/master/instrumen',
         summary: 'Mendapatkan daftar instrumen akreditasi',
-        description: 'Menampilkan list instrumen akreditasi beserta jenis akreditasi (jenis_instrumen) dan jenjang pendidikannya.',
+        description: 'Menampilkan list instrumen akreditasi beserta jenis akreditasi (jenis_instrumen), jenjang pendidikan, dan jumlah kriteria (kriterias_count).',
         tags: ['Master Data - Instrumen'],
         parameters: [
             new OA\Parameter(name: 'id_jenjang', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Jenjang'),
@@ -212,7 +212,7 @@ class MasterDataDocs
     #[OA\Get(
         path: '/master/instrumen/{id}',
         summary: 'Mendapatkan detail instrumen beserta semua kriterianya',
-        description: 'Menampilkan detail spesifik instrumen akreditasi (UUID) lengkap dengan seluruh daftar kriteria (kriterias) di bawah instrumen tersebut.',
+        description: 'Menampilkan detail spesifik instrumen akreditasi (UUID) lengkap dengan seluruh daftar kriteria (kriterias), di mana setiap kriteria menyertakan subkriteria_count.',
         tags: ['Master Data - Instrumen'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), description: 'UUID Instrumen'),
@@ -242,7 +242,7 @@ class MasterDataDocs
     #[OA\Get(
         path: '/master/kriteria',
         summary: 'Mendapatkan daftar kriteria',
-        description: 'Menampilkan list master kriteria dengan relasi instrumen induk dan opsional filter id_instrumen.',
+        description: 'Menampilkan list master kriteria dengan relasi instrumen induk, opsional filter id_instrumen, dan jumlah subkriteria (subkriteria_count).',
         tags: ['Master Data - Kriteria'],
         parameters: [
             new OA\Parameter(name: 'id_instrumen', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'uuid'), description: 'Filter berdasarkan UUID Instrumen'),
@@ -274,7 +274,7 @@ class MasterDataDocs
     #[OA\Get(
         path: '/master/kriteria/{id}',
         summary: 'Mendapatkan detail kriteria beserta seluruh subkriterianya',
-        description: 'Menampilkan detail kriteria lengkap beserta seluruh subkriteria (subkriteria) di bawah kriteria tersebut.',
+        description: 'Menampilkan detail kriteria lengkap beserta seluruh subkriteria (subkriteria), di mana kriteria memiliki subkriteria_count dan setiap subkriteria menyertakan indikator_count.',
         tags: ['Master Data - Kriteria'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
@@ -327,7 +327,7 @@ class MasterDataDocs
     #[OA\Get(
         path: '/master/subkriteria',
         summary: 'Mendapatkan daftar subkriteria',
-        description: 'Menampilkan list master subkriteria dengan opsional filter id_kriteria.',
+        description: 'Menampilkan list master subkriteria dengan opsional filter id_kriteria dan jumlah indikator (indikator_count).',
         tags: ['Master Data - Subkriteria'],
         parameters: [
             new OA\Parameter(name: 'id_kriteria', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Kriteria'),
@@ -359,7 +359,7 @@ class MasterDataDocs
     #[OA\Get(
         path: '/master/subkriteria/{id}',
         summary: 'Mendapatkan detail subkriteria beserta semua indikatornya',
-        description: 'Menampilkan detail subkriteria lengkap beserta seluruh indikator (indikator) di bawah subkriteria tersebut.',
+        description: 'Menampilkan detail subkriteria lengkap beserta seluruh indikator (indikator), di mana subkriteria memiliki indikator_count dan setiap indikator menyertakan rubriks_count.',
         tags: ['Master Data - Subkriteria'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
@@ -412,7 +412,7 @@ class MasterDataDocs
     #[OA\Get(
         path: '/master/indikator',
         summary: 'Mendapatkan daftar indikator',
-        description: 'Menampilkan list master indikator dengan opsional filter id_subkriteria.',
+        description: 'Menampilkan list master indikator dengan opsional filter id_subkriteria dan jumlah opsi rubrik (rubriks_count).',
         tags: ['Master Data - Indikator'],
         parameters: [
             new OA\Parameter(name: 'id_subkriteria', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Subkriteria'),
@@ -446,7 +446,7 @@ class MasterDataDocs
     #[OA\Get(
         path: '/master/indikator/{id}',
         summary: 'Mendapatkan detail indikator beserta seluruh opsi rubriknya',
-        description: 'Menampilkan detail spesifik indikator lengkap beserta seluruh opsi rubrik skor (rubriks) di bawah indikator tersebut.',
+        description: 'Menampilkan detail spesifik indikator lengkap beserta seluruh opsi rubrik skor (rubriks) di bawah indikator tersebut dan rubriks_count.',
         tags: ['Master Data - Indikator'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),

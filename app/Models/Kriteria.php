@@ -19,6 +19,28 @@ class Kriteria extends Model
         'nama_kriteria',
     ];
 
+    protected $appends = [
+        'subkriteria_count',
+        'subkriterias_count',
+    ];
+
+    public function getSubkriteriaCountAttribute(): int
+    {
+        if (isset($this->attributes['subkriteria_count'])) {
+            return (int) $this->attributes['subkriteria_count'];
+        }
+        if ($this->relationLoaded('subkriteria')) {
+            return $this->subkriteria->count();
+        }
+
+        return 0;
+    }
+
+    public function getSubkriteriasCountAttribute(): int
+    {
+        return $this->subkriteria_count;
+    }
+
     protected function casts(): array
     {
         return [

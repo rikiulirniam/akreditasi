@@ -16,7 +16,8 @@ class IndikatorController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = Indikator::with(['subkriteria.kriteria']);
+        $query = Indikator::with(['subkriteria.kriteria'])
+            ->withCount('rubriks');
 
         if ($request->filled('id_subkriteria')) {
             $query->where('id_subkriteria', $request->query('id_subkriteria'));
@@ -30,13 +31,19 @@ class IndikatorController extends Controller
     public function store(StoreIndikatorRequest $request): JsonResponse
     {
         $indikator = Indikator::create($request->validated());
+        $indikator->load(['subkriteria.kriteria'])->loadCount('rubriks');
 
         return $this->successResponse($indikator, 'Indikator berhasil ditambahkan', 201);
     }
 
     public function show(int $id): JsonResponse
     {
-        $indikator = Indikator::with(['subkriteria.kriteria', 'rubriks'])->find($id);
+        $indikator = Indikator::with([
+            'subkriteria.kriteria',
+            'rubriks' => function ($q) {
+                $q->orderBy('skor');
+            },
+        ])->withCount('rubriks')->find($id);
 
         if (! $indikator) {
             return $this->errorResponse('Indikator tidak ditemukan', null, 404);
@@ -54,6 +61,7 @@ class IndikatorController extends Controller
         }
 
         $indikator->update($request->validated());
+        $indikator->load(['subkriteria.kriteria'])->loadCount('rubriks');
 
         return $this->successResponse($indikator, 'Indikator berhasil diperbarui');
     }

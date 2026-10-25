@@ -1580,7 +1580,7 @@
                     "Master Data - Instrumen"
                 ],
                 "summary": "Mendapatkan daftar instrumen akreditasi",
-                "description": "Menampilkan list instrumen akreditasi beserta jenis akreditasi (jenis_instrumen) dan jenjang pendidikannya.",
+                "description": "Menampilkan list instrumen akreditasi beserta jenis akreditasi (jenis_instrumen), jenjang pendidikan, dan jumlah kriteria (kriterias_count).",
                 "operationId": "ef7208677bcd170b7495044ac04b2840",
                 "parameters": [
                     {
@@ -1689,7 +1689,7 @@
                     "Master Data - Instrumen"
                 ],
                 "summary": "Mendapatkan detail instrumen beserta semua kriterianya",
-                "description": "Menampilkan detail spesifik instrumen akreditasi (UUID) lengkap dengan seluruh daftar kriteria (kriterias) di bawah instrumen tersebut.",
+                "description": "Menampilkan detail spesifik instrumen akreditasi (UUID) lengkap dengan seluruh daftar kriteria (kriterias), di mana setiap kriteria menyertakan subkriteria_count.",
                 "operationId": "6efef7045c8223d916badab59afa625d",
                 "parameters": [
                     {
@@ -1773,7 +1773,7 @@
                     "Master Data - Kriteria"
                 ],
                 "summary": "Mendapatkan daftar kriteria",
-                "description": "Menampilkan list master kriteria dengan relasi instrumen induk dan opsional filter id_instrumen.",
+                "description": "Menampilkan list master kriteria dengan relasi instrumen induk, opsional filter id_instrumen, dan jumlah subkriteria (subkriteria_count).",
                 "operationId": "306a4957b0b574014ff5844e3c2b6c24",
                 "parameters": [
                     {
@@ -1867,7 +1867,7 @@
                     "Master Data - Kriteria"
                 ],
                 "summary": "Mendapatkan detail kriteria beserta seluruh subkriterianya",
-                "description": "Menampilkan detail kriteria lengkap beserta seluruh subkriteria (subkriteria) di bawah kriteria tersebut.",
+                "description": "Menampilkan detail kriteria lengkap beserta seluruh subkriteria (subkriteria), di mana kriteria memiliki subkriteria_count dan setiap subkriteria menyertakan indikator_count.",
                 "operationId": "30ad85562dcd6bb393e36a1bda3e1661",
                 "parameters": [
                     {
@@ -2023,7 +2023,7 @@
                     "Master Data - Subkriteria"
                 ],
                 "summary": "Mendapatkan daftar subkriteria",
-                "description": "Menampilkan list master subkriteria dengan opsional filter id_kriteria.",
+                "description": "Menampilkan list master subkriteria dengan opsional filter id_kriteria dan jumlah indikator (indikator_count).",
                 "operationId": "c113c33356b3b3013c69594f22c9ca50",
                 "parameters": [
                     {
@@ -2114,7 +2114,7 @@
                     "Master Data - Subkriteria"
                 ],
                 "summary": "Mendapatkan detail subkriteria beserta semua indikatornya",
-                "description": "Menampilkan detail subkriteria lengkap beserta seluruh indikator (indikator) di bawah subkriteria tersebut.",
+                "description": "Menampilkan detail subkriteria lengkap beserta seluruh indikator (indikator), di mana subkriteria memiliki indikator_count dan setiap indikator menyertakan rubriks_count.",
                 "operationId": "c952ed53a83f3ed250d857786056b011",
                 "parameters": [
                     {
@@ -2268,7 +2268,7 @@
                     "Master Data - Indikator"
                 ],
                 "summary": "Mendapatkan daftar indikator",
-                "description": "Menampilkan list master indikator dengan opsional filter id_subkriteria.",
+                "description": "Menampilkan list master indikator dengan opsional filter id_subkriteria dan jumlah opsi rubrik (rubriks_count).",
                 "operationId": "6c5ef3efa59099f7e9885c9025df4e07",
                 "parameters": [
                     {
@@ -2370,7 +2370,7 @@
                     "Master Data - Indikator"
                 ],
                 "summary": "Mendapatkan detail indikator beserta seluruh opsi rubriknya",
-                "description": "Menampilkan detail spesifik indikator lengkap beserta seluruh opsi rubrik skor (rubriks) di bawah indikator tersebut.",
+                "description": "Menampilkan detail spesifik indikator lengkap beserta seluruh opsi rubrik skor (rubriks) di bawah indikator tersebut dan rubriks_count.",
                 "operationId": "b267be6bffb6d032d0b41cf18bf3f13f",
                 "parameters": [
                     {
