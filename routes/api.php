@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Akreditasi\SelfAssessmentController;
 use App\Http\Controllers\Api\Master\IndikatorController;
 use App\Http\Controllers\Api\Master\InstrumenController;
 use App\Http\Controllers\Api\Master\JenisPembiayaanController;
+use App\Http\Controllers\Api\Master\JenjangController;
 use App\Http\Controllers\Api\Master\KriteriaController;
 use App\Http\Controllers\Api\Master\LembagaAkreditasiController;
 use App\Http\Controllers\Api\Master\RubrikController;
@@ -58,6 +59,9 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
             Route::get('instrumen', [InstrumenController::class, 'index']);
             Route::get('instrumen/{id}', [InstrumenController::class, 'show']);
 
+            Route::get('jenjang', [JenjangController::class, 'index']);
+            Route::get('jenjang/{id}', [JenjangController::class, 'show']);
+
             Route::get('kriteria', [KriteriaController::class, 'index']);
             Route::get('kriteria/{id}', [KriteriaController::class, 'show']);
 
@@ -79,6 +83,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
             Route::apiResource('lembaga-akreditasi', LembagaAkreditasiController::class)->except(['index', 'show']);
             Route::apiResource('versi-instrumen', VersiInstrumenController::class)->except(['index', 'show']);
             Route::apiResource('instrumen', InstrumenController::class)->except(['index', 'show']);
+            Route::apiResource('jenjang', JenjangController::class)->except(['index', 'show']);
             Route::apiResource('kriteria', KriteriaController::class)->except(['index', 'show']);
             Route::apiResource('indikator', IndikatorController::class)->except(['index', 'show']);
             Route::apiResource('rubrik', RubrikController::class)->except(['index', 'show']);
