@@ -13,18 +13,21 @@ class SubkriteriaController extends Controller
     public function index(): JsonResponse
     {
         $subkriteria = Subkriteria::with('kriteria')->get();
+
         return response()->json(['success' => true, 'data' => $subkriteria]);
     }
 
     public function store(StoreSubkriteriaRequest $request): JsonResponse
     {
         $subkriteria = Subkriteria::create($request->validated());
+
         return response()->json(['success' => true, 'message' => 'Subkriteria berhasil ditambahkan', 'data' => $subkriteria], 201);
     }
 
     public function show($id): JsonResponse
     {
         $subkriteria = Subkriteria::with('kriteria')->findOrFail($id);
+
         return response()->json(['success' => true, 'data' => $subkriteria]);
     }
 
@@ -32,6 +35,7 @@ class SubkriteriaController extends Controller
     {
         $subkriteria = Subkriteria::findOrFail($id);
         $subkriteria->update($request->validated());
+
         return response()->json(['success' => true, 'message' => 'Subkriteria berhasil diperbarui', 'data' => $subkriteria]);
     }
 
@@ -39,6 +43,7 @@ class SubkriteriaController extends Controller
     {
         $subkriteria = Subkriteria::findOrFail($id);
         $subkriteria->delete();
+
         return response()->json(['success' => true, 'message' => 'Subkriteria berhasil dihapus']);
     }
 }

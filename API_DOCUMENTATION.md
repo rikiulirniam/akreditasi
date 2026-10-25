@@ -1,22 +1,151 @@
 # REST API Documentation — Sistem Akreditasi & SPMI (LAM INFOKOM 2.1)
 
-Dokumentasi ini dirancang khusus sebagai panduan integrasi bagi **Agent AI / Pengembang Frontend**. Seluruh endpoint terbuka (tanpa middleware auth) dan menggunakan prefix `/api/v1`.
+Dokumentasi ini dirancang khusus sebagai panduan integrasi bagi **Agent AI / Pengembang Frontend**. Seluruh endpoint diproteksi menggunakan **JWT Bearer Token** yang diterbitkan oleh layanan SSO Akademik.
 
 ---
 
-## 1. Konfigurasi Dasar (Base Configuration)
+## 1. Layanan Autentikasi Terpusat (SSO Akademik)
 
-* **Base URL:** `http://127.0.0.1:8000/api/v1`
-* **Swagger UI Interaktif:** `http://127.0.0.1:8000/documentation`
-* **OpenAPI Raw JSON:** `http://127.0.0.1:8000/docs`
-* **Default Request Headers:**
+Sistem Akreditasi menggunakan autentikasi SSO terpusat dari server Akademik:
+* **Host SSO Auth:** `https://akademik.fayra.my.id/api/auth`
+* **Metode Otentikasi:** JWT Bearer Token (`Authorization: Bearer <access_token>`)
+* **Masa Berlaku Token:** 3600 detik (1 Jam)
+
+### Kredensial Pengujian (Demo Akun)
+* **Email:** `administrator@polines.ac.id`
+* **Password:** `password`
+* **Role:** `ADMINISTRATOR` *(Dukungan Role: ADMINISTRATOR, KAPRODI, REVIEWER, DOSEN)*
+
+---
+
+### A. Endpoint Login SSO
+Mengirim kredensial pengguna untuk mendapatkan token JWT akses.
+
+* **URL:** `POST https://akademik.fayra.my.id/api/auth/login`
+* **Headers:**
   ```http
   Accept: application/json
   Content-Type: application/json
   ```
-  *(Catatan: Khusus upload berkas bukti pada `POST /bukti`, gunakan `multipart/form-data` tanpa menimpa header Content-Type secara manual).*
+* **Request Body:**
+  ```json
+  {
+    "email": "administrator@polines.ac.id",
+    "password": "password"
+  }
+  ```
+* **Respons Berhasil (HTTP 200):**
+  ```json
+  {
+    "success": true,
+    "code": 200,
+    "message": "Login berhasil",
+    "data": {
+      "user": {
+        "id": 1,
+        "nama": "Administrator Sistem",
+        "email": "administrator@polines.ac.id",
+        "role": "ADMINISTRATOR"
+      },
+      "authorization": {
+        "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2FrYWRlbWlrLmZheXJhLm15LmlkL2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzkyOTMxMTA4LCJleHAiOjE3OTI5MzQ3MDgsIm5iZiI6MTc5MjkzMTEwOCwianRpIjoicE84aVl0c1Jxamt6c2x2NiIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3IiwiZW1haWwiOiJhZG1pbmlzdHJhdG9yQHBvbGluZXMuYWMuaWQiLCJuYW1hIjoiQWRtaW5pc3RyYXRvciBTaXN0ZW0iLCJyb2xlIjoiQURNSU5JU1RSQVRPUiIsInBlcm1pc3Npb25zIjpbIioiXX0...",
+        "token_type": "Bearer",
+        "expires_in": 3600,
+        "permissions": []
+      }
+    }
+  }
+  ```
 
 ---
+
+### B. Endpoint Logout SSO
+Mencabut dan mengakhiri sesi token yang aktif.
+
+* **URL:** `POST https://akademik.fayra.my.id/api/auth/logout`
+* **Headers:**
+  ```http
+  Accept: application/json
+  Authorization: Bearer <access_token>
+  ```
+* **Respons Berhasil (HTTP 200):**
+  ```json
+  {
+    "success": true,
+    "code": 200,
+    "message": "Logout berhasil",
+    "data": null
+  }
+  ```
+
+---
+
+### C. Endpoint Profil Pengguna SSO (Akademik)
+Mendapatkan data identitas akun langsung dari server SSO Akademik.
+
+* **URL:** `GET https://akademik.fayra.my.id/api/auth/me`
+* **Headers:**
+  ```http
+  Accept: application/json
+  Authorization: Bearer <access_token>
+  ```
+* **Respons Berhasil (HTTP 200):**
+  ```json
+  {
+    "success": true,
+    "code": 200,
+    "message": "Data profil berhasil diambil",
+    "data": {
+      "id": 1,
+      "nama": "Administrator Sistem",
+      "email": "administrator@polines.ac.id",
+      "role": "ADMINISTRATOR"
+    }
+  }
+  ```
+
+---
+
+### D. Endpoint Verifikasi Profil (Sistem Akreditasi)
+Memverifikasi klaim token JWT pengguna lokal di subsistem Akreditasi & SPMI.
+
+* **URL:** `GET https://akreditasi.fayra.my.id/api/v1/auth/me`
+* **Headers:**
+  ```http
+  Accept: application/json
+  Authorization: Bearer <access_token>
+  ```
+* **Respons Berhasil (HTTP 200):**
+  ```json
+  {
+    "success": true,
+    "message": "Profil pengguna terautentikasi berhasil diambil.",
+    "data": {
+      "user": {
+        "id": "1",
+        "nama": "Administrator Sistem",
+        "email": "administrator@polines.ac.id",
+        "role": "ADMINISTRATOR",
+        "permissions": ["*"]
+      }
+    },
+    "errors": null
+  }
+  ```
+
+---
+
+## 2. Konfigurasi Dasar API Akreditasi (Base Configuration)
+
+* **Base URL Production:** `https://akreditasi.fayra.my.id/api/v1`
+* **Base URL Lokal:** `http://127.0.0.1:8000/api/v1`
+* **Swagger UI Interaktif:** `https://akreditasi.fayra.my.id/documentation`
+* **Default Request Headers:**
+  ```http
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer <access_token>
+  ```
 
 ## 2. Struktur Standar Respons JSON (Response Envelope)
 

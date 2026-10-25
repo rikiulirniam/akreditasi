@@ -11,18 +11,20 @@ class JenjangController extends Controller
     public function index(): JsonResponse
     {
         $jenjang = Jenjang::all();
+
         return response()->json([
             'success' => true,
-            'data' => $jenjang
+            'data' => $jenjang,
         ]);
     }
 
     public function show($id): JsonResponse
     {
         $jenjang = Jenjang::findOrFail($id);
+
         return response()->json([
             'success' => true,
-            'data' => $jenjang
+            'data' => $jenjang,
         ]);
     }
 }

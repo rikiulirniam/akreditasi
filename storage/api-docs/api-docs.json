@@ -763,6 +763,329 @@
                 }
             }
         },
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "Autentikasi - SSO Akademik"
+                ],
+                "summary": "Login SSO Akademik (Layanan Autentikasi Terpusat)",
+                "description": "Melakukan login akun pengguna ke server SSO Akademik (`https://akademik.fayra.my.id`).\n\n**Kredensial Demo:**\n* Administrator: `administrator@polines.ac.id` / `password`\n* Output token Bearer JWT digunakan untuk mengakses seluruh endpoint API Akreditasi & SPMI.",
+                "operationId": "c34dec07634d0bdcec1c5ce5b64d6c98",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "description": "Email pengguna terdaftar",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "administrator@polines.ac.id"
+                                    },
+                                    "password": {
+                                        "description": "Kata sandi pengguna",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login berhasil, token JWT access_token diterbitkan.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login berhasil"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "nama": {
+                                                            "type": "string",
+                                                            "example": "Administrator Sistem"
+                                                        },
+                                                        "email": {
+                                                            "type": "string",
+                                                            "example": "administrator@polines.ac.id"
+                                                        },
+                                                        "role": {
+                                                            "type": "string",
+                                                            "example": "ADMINISTRATOR"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "authorization": {
+                                                    "properties": {
+                                                        "access_token": {
+                                                            "type": "string",
+                                                            "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                                                        },
+                                                        "token_type": {
+                                                            "type": "string",
+                                                            "example": "Bearer"
+                                                        },
+                                                        "expires_in": {
+                                                            "type": "integer",
+                                                            "example": 3600
+                                                        },
+                                                        "permissions": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Kredensial tidak valid (email atau password salah)."
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://akademik.fayra.my.id",
+                        "description": "Server SSO Akademik"
+                    }
+                ]
+            }
+        },
+        "/api/auth/logout": {
+            "post": {
+                "tags": [
+                    "Autentikasi - SSO Akademik"
+                ],
+                "summary": "Logout SSO Akademik",
+                "description": "Mencabut dan mengakhiri sesi token JWT yang sedang aktif pada server SSO Akademik.",
+                "operationId": "5690fc0e883dcb2758c97a6fce552656",
+                "responses": {
+                    "200": {
+                        "description": "Logout berhasil.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logout berhasil"
+                                        },
+                                        "data": {
+                                            "type": "null",
+                                            "example": null
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Token tidak valid atau belum login."
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "https://akademik.fayra.my.id",
+                        "description": "Server SSO Akademik"
+                    }
+                ]
+            }
+        },
+        "/api/auth/me": {
+            "get": {
+                "tags": [
+                    "Autentikasi - SSO Akademik"
+                ],
+                "summary": "Ambil Profil Pengguna (SSO Akademik)",
+                "description": "Mendapatkan data identitas profil pengguna terautentikasi langsung dari server SSO Akademik.",
+                "operationId": "7dc86918ba3bdca520965625bc9d31db",
+                "responses": {
+                    "200": {
+                        "description": "Data profil berhasil diambil.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data profil berhasil diambil"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "nama": {
+                                                    "type": "string",
+                                                    "example": "Administrator Sistem"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "administrator@polines.ac.id"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "ADMINISTRATOR"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Token tidak valid atau kedaluwarsa."
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "https://akademik.fayra.my.id",
+                        "description": "Server SSO Akademik"
+                    }
+                ]
+            }
+        },
+        "/auth/me": {
+            "get": {
+                "tags": [
+                    "Autentikasi - SSO Akademik"
+                ],
+                "summary": "Verifikasi Profil & Role Pengguna (API Akreditasi)",
+                "description": "Memverifikasi klaim token JWT pengguna lokal di subsistem Akreditasi & SPMI (memeriksa user id, nama, email, role, dan permissions).",
+                "operationId": "dbfbd388445cba4ed59356745079c43f",
+                "responses": {
+                    "200": {
+                        "description": "Profil pengguna terautentikasi berhasil diverifikasi oleh subsistem Akreditasi.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Profil pengguna terautentikasi berhasil diambil."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "nama": {
+                                                            "type": "string",
+                                                            "example": "Administrator Sistem"
+                                                        },
+                                                        "email": {
+                                                            "type": "string",
+                                                            "example": "administrator@polines.ac.id"
+                                                        },
+                                                        "role": {
+                                                            "type": "string",
+                                                            "example": "ADMINISTRATOR"
+                                                        },
+                                                        "permissions": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "errors": {
+                                            "type": "null",
+                                            "example": null
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Token tidak valid atau kedaluwarsa."
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/master/lembaga-akreditasi": {
             "get": {
                 "tags": [
@@ -3662,9 +3985,21 @@
                 },
                 "type": "object"
             }
+        },
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "description": "Masukkan token JWT akses dari SSO Akademik (contoh: eyJ0eXAiOiJKV1QiLCJhbGci...)",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
         }
     },
     "tags": [
+        {
+            "name": "Autentikasi - SSO Akademik",
+            "description": "Layanan Autentikasi Terpusat SSO Akademik (https://akademik.fayra.my.id)"
+        },
         {
             "name": "Master Data - Lembaga Akreditasi",
             "description": "Manajemen Data Master Lembaga Akreditasi (LAM INFOKOM, BAN-PT, dll)"

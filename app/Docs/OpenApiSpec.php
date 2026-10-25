@@ -4,6 +4,14 @@ namespace App\Docs;
 
 use OpenApi\Attributes as OA;
 
+#[OA\SecurityScheme(
+    securityScheme: 'BearerAuth',
+    type: 'http',
+    bearerFormat: 'JWT',
+    scheme: 'bearer',
+    description: 'Masukkan token JWT akses dari SSO Akademik (contoh: eyJ0eXAiOiJKV1QiLCJhbGci...)'
+)]
+#[OA\Tag(name: 'Autentikasi - SSO Akademik', description: 'Layanan Autentikasi Terpusat SSO Akademik (https://akademik.fayra.my.id)')]
 #[OA\Tag(name: 'Master Data - Lembaga Akreditasi', description: 'Manajemen Data Master Lembaga Akreditasi (LAM INFOKOM, BAN-PT, dll)')]
 #[OA\Tag(name: 'Master Data - Versi Instrumen', description: 'Manajemen Versi Instrumen Akreditasi (1.0, 2.0, 2.1, dll)')]
 #[OA\Tag(name: 'Master Data - Instrumen', description: 'Manajemen Instrumen Akreditasi (Jembatan Versi Instrumen, Jenjang, dan Jenis Instrumen)')]

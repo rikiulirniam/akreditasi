@@ -5,7 +5,139 @@
     "description": "Postman Collection komprehensif untuk pengujian REST API Penjaminan Mutu Internal (SPMI), Akreditasi, dan Sarana Prasarana Tim 3.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
   "item": [
+    {
+      "name": "0. Autentikasi (SSO Akademik)",
+      "item": [
+        {
+          "name": "0.1 POST Login (SSO Akademik)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{auth_email}}\",\n  \"password\": \"{{auth_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_base_url}}/login",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.authorization && jsonData.data.authorization.access_token) {",
+                  "    pm.environment.set('jwt_token', jsonData.data.authorization.access_token);",
+                  "    console.log('Token JWT otomatis tersimpan ke environment!');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "0.2 GET Profile Me (SSO Akademik)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/me",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "0.3 GET Profile Me (Verifikasi Lokal Akreditasi API)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "0.4 POST Logout (SSO Akademik)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{auth_base_url}}/logout",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "logout"
+              ]
+            }
+          }
+        }
+      ]
+    },
     {
       "name": "1. Master Data",
       "item": [

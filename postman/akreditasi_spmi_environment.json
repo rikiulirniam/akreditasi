@@ -3,6 +3,30 @@
   "name": "Akreditasi & SPMI API Environment",
   "values": [
     {
+      "key": "auth_base_url",
+      "value": "https://akademik.fayra.my.id/api/auth",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "auth_email",
+      "value": "administrator@polines.ac.id",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "auth_password",
+      "value": "password",
+      "type": "secret",
+      "enabled": true
+    },
+    {
       "key": "base_url",
       "value": "https://akreditasi.fayra.my.id/api/v1",
       "type": "default",
