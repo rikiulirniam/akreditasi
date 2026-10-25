@@ -36,9 +36,10 @@ jobs:
           echo "Menginstall dependensi Composer..."
           composer install --no-dev --optimize-autoloader
 
-          echo "Menjalankan migrasi database..."
+          echo "Menjalankan migrasi database dan seeder..."
           php artisan storage:link || true
           php artisan migrate --force
+          php artisan db:seed --class=LamInfokomSeeder --force
 
           echo "Regenerate Swagger API Documentation..."
           php artisan l5-swagger:generate || true
