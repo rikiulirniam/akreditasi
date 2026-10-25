@@ -590,7 +590,6 @@ class LamInfokomSeeder extends Seeder
             [
                 'project' => $projectDiploma,
                 'nama_lab' => 'Laboratorium Rekayasa Perangkat Lunak & Basis Data',
-                'kapasitas' => 40,
                 'sarana' => [
                     ['jumlah_unit' => 40, 'kondisi' => 'Baik', 'keterangan' => 'PC Workstation Intel Core i7 13700, 32GB DDR5, SSD 1TB, Dual Monitor 24"'],
                     ['jumlah_unit' => 1, 'kondisi' => 'Baik', 'keterangan' => 'Smart Interactive Projector 4K Ultra HD & Motorized Screen'],
@@ -600,7 +599,6 @@ class LamInfokomSeeder extends Seeder
             [
                 'project' => $projectDiploma,
                 'nama_lab' => 'Laboratorium Jaringan Komputer, IoT, & Cloud Sandbox',
-                'kapasitas' => 36,
                 'sarana' => [
                     ['jumlah_unit' => 36, 'kondisi' => 'Baik', 'keterangan' => 'Workstation Dual-NIC Gigabit, 16GB RAM, SSD NVMe'],
                     ['jumlah_unit' => 6, 'kondisi' => 'Baik', 'keterangan' => 'Cisco Catalyst Switch 2960 Series & Router Rack Simulator'],
@@ -610,7 +608,6 @@ class LamInfokomSeeder extends Seeder
             [
                 'project' => $projectSarjanaTerapan,
                 'nama_lab' => 'Studio Pengembangan Kecerdasan Buatan & Multimedia',
-                'kapasitas' => 35,
                 'sarana' => [
                     ['jumlah_unit' => 35, 'kondisi' => 'Baik', 'keterangan' => 'High-End AI Workstation Core i9, GPU Nvidia RTX 4080 16GB, 64GB RAM'],
                     ['jumlah_unit' => 1, 'kondisi' => 'Baik', 'keterangan' => 'Local AI Inference Server Dell PowerEdge R750xa Dual Xeon'],
@@ -623,9 +620,6 @@ class LamInfokomSeeder extends Seeder
                 [
                     'id_project' => $data['project']->id,
                     'keterangan' => $data['nama_lab'],
-                ],
-                [
-                    'kapasitas' => $data['kapasitas'],
                 ]
             );
 
