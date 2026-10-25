@@ -15,6 +15,7 @@ class InstrumenController extends Controller
     public function index(): JsonResponse
     {
         $data = Instrumen::with(['versiInstrumen', 'jenjang', 'jenisInstrumen', 'kriterias'])->get();
+
         return $this->successResponse($data, 'Daftar instrumen berhasil diambil');
     }
 

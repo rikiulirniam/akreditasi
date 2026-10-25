@@ -178,11 +178,8 @@ class MasterDataDocs
     #[OA\Get(
         path: '/master/kriteria',
         summary: 'Mendapatkan daftar kriteria',
-        description: 'Menampilkan list master kriteria dengan opsional filter id_versi_instrumen.',
+        description: 'Menampilkan list master kriteria dengan relasi instrumen dan subkriteria.',
         tags: ['Master Data - Kriteria'],
-        parameters: [
-            new OA\Parameter(name: 'id_versi_instrumen', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Versi Instrumen'),
-        ],
         responses: [
             new OA\Response(response: 200, description: 'Berhasil memuat daftar kriteria', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess')),
         ]
@@ -194,11 +191,11 @@ class MasterDataDocs
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['id_versi_instrumen', 'kode_kriteria', 'nama_kriteria'],
+                required: ['id_instrumen', 'kode_kriteria', 'nama_kriteria'],
                 properties: [
-                    new OA\Property(property: 'id_versi_instrumen', type: 'integer', example: 1),
+                    new OA\Property(property: 'id_instrumen', type: 'string', format: 'uuid', example: 'a0000000-0000-0000-0000-000000000001', description: 'UUID Instrumen'),
                     new OA\Property(property: 'kode_kriteria', type: 'string', example: 'C.1'),
-                    new OA\Property(property: 'nama_kriteria', type: 'string', example: 'Visi, Misi, Tujuan, dan Strategi'),
+                    new OA\Property(property: 'nama_kriteria', type: 'string', example: 'Budaya Mutu'),
                 ]
             )
         ),
@@ -229,11 +226,10 @@ class MasterDataDocs
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['id_versi_instrumen', 'kode_kriteria', 'nama_kriteria'],
                 properties: [
-                    new OA\Property(property: 'id_versi_instrumen', type: 'integer', example: 1),
+                    new OA\Property(property: 'id_instrumen', type: 'string', format: 'uuid', example: 'a0000000-0000-0000-0000-000000000001', description: 'UUID Instrumen'),
                     new OA\Property(property: 'kode_kriteria', type: 'string', example: 'C.1'),
-                    new OA\Property(property: 'nama_kriteria', type: 'string', example: 'Visi, Misi, Tujuan, dan Strategi Revisi'),
+                    new OA\Property(property: 'nama_kriteria', type: 'string', example: 'Budaya Mutu'),
                 ]
             )
         ),

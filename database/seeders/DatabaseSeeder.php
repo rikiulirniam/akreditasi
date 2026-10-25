@@ -3,8 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Bobot;
-use App\Models\DataSaranaProdi;
-use App\Models\DataSarprasProdi;
 use App\Models\Indikator;
 use App\Models\Instrumen;
 use App\Models\JenisInstrumen;
@@ -47,7 +45,7 @@ class DatabaseSeeder extends Seeder
         // 3. Central Bridge: Instrumen (UUID) - Disesuaikan dengan migrasi
         $instrumen = Instrumen::firstOrCreate([
             'id_versi_instrumen' => $versi->id,
-            'id_jenjang'         => $jenjang->id,
+            'id_jenjang' => $jenjang->id,
             'id_jenis_instrumen' => $jenisInstrumen->id,
         ]);
 
@@ -115,17 +113,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 8. Contoh Data Sarpras & Sarana (1-to-many)
-        if ($project) {
-            $prasarana = DataSarprasProdi::firstOrCreate(
-                ['id_project' => $project->id, 'keterangan' => 'Laboratorium Komputer Lanjut'],
-                ['kapasitas' => 40]
-            );
-
-            DataSaranaProdi::firstOrCreate(
-                ['id_prasarana' => $prasarana->id, 'kondisi' => 'Baik'],
-                ['jumlah_unit' => 40, 'keterangan' => 'PC Workstation i7 16GB RAM']
-            );
-        }
+        // 8. Jalankan Seeder Komprehensif LAM-INFOKOM Versi 2.1 (Terakreditasi Unggul)
+        $this->call(LamInfokomSeeder::class);
     }
 }
