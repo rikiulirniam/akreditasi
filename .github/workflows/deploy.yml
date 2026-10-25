@@ -1,0 +1,63 @@
+name: Continuous Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, x64]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to /var/www/api-akreditasi
+        run: |
+          TARGET_DIR="/var/www/api-akreditasi"
+          echo "Memulai deployment ke $TARGET_DIR..."
+
+          if [ -d "$TARGET_DIR/.git" ]; then
+            echo "Direktori $TARGET_DIR adalah git repo. Melakukan fetch dan reset ke origin/main..."
+            cd "$TARGET_DIR"
+            git fetch origin main
+            git reset --hard origin/main
+          else
+            echo "Melakukan sinkronisasi file dari runner workspace ke $TARGET_DIR..."
+            sudo rsync -av --delete \
+              --exclude='.env' \
+              --exclude='storage/' \
+              --exclude='.git/' \
+              ./ "$TARGET_DIR/"
+            cd "$TARGET_DIR"
+          fi
+
+          echo "Menginstall dependensi Composer..."
+          composer install --no-dev --optimize-autoloader
+
+          echo "Menjalankan migrasi database dan seeder..."
+          php artisan storage:link || true
+          php artisan migrate --force
+          php artisan db:seed --class=LamInfokomSeeder --force
+
+          echo "Regenerate Swagger API Documentation..."
+          php artisan l5-swagger:generate || true
+
+          echo "Membersihkan dan memperbarui cache Laravel..."
+          php artisan config:clear
+          php artisan route:clear
+          php artisan view:clear
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+
+          echo "Menyesuaikan izin direktori storage dan cache..."
+          sudo chown -R www-data:www-data storage bootstrap/cache || true
+          sudo chmod -R 775 storage bootstrap/cache || true
+
+          echo "Reloading PHP-FPM dan Queue..."
+          sudo systemctl reload php8.4-fpm || sudo systemctl reload php8.3-fpm || sudo systemctl reload php-fpm || true
+          php artisan queue:restart || true
+
+          echo "Deployment berhasil diselesaikan!"

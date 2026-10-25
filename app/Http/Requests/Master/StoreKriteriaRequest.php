@@ -9,7 +9,7 @@ class StoreKriteriaRequest extends BaseApiRequest
     public function rules(): array
     {
         return [
-            'id_versi_instrumen' => 'required|integer|exists:versi_instrumen,id',
+            'id_instrumen' => 'required|uuid|exists:instrumen,id',
             'kode_kriteria' => 'required|string|max:50',
             'nama_kriteria' => 'required|string|max:255',
         ];

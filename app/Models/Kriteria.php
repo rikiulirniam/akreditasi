@@ -14,7 +14,7 @@ class Kriteria extends Model
     protected $table = 'kriteria';
 
     protected $fillable = [
-        'id_versi_instrumen',
+        'id_instrumen',
         'kode_kriteria',
         'nama_kriteria',
     ];
@@ -22,16 +22,16 @@ class Kriteria extends Model
     protected function casts(): array
     {
         return [
-            'id_versi_instrumen' => 'integer',
+            'id_instrumen' => 'string',
         ];
     }
 
     /**
-     * Relasi ke Versi Instrumen induk.
+     * Relasi ke Instrumen induk (UUID).
      */
-    public function versiInstrumen(): BelongsTo
+    public function instrumen(): BelongsTo
     {
-        return $this->belongsTo(VersiInstrumen::class, 'id_versi_instrumen');
+        return $this->belongsTo(Instrumen::class, 'id_instrumen');
     }
 
     /**

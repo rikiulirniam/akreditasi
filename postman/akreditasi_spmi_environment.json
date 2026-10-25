@@ -4,7 +4,13 @@
   "values": [
     {
       "key": "base_url",
-      "value": "http://127.0.0.1:8000/api/v1",
+      "value": "https://akreditasi.fayra.my.id/api/v1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "lembaga_id",
+      "value": "1",
       "type": "default",
       "enabled": true
     },
@@ -28,7 +34,7 @@
     },
     {
       "key": "instrumen_id",
-      "value": "",
+      "value": "1",
       "type": "default",
       "enabled": true
     },
@@ -70,6 +76,12 @@
     },
     {
       "key": "project_id",
+      "value": "1",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "mapping_tim_id",
       "value": "1",
       "type": "default",
       "enabled": true

@@ -15,6 +15,7 @@ class Instrumen extends Model
     protected $table = 'instrumen';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [
