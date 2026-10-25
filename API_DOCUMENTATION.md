@@ -214,11 +214,25 @@ export interface VersiInstrumen {
   lembaga?: LembagaAkreditasi;
 }
 
+export interface Instrumen {
+  id: string; // UUID
+  id_versi_instrumen: number;
+  id_jenjang: number;
+  id_jenis_instrumen: number;
+  versi_instrumen?: VersiInstrumen;
+  jenjang?: { id: number; nama_jenjang: string; kode_jenjang: string };
+  jenis_instrumen?: { id: number; nama_jenis: string };
+  jenis_akreditasi?: { id: number; nama_jenis: string };
+  kriterias?: Kriteria[]; // Tersedia saat GET /instrumen/{id}
+}
+
 export interface Kriteria {
   id: number;
-  id_versi_instrumen: number;
+  id_instrumen: string; // UUID
   kode_kriteria: string;
   nama_kriteria: string;
+  instrumen?: Instrumen;
+  subkriteria?: Subkriteria[]; // Tersedia saat GET /kriteria/{id}
 }
 
 export interface Subkriteria {
@@ -226,22 +240,26 @@ export interface Subkriteria {
   id_kriteria: number;
   kode_subkriteria: string;
   nama_subkriteria: string;
+  kriteria?: Kriteria;
+  indikator?: Indikator[]; // Tersedia saat GET /subkriteria/{id}
 }
 
 export interface Indikator {
   id: number;
   id_subkriteria: number;
   kode_indikator: string;
-  nama_indikator: string;
-  deskripsi: string | null;
-  standar_minimum: number | null;
+  deskripsi_indikator: string;
+  bobot: number;
+  subkriteria?: Subkriteria;
+  rubriks?: Rubrik[]; // Tersedia saat GET /indikator/{id}
 }
 
 export interface Rubrik {
   id: number;
   id_indikator: number;
   skor: number;
-  deskripsi_kondisi: string;
+  deskripsi_rubrik: string;
+  indikator?: Indikator;
 }
 
 export interface StandarMutu {
@@ -353,7 +371,10 @@ export interface DataSaranaProdi {
 
 ## 4. Daftar Lengkap Endpoint REST API
 
-### A. Modul Master Data (`/master/`)
+### A. Modul Master Data (`/master/` atau direct alias `/`)
+
+> [!TIP]
+> Seluruh endpoint master instrumen dapat diakses melalui prefix `/master/*` (misal `/master/instrumen`) maupun direct alias tanpa prefix (misal `/instrumen`).
 
 | Method | Endpoint | Query Param / Body | Deskripsi |
 |:---|:---|:---|:---|
@@ -367,21 +388,30 @@ export interface DataSaranaProdi {
 | `GET` | `/master/versi-instrumen/{id}` | - | Detail versi instrumen beserta hierarki kriteria |
 | `PUT` | `/master/versi-instrumen/{id}` | `{ id_lembaga?, nomor_versi?, tanggal_berlaku?, status_aktif? }` | Update versi instrumen |
 | `DELETE` | `/master/versi-instrumen/{id}` | - | Hapus versi instrumen |
-| `GET` | `/master/kriteria` | `?id_versi_instrumen=` | Mengambil daftar kriteria (opsional filter versi) |
-| `POST` | `/master/kriteria` | `{ id_versi_instrumen, kode_kriteria, nama_kriteria }` | Tambah kriteria baru |
-| `GET` | `/master/kriteria/{id}` | - | Detail kriteria |
-| `PUT` | `/master/kriteria/{id}` | `{ id_versi_instrumen, kode_kriteria, nama_kriteria }` | Update kriteria |
-| `DELETE` | `/master/kriteria/{id}` | - | Hapus kriteria |
-| `GET` | `/master/indikator` | `?id_subkriteria=` | Mengambil daftar indikator / butir penilaian |
-| `POST` | `/master/indikator` | `{ id_subkriteria, kode_indikator, nama_indikator, deskripsi?, standar_minimum? }` | Tambah indikator |
-| `GET` | `/master/indikator/{id}` | - | Detail indikator beserta rubrik |
-| `PUT` | `/master/indikator/{id}` | `{ id_subkriteria, kode_indikator, nama_indikator, deskripsi?, standar_minimum? }` | Update indikator |
-| `DELETE` | `/master/indikator/{id}` | - | Hapus indikator |
-| `GET` | `/master/rubrik` | `?id_indikator=` | Mengambil opsi rubrik skor (1-4) |
-| `POST` | `/master/rubrik` | `{ id_indikator, skor, deskripsi_kondisi }` | Tambah opsi rubrik skor |
-| `GET` | `/master/rubrik/{id}` | - | Detail rubrik |
-| `PUT` | `/master/rubrik/{id}` | `{ id_indikator, skor, deskripsi_kondisi }` | Update rubrik |
-| `DELETE` | `/master/rubrik/{id}` | - | Hapus rubrik |
+| `GET` | `/master/instrumen` atau `/instrumen` | `?id_jenjang=&id_versi_instrumen=&id_jenis_instrumen=` | Mengambil daftar instrumen akreditasi dengan relasi `jenis_akreditasi` (jenis_instrumen) dan `jenjang` (tanpa load kriteria untuk efisiensi) |
+| `POST` | `/master/instrumen` atau `/instrumen` | `{ id_versi_instrumen, id_jenjang, id_jenis_instrumen }` | Tambah instrumen baru (menghasilkan UUID) |
+| `GET` | `/master/instrumen/{id}` atau `/instrumen/{id}` | - | **Hierarki L1:** Detail instrumen (UUID) beserta seluruh kriteria (`kriterias`) di bawahnya |
+| `DELETE` | `/master/instrumen/{id}` atau `/instrumen/{id}` | - | Hapus instrumen |
+| `GET` | `/master/kriteria` atau `/kriteria` | `?id_instrumen=` | Mengambil daftar kriteria (opsional filter UUID instrumen) |
+| `POST` | `/master/kriteria` atau `/kriteria` | `{ id_instrumen, kode_kriteria, nama_kriteria }` | Tambah kriteria baru (`id_instrumen` UUID) |
+| `GET` | `/master/kriteria/{id}` atau `/kriteria/{id}` | - | **Hierarki L2:** Detail kriteria beserta seluruh subkriteria (`subkriteria`) di bawahnya |
+| `PUT` | `/master/kriteria/{id}` atau `/kriteria/{id}` | `{ kode_kriteria?, nama_kriteria? }` | Update kriteria |
+| `DELETE` | `/master/kriteria/{id}` atau `/kriteria/{id}` | - | Hapus kriteria |
+| `GET` | `/master/subkriteria` atau `/subkriteria` | `?id_kriteria=` | Mengambil daftar subkriteria (opsional filter id_kriteria) |
+| `POST` | `/master/subkriteria` atau `/subkriteria` | `{ id_kriteria, kode_subkriteria, nama_subkriteria }` | Tambah subkriteria baru |
+| `GET` | `/master/subkriteria/{id}` atau `/subkriteria/{id}` | - | **Hierarki L3:** Detail subkriteria beserta seluruh butir indikator (`indikator`) di bawahnya |
+| `PUT` | `/master/subkriteria/{id}` atau `/subkriteria/{id}` | `{ kode_subkriteria?, nama_subkriteria? }` | Update subkriteria |
+| `DELETE` | `/master/subkriteria/{id}` atau `/subkriteria/{id}` | - | Hapus subkriteria |
+| `GET` | `/master/indikator` atau `/indikator` | `?id_subkriteria=` | Mengambil daftar indikator / butir penilaian |
+| `POST` | `/master/indikator` atau `/indikator` | `{ id_subkriteria, kode_indikator, deskripsi_indikator, bobot }` | Tambah butir indikator baru |
+| `GET` | `/master/indikator/{id}` atau `/indikator/{id}` | - | **Hierarki L4:** Detail indikator beserta seluruh opsi butir skor (`rubriks`) di bawahnya |
+| `PUT` | `/master/indikator/{id}` atau `/indikator/{id}` | `{ id_subkriteria?, kode_indikator?, deskripsi_indikator?, bobot? }` | Update butir indikator |
+| `DELETE` | `/master/indikator/{id}` atau `/indikator/{id}` | - | Hapus butir indikator |
+| `GET` | `/master/rubrik` atau `/rubrik` | `?id_indikator=` | Mengambil opsi rubrik skor penilaian (terurut berdasarkan skor ascending) |
+| `POST` | `/master/rubrik` atau `/rubrik` | `{ id_indikator, skor, deskripsi_rubrik }` | Tambah opsi rubrik skor (1-4) |
+| `GET` | `/master/rubrik/{id}` atau `/rubrik/{id}` | - | Detail butir rubrik skor |
+| `PUT` | `/master/rubrik/{id}` atau `/rubrik/{id}` | `{ id_indikator?, skor?, deskripsi_rubrik? }` | Update rubrik skor |
+| `DELETE` | `/master/rubrik/{id}` atau `/rubrik/{id}` | - | Hapus rubrik skor |
 | `GET` | `/master/standar-mutu` | - | Mengambil daftar standar mutu SPMI |
 | `POST` | `/master/standar-mutu` | `{ kode_standar, nama_standar, pernyataan_standar }` | Tambah standar mutu baru |
 | `GET` | `/master/standar-mutu/{id}` | - | Detail standar mutu |
@@ -397,6 +427,32 @@ export interface DataSaranaProdi {
 | `GET` | `/master/jenis-pembiayaan/{id}` | - | Detail jenis pembiayaan |
 | `PUT` | `/master/jenis-pembiayaan/{id}` | `{ nama_pembiayaan, kategori }` | Update jenis pembiayaan |
 | `DELETE` | `/master/jenis-pembiayaan/{id}` | - | Hapus jenis pembiayaan |
+
+---
+
+### Alur Drill-Down Hierarki Master Instrumen Akreditasi
+
+Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integrasi frontend pohon kriteria:
+
+```
+[Instrumen]
+   │  GET /instrumen -> list instrumen + jenis_akreditasi + jenjang
+   ▼
+[Instrumen Detail]
+   │  GET /instrumen/{id} -> detail instrumen + relasi `kriterias`
+   ▼
+[Kriteria Detail]
+   │  GET /kriteria/{id} -> detail kriteria + relasi `subkriteria`
+   ▼
+[Subkriteria Detail]
+   │  GET /subkriteria/{id} -> detail subkriteria + relasi `indikator`
+   ▼
+[Indikator Detail]
+   │  GET /indikator/{id} -> detail indikator + relasi `rubriks`
+   ▼
+[Rubrik]
+      GET /rubrik?id_indikator={id} -> opsi penilaian skor (1-4)
+```
 
 ---
 

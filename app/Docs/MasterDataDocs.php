@@ -173,13 +173,80 @@ class MasterDataDocs
     public function versiInstrumenDocs() {}
 
     // ==========================================
+    // INSTRUMEN AKREDITASI
+    // ==========================================
+    #[OA\Get(
+        path: '/master/instrumen',
+        summary: 'Mendapatkan daftar instrumen akreditasi',
+        description: 'Menampilkan list instrumen akreditasi beserta jenis akreditasi (jenis_instrumen) dan jenjang pendidikannya.',
+        tags: ['Master Data - Instrumen'],
+        parameters: [
+            new OA\Parameter(name: 'id_jenjang', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Jenjang'),
+            new OA\Parameter(name: 'id_versi_instrumen', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Versi Instrumen'),
+            new OA\Parameter(name: 'id_jenis_instrumen', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Jenis Instrumen'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Berhasil memuat daftar instrumen', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess')),
+        ]
+    )]
+    #[OA\Post(
+        path: '/master/instrumen',
+        summary: 'Menambahkan instrumen akreditasi baru',
+        tags: ['Master Data - Instrumen'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['id_versi_instrumen', 'id_jenjang', 'id_jenis_instrumen'],
+                properties: [
+                    new OA\Property(property: 'id_versi_instrumen', type: 'integer', example: 1),
+                    new OA\Property(property: 'id_jenjang', type: 'integer', example: 1),
+                    new OA\Property(property: 'id_jenis_instrumen', type: 'integer', example: 1),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: 'Instrumen berhasil ditambahkan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/master/instrumen/{id}',
+        summary: 'Mendapatkan detail instrumen beserta semua kriterianya',
+        description: 'Menampilkan detail spesifik instrumen akreditasi (UUID) lengkap dengan seluruh daftar kriteria (kriterias) di bawah instrumen tersebut.',
+        tags: ['Master Data - Instrumen'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), description: 'UUID Instrumen'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Detail instrumen beserta kriteria berhasil dimuat', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 404, description: 'Instrumen tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
+    #[OA\Delete(
+        path: '/master/instrumen/{id}',
+        summary: 'Menghapus instrumen akreditasi',
+        tags: ['Master Data - Instrumen'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Instrumen berhasil dihapus', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 404, description: 'Instrumen tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
+    public function instrumenDocs() {}
+
+    // ==========================================
     // KRITERIA
     // ==========================================
     #[OA\Get(
         path: '/master/kriteria',
         summary: 'Mendapatkan daftar kriteria',
-        description: 'Menampilkan list master kriteria dengan relasi instrumen dan subkriteria.',
+        description: 'Menampilkan list master kriteria dengan relasi instrumen induk dan opsional filter id_instrumen.',
         tags: ['Master Data - Kriteria'],
+        parameters: [
+            new OA\Parameter(name: 'id_instrumen', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'uuid'), description: 'Filter berdasarkan UUID Instrumen'),
+        ],
         responses: [
             new OA\Response(response: 200, description: 'Berhasil memuat daftar kriteria', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess')),
         ]
@@ -206,7 +273,8 @@ class MasterDataDocs
     )]
     #[OA\Get(
         path: '/master/kriteria/{id}',
-        summary: 'Mendapatkan detail kriteria',
+        summary: 'Mendapatkan detail kriteria beserta seluruh subkriterianya',
+        description: 'Menampilkan detail kriteria lengkap beserta seluruh subkriteria (subkriteria) di bawah kriteria tersebut.',
         tags: ['Master Data - Kriteria'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
@@ -254,6 +322,91 @@ class MasterDataDocs
     public function kriteriaDocs() {}
 
     // ==========================================
+    // SUBKRITERIA
+    // ==========================================
+    #[OA\Get(
+        path: '/master/subkriteria',
+        summary: 'Mendapatkan daftar subkriteria',
+        description: 'Menampilkan list master subkriteria dengan opsional filter id_kriteria.',
+        tags: ['Master Data - Subkriteria'],
+        parameters: [
+            new OA\Parameter(name: 'id_kriteria', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Kriteria'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Berhasil memuat daftar subkriteria', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess')),
+        ]
+    )]
+    #[OA\Post(
+        path: '/master/subkriteria',
+        summary: 'Menambahkan subkriteria baru',
+        tags: ['Master Data - Subkriteria'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['id_kriteria', 'kode_subkriteria', 'nama_subkriteria'],
+                properties: [
+                    new OA\Property(property: 'id_kriteria', type: 'integer', example: 1),
+                    new OA\Property(property: 'kode_subkriteria', type: 'string', example: 'C.1.1'),
+                    new OA\Property(property: 'nama_subkriteria', type: 'string', example: 'Capaian Pembelajaran Lulusan'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: 'Subkriteria berhasil ditambahkan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/master/subkriteria/{id}',
+        summary: 'Mendapatkan detail subkriteria beserta semua indikatornya',
+        description: 'Menampilkan detail subkriteria lengkap beserta seluruh indikator (indikator) di bawah subkriteria tersebut.',
+        tags: ['Master Data - Subkriteria'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Detail subkriteria beserta indikator berhasil dimuat', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 404, description: 'Subkriteria tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
+    #[OA\Put(
+        path: '/master/subkriteria/{id}',
+        summary: 'Memperbarui subkriteria',
+        tags: ['Master Data - Subkriteria'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'id_kriteria', type: 'integer', example: 1),
+                    new OA\Property(property: 'kode_subkriteria', type: 'string', example: 'C.1.1'),
+                    new OA\Property(property: 'nama_subkriteria', type: 'string', example: 'Capaian Pembelajaran Lulusan (Diperbarui)'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Subkriteria berhasil diperbarui', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
+            new OA\Response(response: 404, description: 'Subkriteria tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
+    #[OA\Delete(
+        path: '/master/subkriteria/{id}',
+        summary: 'Menghapus subkriteria',
+        tags: ['Master Data - Subkriteria'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Subkriteria berhasil dihapus', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 404, description: 'Subkriteria tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
+    public function subkriteriaDocs() {}
+
+    // ==========================================
     // INDIKATOR
     // ==========================================
     #[OA\Get(
@@ -292,7 +445,8 @@ class MasterDataDocs
     )]
     #[OA\Get(
         path: '/master/indikator/{id}',
-        summary: 'Mendapatkan detail indikator',
+        summary: 'Mendapatkan detail indikator beserta seluruh opsi rubriknya',
+        description: 'Menampilkan detail spesifik indikator lengkap beserta seluruh opsi rubrik skor (rubriks) di bawah indikator tersebut.',
         tags: ['Master Data - Indikator'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
@@ -507,64 +661,6 @@ class MasterDataDocs
         ]
     )]
     public function standarMutuDocs() {}
-
-    // ==========================================
-    // INSTRUMEN
-    // ==========================================
-    #[OA\Get(
-        path: '/master/instrumen',
-        summary: 'Mendapatkan daftar master instrumen akreditasi',
-        description: 'Menampilkan list instrumen akreditasi (jembatan versi_instrumen, jenjang, jenis_instrumen, dan kriteria).',
-        tags: ['Master Data - Instrumen'],
-        responses: [
-            new OA\Response(response: 200, description: 'Berhasil memuat daftar instrumen', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess')),
-        ]
-    )]
-    #[OA\Post(
-        path: '/master/instrumen',
-        summary: 'Menambahkan instrumen akreditasi baru',
-        tags: ['Master Data - Instrumen'],
-        requestBody: new OA\RequestBody(
-            required: true,
-            content: new OA\JsonContent(
-                required: ['id_versi_instrumen', 'id_jenjang', 'id_jenis_instrumen'],
-                properties: [
-                    new OA\Property(property: 'id_versi_instrumen', type: 'integer', example: 1, description: 'ID Versi Instrumen'),
-                    new OA\Property(property: 'id_jenjang', type: 'integer', example: 1, description: 'ID Jenjang Pendidikan'),
-                    new OA\Property(property: 'id_jenis_instrumen', type: 'integer', example: 1, description: 'ID Jenis Instrumen'),
-                ]
-            )
-        ),
-        responses: [
-            new OA\Response(response: 201, description: 'Instrumen berhasil ditambahkan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
-        ]
-    )]
-    #[OA\Get(
-        path: '/master/instrumen/{id}',
-        summary: 'Mendapatkan detail instrumen akreditasi',
-        tags: ['Master Data - Instrumen'],
-        parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
-        ],
-        responses: [
-            new OA\Response(response: 200, description: 'Detail instrumen berhasil dimuat', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 404, description: 'Instrumen tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
-        ]
-    )]
-    #[OA\Delete(
-        path: '/master/instrumen/{id}',
-        summary: 'Menghapus instrumen akreditasi',
-        tags: ['Master Data - Instrumen'],
-        parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
-        ],
-        responses: [
-            new OA\Response(response: 200, description: 'Data instrumen berhasil dihapus', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 404, description: 'Instrumen tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
-        ]
-    )]
-    public function instrumenDocs() {}
 
     // ==========================================
     // JENIS PEMBIAYAAN

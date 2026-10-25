@@ -1574,14 +1574,219 @@
                 }
             }
         },
+        "/master/instrumen": {
+            "get": {
+                "tags": [
+                    "Master Data - Instrumen"
+                ],
+                "summary": "Mendapatkan daftar instrumen akreditasi",
+                "description": "Menampilkan list instrumen akreditasi beserta jenis akreditasi (jenis_instrumen) dan jenjang pendidikannya.",
+                "operationId": "ef7208677bcd170b7495044ac04b2840",
+                "parameters": [
+                    {
+                        "name": "id_jenjang",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Jenjang",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "id_versi_instrumen",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Versi Instrumen",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "id_jenis_instrumen",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Jenis Instrumen",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar instrumen",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Master Data - Instrumen"
+                ],
+                "summary": "Menambahkan instrumen akreditasi baru",
+                "operationId": "b681a7b4eb17649c696bb2da41192557",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_versi_instrumen",
+                                    "id_jenjang",
+                                    "id_jenis_instrumen"
+                                ],
+                                "properties": {
+                                    "id_versi_instrumen": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "id_jenjang": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "id_jenis_instrumen": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Instrumen berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/instrumen/{id}": {
+            "get": {
+                "tags": [
+                    "Master Data - Instrumen"
+                ],
+                "summary": "Mendapatkan detail instrumen beserta semua kriterianya",
+                "description": "Menampilkan detail spesifik instrumen akreditasi (UUID) lengkap dengan seluruh daftar kriteria (kriterias) di bawah instrumen tersebut.",
+                "operationId": "6efef7045c8223d916badab59afa625d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "UUID Instrumen",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail instrumen beserta kriteria berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Instrumen tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Master Data - Instrumen"
+                ],
+                "summary": "Menghapus instrumen akreditasi",
+                "operationId": "fd9afdec447bb95f53a88b15ef53b7d4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Instrumen berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Instrumen tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/master/kriteria": {
             "get": {
                 "tags": [
                     "Master Data - Kriteria"
                 ],
                 "summary": "Mendapatkan daftar kriteria",
-                "description": "Menampilkan list master kriteria dengan relasi instrumen dan subkriteria.",
+                "description": "Menampilkan list master kriteria dengan relasi instrumen induk dan opsional filter id_instrumen.",
                 "operationId": "306a4957b0b574014ff5844e3c2b6c24",
+                "parameters": [
+                    {
+                        "name": "id_instrumen",
+                        "in": "query",
+                        "description": "Filter berdasarkan UUID Instrumen",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Berhasil memuat daftar kriteria",
@@ -1661,7 +1866,8 @@
                 "tags": [
                     "Master Data - Kriteria"
                 ],
-                "summary": "Mendapatkan detail kriteria",
+                "summary": "Mendapatkan detail kriteria beserta seluruh subkriterianya",
+                "description": "Menampilkan detail kriteria lengkap beserta seluruh subkriteria (subkriteria) di bawah kriteria tersebut.",
                 "operationId": "30ad85562dcd6bb393e36a1bda3e1661",
                 "parameters": [
                     {
@@ -1811,6 +2017,251 @@
                 }
             }
         },
+        "/master/subkriteria": {
+            "get": {
+                "tags": [
+                    "Master Data - Subkriteria"
+                ],
+                "summary": "Mendapatkan daftar subkriteria",
+                "description": "Menampilkan list master subkriteria dengan opsional filter id_kriteria.",
+                "operationId": "c113c33356b3b3013c69594f22c9ca50",
+                "parameters": [
+                    {
+                        "name": "id_kriteria",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Kriteria",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar subkriteria",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Master Data - Subkriteria"
+                ],
+                "summary": "Menambahkan subkriteria baru",
+                "operationId": "75fc17ef85b395f79ecc2780591a53b9",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_kriteria",
+                                    "kode_subkriteria",
+                                    "nama_subkriteria"
+                                ],
+                                "properties": {
+                                    "id_kriteria": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "kode_subkriteria": {
+                                        "type": "string",
+                                        "example": "C.1.1"
+                                    },
+                                    "nama_subkriteria": {
+                                        "type": "string",
+                                        "example": "Capaian Pembelajaran Lulusan"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Subkriteria berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/master/subkriteria/{id}": {
+            "get": {
+                "tags": [
+                    "Master Data - Subkriteria"
+                ],
+                "summary": "Mendapatkan detail subkriteria beserta semua indikatornya",
+                "description": "Menampilkan detail subkriteria lengkap beserta seluruh indikator (indikator) di bawah subkriteria tersebut.",
+                "operationId": "c952ed53a83f3ed250d857786056b011",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail subkriteria beserta indikator berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Subkriteria tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Master Data - Subkriteria"
+                ],
+                "summary": "Memperbarui subkriteria",
+                "operationId": "a1d2118520d7a745378467a21421416c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id_kriteria": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "kode_subkriteria": {
+                                        "type": "string",
+                                        "example": "C.1.1"
+                                    },
+                                    "nama_subkriteria": {
+                                        "type": "string",
+                                        "example": "Capaian Pembelajaran Lulusan (Diperbarui)"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Subkriteria berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Subkriteria tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Master Data - Subkriteria"
+                ],
+                "summary": "Menghapus subkriteria",
+                "operationId": "927a01d42ebe78a99c0a95d9c3847419",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subkriteria berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Subkriteria tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/master/indikator": {
             "get": {
                 "tags": [
@@ -1918,7 +2369,8 @@
                 "tags": [
                     "Master Data - Indikator"
                 ],
-                "summary": "Mendapatkan detail indikator",
+                "summary": "Mendapatkan detail indikator beserta seluruh opsi rubriknya",
+                "description": "Menampilkan detail spesifik indikator lengkap beserta seluruh opsi rubrik skor (rubriks) di bawah indikator tersebut.",
                 "operationId": "b267be6bffb6d032d0b41cf18bf3f13f",
                 "parameters": [
                     {
@@ -2559,169 +3011,6 @@
                     },
                     "404": {
                         "description": "Standar mutu tidak ditemukan",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseNotFound"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/master/instrumen": {
-            "get": {
-                "tags": [
-                    "Master Data - Instrumen"
-                ],
-                "summary": "Mendapatkan daftar master instrumen akreditasi",
-                "description": "Menampilkan list instrumen akreditasi (jembatan versi_instrumen, jenjang, jenis_instrumen, dan kriteria).",
-                "operationId": "ef7208677bcd170b7495044ac04b2840",
-                "responses": {
-                    "200": {
-                        "description": "Berhasil memuat daftar instrumen",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                    "Master Data - Instrumen"
-                ],
-                "summary": "Menambahkan instrumen akreditasi baru",
-                "operationId": "b681a7b4eb17649c696bb2da41192557",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "id_versi_instrumen",
-                                    "id_jenjang",
-                                    "id_jenis_instrumen"
-                                ],
-                                "properties": {
-                                    "id_versi_instrumen": {
-                                        "description": "ID Versi Instrumen",
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "id_jenjang": {
-                                        "description": "ID Jenjang Pendidikan",
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "id_jenis_instrumen": {
-                                        "description": "ID Jenis Instrumen",
-                                        "type": "integer",
-                                        "example": 1
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Instrumen berhasil ditambahkan",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseSuccess"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validasi gagal",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/master/instrumen/{id}": {
-            "get": {
-                "tags": [
-                    "Master Data - Instrumen"
-                ],
-                "summary": "Mendapatkan detail instrumen akreditasi",
-                "operationId": "6efef7045c8223d916badab59afa625d",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Detail instrumen berhasil dimuat",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseSuccess"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Instrumen tidak ditemukan",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseNotFound"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Master Data - Instrumen"
-                ],
-                "summary": "Menghapus instrumen akreditasi",
-                "operationId": "fd9afdec447bb95f53a88b15ef53b7d4",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Data instrumen berhasil dihapus",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseSuccess"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Instrumen tidak ditemukan",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4051,6 +4340,10 @@
         {
             "name": "Sarpras - Sarana & Prasarana",
             "description": "Manajemen Data Sarana dan Prasarana Program Studi"
+        },
+        {
+            "name": "Master Data - Subkriteria",
+            "description": "Master Data - Subkriteria"
         }
     ]
 }
