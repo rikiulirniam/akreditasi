@@ -335,6 +335,7 @@ export interface SpmiAudit {
 export interface DataSarprasProdi {
   id: number;
   id_project: number;
+  kapasitas: number | null;
   keterangan: string | null;
   sarana?: DataSaranaProdi[];
 }
@@ -519,6 +520,7 @@ export interface DataSaranaProdi {
   ```json
   {
     "id_project": 1,
+    "kapasitas": 40,
     "keterangan": "Laboratorium Rekayasa Komputer Gedung B"
   }
   ```

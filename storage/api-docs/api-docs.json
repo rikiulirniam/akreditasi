@@ -3011,6 +3011,11 @@
                                         "type": "integer",
                                         "example": 1
                                     },
+                                    "kapasitas": {
+                                        "type": "integer",
+                                        "example": 40,
+                                        "nullable": true
+                                    },
                                     "keterangan": {
                                         "type": "string",
                                         "example": "Laboratorium Rekayasa Perangkat Lunak Gedung A",
@@ -3108,6 +3113,11 @@
                         "application/json": {
                             "schema": {
                                 "properties": {
+                                    "kapasitas": {
+                                        "type": "integer",
+                                        "example": 45,
+                                        "nullable": true
+                                    },
                                     "keterangan": {
                                         "type": "string",
                                         "example": "Laboratorium RPL Gedung A (Renovasi)",

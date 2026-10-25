@@ -10,6 +10,7 @@ class StoreDataSarprasProdiRequest extends BaseApiRequest
     {
         return [
             'id_project' => 'required|integer|exists:project_akreditasi,id',
+            'kapasitas' => 'nullable|integer|min:0',
             'keterangan' => 'nullable|string',
         ];
     }
