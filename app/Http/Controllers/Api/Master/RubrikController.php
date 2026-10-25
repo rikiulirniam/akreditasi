@@ -8,14 +8,21 @@ use App\Http\Requests\Master\UpdateRubrikRequest;
 use App\Models\Rubrik;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class RubrikController extends Controller
 {
     use ApiResponseTrait;
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $data = Rubrik::with('indikator')->latest()->get();
+        $query = Rubrik::with('indikator');
+
+        if ($request->filled('id_indikator')) {
+            $query->where('id_indikator', $request->query('id_indikator'));
+        }
+
+        $data = $query->orderBy('skor')->get();
 
         return $this->successResponse($data, 'Data rubrik berhasil diambil');
     }
@@ -29,7 +36,7 @@ class RubrikController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $rubrik = Rubrik::with('indikator')->find($id);
+        $rubrik = Rubrik::with('indikator.subkriteria')->find($id);
 
         if (! $rubrik) {
             return $this->errorResponse('Rubrik tidak ditemukan', null, 404);

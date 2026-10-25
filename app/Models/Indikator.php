@@ -46,6 +46,14 @@ class Indikator extends Model
     }
 
     /**
+     * Alias relasi ke Rubrik.
+     */
+    public function rubrik(): HasMany
+    {
+        return $this->hasMany(Rubrik::class, 'id_indikator');
+    }
+
+    /**
      * Relasi ke entri Mapping Tim Akreditasi.
      */
     public function mappingTim(): HasMany

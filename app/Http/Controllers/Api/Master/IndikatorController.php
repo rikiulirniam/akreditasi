@@ -8,15 +8,21 @@ use App\Http\Requests\Master\UpdateIndikatorRequest;
 use App\Models\Indikator;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class IndikatorController extends Controller
 {
     use ApiResponseTrait;
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        // Dihapus 'bobots' dari with()
-        $data = Indikator::with(['subkriteria', 'rubriks'])->latest()->get();
+        $query = Indikator::with(['subkriteria.kriteria']);
+
+        if ($request->filled('id_subkriteria')) {
+            $query->where('id_subkriteria', $request->query('id_subkriteria'));
+        }
+
+        $data = $query->orderBy('kode_indikator')->get();
 
         return $this->successResponse($data, 'Data indikator berhasil diambil');
     }
@@ -30,7 +36,6 @@ class IndikatorController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        // Dihapus 'bobots' dari with()
         $indikator = Indikator::with(['subkriteria.kriteria', 'rubriks'])->find($id);
 
         if (! $indikator) {

@@ -7,14 +7,27 @@ use App\Http\Requests\Master\StoreInstrumenRequest;
 use App\Models\Instrumen;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class InstrumenController extends Controller
 {
     use ApiResponseTrait;
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $data = Instrumen::with(['versiInstrumen', 'jenjang', 'jenisInstrumen', 'kriterias'])->get();
+        $query = Instrumen::with(['versiInstrumen.lembaga', 'jenjang', 'jenisInstrumen']);
+
+        if ($request->filled('id_jenjang')) {
+            $query->where('id_jenjang', $request->query('id_jenjang'));
+        }
+        if ($request->filled('id_versi_instrumen')) {
+            $query->where('id_versi_instrumen', $request->query('id_versi_instrumen'));
+        }
+        if ($request->filled('id_jenis_instrumen')) {
+            $query->where('id_jenis_instrumen', $request->query('id_jenis_instrumen'));
+        }
+
+        $data = $query->latest()->get();
 
         return $this->successResponse($data, 'Daftar instrumen berhasil diambil');
     }
@@ -22,14 +35,19 @@ class InstrumenController extends Controller
     public function store(StoreInstrumenRequest $request): JsonResponse
     {
         $instrumen = Instrumen::create($request->validated());
-        $instrumen->load(['versiInstrumen', 'jenjang', 'jenisInstrumen']);
+        $instrumen->load(['versiInstrumen.lembaga', 'jenjang', 'jenisInstrumen']);
 
         return $this->successResponse($instrumen, 'Instrumen berhasil ditambahkan', 201);
     }
 
     public function show(string $id): JsonResponse
     {
-        $instrumen = Instrumen::with(['versiInstrumen', 'jenjang', 'jenisInstrumen', 'kriterias'])->find($id);
+        $instrumen = Instrumen::with([
+            'versiInstrumen.lembaga',
+            'jenjang',
+            'jenisInstrumen',
+            'kriterias',
+        ])->find($id);
 
         if (! $instrumen) {
             return $this->errorResponse('Data instrumen tidak ditemukan', null, 404);

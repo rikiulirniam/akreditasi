@@ -8,14 +8,25 @@ use App\Http\Requests\Master\UpdateKriteriaRequest;
 use App\Models\Kriteria;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class KriteriaController extends Controller
 {
     use ApiResponseTrait;
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $data = Kriteria::with(['instrumen.versiInstrumen', 'instrumen.jenjang', 'instrumen.jenisInstrumen', 'subkriteria'])->latest()->get();
+        $query = Kriteria::with([
+            'instrumen.versiInstrumen.lembaga',
+            'instrumen.jenjang',
+            'instrumen.jenisInstrumen',
+        ]);
+
+        if ($request->filled('id_instrumen')) {
+            $query->where('id_instrumen', $request->query('id_instrumen'));
+        }
+
+        $data = $query->orderBy('kode_kriteria')->get();
 
         return $this->successResponse($data, 'Data kriteria berhasil diambil');
     }
@@ -29,7 +40,12 @@ class KriteriaController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $kriteria = Kriteria::with(['instrumen.versiInstrumen', 'instrumen.jenjang', 'instrumen.jenisInstrumen', 'subkriteria.indikator'])->find($id);
+        $kriteria = Kriteria::with([
+            'instrumen.versiInstrumen.lembaga',
+            'instrumen.jenjang',
+            'instrumen.jenisInstrumen',
+            'subkriteria',
+        ])->find($id);
 
         if (! $kriteria) {
             return $this->errorResponse('Kriteria tidak ditemukan', null, 404);
