@@ -17,14 +17,6 @@ class JenisInstrumen extends Model
     ];
 
     /**
-     * Relasi ke Bobot indikator untuk jenis instrumen ini.
-     */
-    public function bobots(): HasMany
-    {
-        return $this->hasMany(Bobot::class, 'id_jenis_instrumen');
-    }
-
-    /**
      * Relasi ke Project Akreditasi untuk jenis instrumen ini.
      */
     public function projects(): HasMany

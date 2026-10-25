@@ -15,7 +15,8 @@ class IndikatorController extends Controller
 
     public function index(): JsonResponse
     {
-        $data = Indikator::with(['subkriteria', 'rubriks', 'bobots'])->latest()->get();
+        // Dihapus 'bobots' dari with()
+        $data = Indikator::with(['subkriteria', 'rubriks'])->latest()->get();
 
         return $this->successResponse($data, 'Data indikator berhasil diambil');
     }
@@ -29,7 +30,8 @@ class IndikatorController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $indikator = Indikator::with(['subkriteria.kriteria', 'rubriks', 'bobots'])->find($id);
+        // Dihapus 'bobots' dari with()
+        $indikator = Indikator::with(['subkriteria.kriteria', 'rubriks'])->find($id);
 
         if (! $indikator) {
             return $this->errorResponse('Indikator tidak ditemukan', null, 404);

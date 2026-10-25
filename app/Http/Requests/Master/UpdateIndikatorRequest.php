@@ -12,7 +12,7 @@ class UpdateIndikatorRequest extends BaseApiRequest
             'id_subkriteria' => 'sometimes|required|integer|exists:subkriteria,id',
             'kode_indikator' => 'sometimes|required|string|max:50',
             'deskripsi_indikator' => 'sometimes|required|string',
-            'parameter_penilaian' => 'sometimes|required|string',
+            'bobot' => 'required|numeric|between:0,999999.99',
         ];
     }
 }

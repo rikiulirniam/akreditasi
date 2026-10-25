@@ -283,8 +283,13 @@
                   ]
                 },
                 "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"id_lembaga\": \"{{lembaga_id}}\",\n  \"nama_versi\": \"Versi 2.0 (2026)\",\n  \"keterangan\": \"Instrumen Akreditasi Program Studi Informatika\",\n  \"status_aktif\": true\n}"
+                    "mode": "raw",
+                    "raw": "{\n  \"id_subkriteria\": \"{{subkriteria_id}}\",\n  \"kode_indikator\": \"IND-1.1.2\",\n  \"deskripsi_indikator\": \"Tingkat pemahaman civitas akademika terhadap visi dan misi\",\n  \"bobot\": 3.75\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/master/indikator",
+                  "host": ["{{base_url}}"],
+                  "path": ["master", "indikator"]
                 }
               },
               "event": [

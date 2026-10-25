@@ -17,14 +17,6 @@ class Jenjang extends Model
     ];
 
     /**
-     * Relasi ke Bobot indikator untuk jenjang ini.
-     */
-    public function bobots(): HasMany
-    {
-        return $this->hasMany(Bobot::class, 'id_jenjang');
-    }
-
-    /**
      * Relasi ke Project Akreditasi untuk jenjang ini.
      */
     public function projects(): HasMany
