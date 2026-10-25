@@ -219,6 +219,8 @@ export interface Instrumen {
   id_versi_instrumen: number;
   id_jenjang: number;
   id_jenis_instrumen: number;
+  kriterias_count: number; // Jumlah kriteria di bawah instrumen ini
+  kriteria_count: number;  // Alias count kriteria
   versi_instrumen?: VersiInstrumen;
   jenjang?: { id: number; nama_jenjang: string; kode_jenjang: string };
   jenis_instrumen?: { id: number; nama_jenis: string };
@@ -231,6 +233,8 @@ export interface Kriteria {
   id_instrumen: string; // UUID
   kode_kriteria: string;
   nama_kriteria: string;
+  subkriteria_count: number; // Jumlah subkriteria di bawah kriteria ini
+  subkriterias_count: number; // Alias count subkriteria
   instrumen?: Instrumen;
   subkriteria?: Subkriteria[]; // Tersedia saat GET /kriteria/{id}
 }
@@ -240,6 +244,8 @@ export interface Subkriteria {
   id_kriteria: number;
   kode_subkriteria: string;
   nama_subkriteria: string;
+  indikator_count: number; // Jumlah indikator di bawah subkriteria ini
+  indikators_count: number; // Alias count indikator
   kriteria?: Kriteria;
   indikator?: Indikator[]; // Tersedia saat GET /subkriteria/{id}
 }
@@ -250,6 +256,8 @@ export interface Indikator {
   kode_indikator: string;
   deskripsi_indikator: string;
   bobot: number;
+  rubriks_count: number; // Jumlah opsi rubrik skor di bawah indikator ini
+  rubrik_count: number;  // Alias count rubrik
   subkriteria?: Subkriteria;
   rubriks?: Rubrik[]; // Tersedia saat GET /indikator/{id}
 }
@@ -432,26 +440,37 @@ export interface DataSaranaProdi {
 
 ### Alur Drill-Down Hierarki Master Instrumen Akreditasi
 
-Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integrasi frontend pohon kriteria:
+Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integrasi frontend navigasi bertingkat (Lembaga -> Instrumen -> Kriteria -> Subkriteria -> Indikator -> Rubrik). Setiap level secara otomatis menyertakan **jumlah child (`*_count`)**:
 
 ```
 [Instrumen]
-   │  GET /instrumen -> list instrumen + jenis_akreditasi + jenjang
+   │  GET /instrumen
+   │  • data: list instrumen + jenis_akreditasi + jenjang
+   │  • count child: `kriterias_count` (dan alias `kriteria_count`)
    ▼
 [Instrumen Detail]
-   │  GET /instrumen/{id} -> detail instrumen + relasi `kriterias`
+   │  GET /instrumen/{id}
+   │  • data: detail instrumen + relasi `kriterias`
+   │  • count child: `kriterias_count`, dan setiap item kriteria menyertakan `subkriteria_count`
    ▼
-[Kriteria Detail]
-   │  GET /kriteria/{id} -> detail kriteria + relasi `subkriteria`
+[Kriteria]
+   │  GET /kriteria?id_instrumen={uuid}  /  GET /kriteria/{id}
+   │  • data: list / detail kriteria + relasi `subkriteria`
+   │  • count child: `subkriteria_count`, dan setiap item subkriteria menyertakan `indikator_count`
    ▼
-[Subkriteria Detail]
-   │  GET /subkriteria/{id} -> detail subkriteria + relasi `indikator`
+[Subkriteria]
+   │  GET /subkriteria?id_kriteria={id}  /  GET /subkriteria/{id}
+   │  • data: list / detail subkriteria + relasi `indikator`
+   │  • count child: `indikator_count`, dan setiap item indikator menyertakan `rubriks_count`
    ▼
-[Indikator Detail]
-   │  GET /indikator/{id} -> detail indikator + relasi `rubriks`
+[Indikator]
+   │  GET /indikator?id_subkriteria={id}  /  GET /indikator/{id}
+   │  • data: list / detail indikator + relasi `rubriks`
+   │  • count child: `rubriks_count` (dan alias `rubrik_count`)
    ▼
 [Rubrik]
-      GET /rubrik?id_indikator={id} -> opsi penilaian skor (1-4)
+      GET /rubrik?id_indikator={id}
+      • data: list butir rubrik skor (1-4) terurut skor ascending
 ```
 
 ---

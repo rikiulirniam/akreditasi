@@ -20,7 +20,7 @@ class KriteriaController extends Controller
             'instrumen.versiInstrumen.lembaga',
             'instrumen.jenjang',
             'instrumen.jenisInstrumen',
-        ]);
+        ])->withCount('subkriteria');
 
         if ($request->filled('id_instrumen')) {
             $query->where('id_instrumen', $request->query('id_instrumen'));
@@ -34,6 +34,11 @@ class KriteriaController extends Controller
     public function store(StoreKriteriaRequest $request): JsonResponse
     {
         $kriteria = Kriteria::create($request->validated());
+        $kriteria->load([
+            'instrumen.versiInstrumen.lembaga',
+            'instrumen.jenjang',
+            'instrumen.jenisInstrumen',
+        ])->loadCount('subkriteria');
 
         return $this->successResponse($kriteria, 'Kriteria berhasil ditambahkan', 201);
     }
@@ -44,8 +49,10 @@ class KriteriaController extends Controller
             'instrumen.versiInstrumen.lembaga',
             'instrumen.jenjang',
             'instrumen.jenisInstrumen',
-            'subkriteria',
-        ])->find($id);
+            'subkriteria' => function ($q) {
+                $q->withCount('indikator')->orderBy('kode_subkriteria');
+            },
+        ])->withCount('subkriteria')->find($id);
 
         if (! $kriteria) {
             return $this->errorResponse('Kriteria tidak ditemukan', null, 404);
@@ -63,6 +70,11 @@ class KriteriaController extends Controller
         }
 
         $kriteria->update($request->validated());
+        $kriteria->load([
+            'instrumen.versiInstrumen.lembaga',
+            'instrumen.jenjang',
+            'instrumen.jenisInstrumen',
+        ])->loadCount('subkriteria');
 
         return $this->successResponse($kriteria, 'Kriteria berhasil diperbarui');
     }

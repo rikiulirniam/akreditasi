@@ -21,6 +21,34 @@ class Indikator extends Model
         'bobot',
     ];
 
+    protected $appends = [
+        'rubriks_count',
+        'rubrik_count',
+    ];
+
+    public function getRubriksCountAttribute(): int
+    {
+        if (isset($this->attributes['rubriks_count'])) {
+            return (int) $this->attributes['rubriks_count'];
+        }
+        if (isset($this->attributes['rubrik_count'])) {
+            return (int) $this->attributes['rubrik_count'];
+        }
+        if ($this->relationLoaded('rubriks')) {
+            return $this->rubriks->count();
+        }
+        if ($this->relationLoaded('rubrik')) {
+            return $this->rubrik->count();
+        }
+
+        return 0;
+    }
+
+    public function getRubrikCountAttribute(): int
+    {
+        return $this->rubriks_count;
+    }
+
     protected function casts(): array
     {
         return [

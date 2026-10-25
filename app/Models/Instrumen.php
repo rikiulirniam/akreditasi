@@ -24,6 +24,34 @@ class Instrumen extends Model
         'id_jenis_instrumen',
     ];
 
+    protected $appends = [
+        'kriterias_count',
+        'kriteria_count',
+    ];
+
+    public function getKriteriasCountAttribute(): int
+    {
+        if (isset($this->attributes['kriterias_count'])) {
+            return (int) $this->attributes['kriterias_count'];
+        }
+        if (isset($this->attributes['kriteria_count'])) {
+            return (int) $this->attributes['kriteria_count'];
+        }
+        if ($this->relationLoaded('kriterias')) {
+            return $this->kriterias->count();
+        }
+        if ($this->relationLoaded('kriteria')) {
+            return $this->kriteria->count();
+        }
+
+        return 0;
+    }
+
+    public function getKriteriaCountAttribute(): int
+    {
+        return $this->kriterias_count;
+    }
+
     protected function casts(): array
     {
         return [

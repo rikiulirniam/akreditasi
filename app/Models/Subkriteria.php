@@ -19,6 +19,34 @@ class Subkriteria extends Model
         'nama_subkriteria',
     ];
 
+    protected $appends = [
+        'indikator_count',
+        'indikators_count',
+    ];
+
+    public function getIndikatorCountAttribute(): int
+    {
+        if (isset($this->attributes['indikator_count'])) {
+            return (int) $this->attributes['indikator_count'];
+        }
+        if (isset($this->attributes['indikators_count'])) {
+            return (int) $this->attributes['indikators_count'];
+        }
+        if ($this->relationLoaded('indikator')) {
+            return $this->indikator->count();
+        }
+        if ($this->relationLoaded('indikators')) {
+            return $this->indikators->count();
+        }
+
+        return 0;
+    }
+
+    public function getIndikatorsCountAttribute(): int
+    {
+        return $this->indikator_count;
+    }
+
     protected function casts(): array
     {
         return [

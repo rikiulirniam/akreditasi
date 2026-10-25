@@ -15,7 +15,8 @@ class InstrumenController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = Instrumen::with(['versiInstrumen.lembaga', 'jenjang', 'jenisInstrumen']);
+        $query = Instrumen::with(['versiInstrumen.lembaga', 'jenjang', 'jenisInstrumen'])
+            ->withCount('kriterias');
 
         if ($request->filled('id_jenjang')) {
             $query->where('id_jenjang', $request->query('id_jenjang'));
@@ -35,7 +36,7 @@ class InstrumenController extends Controller
     public function store(StoreInstrumenRequest $request): JsonResponse
     {
         $instrumen = Instrumen::create($request->validated());
-        $instrumen->load(['versiInstrumen.lembaga', 'jenjang', 'jenisInstrumen']);
+        $instrumen->load(['versiInstrumen.lembaga', 'jenjang', 'jenisInstrumen'])->loadCount('kriterias');
 
         return $this->successResponse($instrumen, 'Instrumen berhasil ditambahkan', 201);
     }
@@ -46,8 +47,10 @@ class InstrumenController extends Controller
             'versiInstrumen.lembaga',
             'jenjang',
             'jenisInstrumen',
-            'kriterias',
-        ])->find($id);
+            'kriterias' => function ($q) {
+                $q->withCount('subkriteria')->orderBy('kode_kriteria');
+            },
+        ])->withCount('kriterias')->find($id);
 
         if (! $instrumen) {
             return $this->errorResponse('Data instrumen tidak ditemukan', null, 404);
