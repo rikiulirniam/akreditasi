@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Bobot;
 use App\Models\DataKeuanganProdi;
 use App\Models\DataSaranaProdi;
 use App\Models\DataSarprasProdi;
@@ -460,7 +459,7 @@ class LamInfokomSeeder extends Seeder
                             ],
                             [
                                 'deskripsi_indikator' => $ind['deskripsi_indikator'],
-                                'parameter_penilaian' => $ind['parameter_penilaian'],
+                                'bobot' => $ind['bobot'],
                             ]
                         );
 
@@ -476,18 +475,6 @@ class LamInfokomSeeder extends Seeder
                                 ]
                             );
                         }
-
-                        // Bobot Penilaian untuk Jenjang instrumen ini
-                        Bobot::firstOrCreate(
-                            [
-                                'id_indikator' => $indikatorModel->id,
-                                'id_jenjang' => $instrumen->id_jenjang,
-                                'id_jenis_instrumen' => $instrumen->id_jenis_instrumen,
-                            ],
-                            [
-                                'nilai_bobot' => $ind['bobot'],
-                            ]
-                        );
                     }
                 }
             }
@@ -735,9 +722,7 @@ class LamInfokomSeeder extends Seeder
         foreach ($sampleIndikators as $ind) {
             // Ambil rubrik skor 4 untuk indikator ini
             $rubrikUnggul = Rubrik::where('id_indikator', $ind->id)->where('skor', 4)->first();
-            $bobotInd = Bobot::where('id_indikator', $ind->id)
-                ->where('id_jenjang', $jenjangDiploma->id)
-                ->value('nilai_bobot') ?? 3.5;
+            $bobotInd = (float) ($ind->bobot ?? 3.5);
 
             if ($rubrikUnggul) {
                 SelfAssessment::firstOrCreate(

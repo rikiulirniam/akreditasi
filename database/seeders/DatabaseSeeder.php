@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\DataSaranaProdi;
-use App\Models\DataSarprasProdi;
 use App\Models\Indikator;
 use App\Models\Instrumen;
 use App\Models\JenisInstrumen;
@@ -65,7 +63,7 @@ class DatabaseSeeder extends Seeder
             ['kode_indikator' => 'IND-1.1.1', 'id_subkriteria' => $subkriteria->id],
             [
                 'deskripsi_indikator' => 'Kesesuaian Visi, Misi, Tujuan dan Strategi Program Studi dengan UPPS',
-                'bobot'               => 3.50, // <-- Disesuaikan ke kolom bobot baru
+                'bobot' => 3.50, // <-- Disesuaikan ke kolom bobot baru
             ]
         );
 
