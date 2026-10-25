@@ -279,7 +279,6 @@ export interface MappingTimAkreditasi {
   id_project: number;
   id_user: number;
   id_indikator: number;
-  role: string;
 }
 
 export interface LembarProdi {

@@ -848,7 +848,6 @@ class LamInfokomSeeder extends Seeder
                     ],
                     [
                         'id_user' => 100 + $idx, // ID User dosen dari API Kelompok 2
-                        'role' => ($idx === 0) ? 'Koordinator Kriteria' : 'Penyusun Butir',
                     ]
                 );
             }

@@ -27,7 +27,6 @@ class MappingTimAkreditasiController extends Controller
                     'id_project' => $validated['id_project'],
                     'id_user' => $item['id_user'],
                     'id_indikator' => $item['id_indikator'],
-                    'role' => $item['role'] ?? null,
                 ]);
             }
 
