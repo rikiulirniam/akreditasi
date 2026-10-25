@@ -6,11 +6,6 @@ use App\Http\Requests\BaseApiRequest;
 
 class StoreLembagaAkreditasiRequest extends BaseApiRequest
 {
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     public function rules(): array
     {
         return [

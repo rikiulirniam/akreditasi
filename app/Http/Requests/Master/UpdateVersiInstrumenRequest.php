@@ -6,16 +6,11 @@ use App\Http\Requests\BaseApiRequest;
 
 class UpdateVersiInstrumenRequest extends BaseApiRequest
 {
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     public function rules(): array
     {
         return [
-            'id_lembaga' => 'sometimes|required|exists:lembaga_akreditasi,id',
-            'nomor_versi' => 'sometimes|required|string|max:255',
+            'id_lembaga' => 'sometimes|required|integer|exists:lembaga_akreditasi,id',
+            'nomor_versi' => 'sometimes|required|string|max:50',
             'tanggal_berlaku' => 'sometimes|required|date',
             'status_aktif' => 'sometimes|boolean',
         ];

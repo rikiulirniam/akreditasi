@@ -6,39 +6,74 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Master\StoreVersiInstrumenRequest;
 use App\Http\Requests\Master\UpdateVersiInstrumenRequest;
 use App\Models\VersiInstrumen;
+use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class VersiInstrumenController extends Controller
 {
-    public function index(): JsonResponse
+    use ApiResponseTrait;
+
+    public function index(Request $request): JsonResponse
     {
-        $versi = VersiInstrumen::all();
-        return response()->json(['success' => true, 'data' => $versi]);
+        $query = VersiInstrumen::with(['lembaga', 'kriteria']);
+
+        if ($request->has('id_lembaga')) {
+            $query->where('id_lembaga', $request->query('id_lembaga'));
+        }
+
+        if ($request->has('status_aktif')) {
+            $query->where('status_aktif', filter_var($request->query('status_aktif'), FILTER_VALIDATE_BOOLEAN));
+        }
+
+        $data = $query->latest()->get();
+
+        return $this->successResponse($data, 'Data versi instrumen berhasil diambil');
     }
 
     public function store(StoreVersiInstrumenRequest $request): JsonResponse
     {
         $versi = VersiInstrumen::create($request->validated());
-        return response()->json(['success' => true, 'message' => 'Versi instrumen berhasil ditambahkan', 'data' => $versi], 201);
+        $versi->load('lembaga');
+
+        return $this->successResponse($versi, 'Versi instrumen berhasil ditambahkan', 201);
     }
 
-    public function show($id): JsonResponse
+    public function show(int $id): JsonResponse
     {
-        $versi = VersiInstrumen::findOrFail($id);
-        return response()->json(['success' => true, 'data' => $versi]);
+        $versi = VersiInstrumen::with(['lembaga', 'kriteria.subkriteria'])->find($id);
+
+        if (! $versi) {
+            return $this->errorResponse('Versi instrumen tidak ditemukan', null, 404);
+        }
+
+        return $this->successResponse($versi, 'Detail versi instrumen berhasil diambil');
     }
 
-    public function update(UpdateVersiInstrumenRequest $request, $id): JsonResponse
+    public function update(UpdateVersiInstrumenRequest $request, int $id): JsonResponse
     {
-        $versi = VersiInstrumen::findOrFail($id);
+        $versi = VersiInstrumen::find($id);
+
+        if (! $versi) {
+            return $this->errorResponse('Versi instrumen tidak ditemukan', null, 404);
+        }
+
         $versi->update($request->validated());
-        return response()->json(['success' => true, 'message' => 'Versi instrumen berhasil diperbarui', 'data' => $versi]);
+        $versi->load('lembaga');
+
+        return $this->successResponse($versi, 'Versi instrumen berhasil diperbarui');
     }
 
-    public function destroy($id): JsonResponse
+    public function destroy(int $id): JsonResponse
     {
-        $versi = VersiInstrumen::findOrFail($id);
+        $versi = VersiInstrumen::find($id);
+
+        if (! $versi) {
+            return $this->errorResponse('Versi instrumen tidak ditemukan', null, 404);
+        }
+
         $versi->delete();
-        return response()->json(['success' => true, 'message' => 'Versi instrumen berhasil dihapus']);
+
+        return $this->successResponse(null, 'Versi instrumen berhasil dihapus');
     }
 }

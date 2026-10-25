@@ -12,6 +12,7 @@ class MappingTimAkreditasiController extends Controller
     public function index(): JsonResponse
     {
         $data = MappingTimAkreditasi::with(['project', 'indikator'])->get();
+
         return response()->json(['data' => $data], 200);
     }
 
@@ -29,10 +30,12 @@ class MappingTimAkreditasiController extends Controller
                     'role' => $item['role'] ?? null,
                 ]);
             }
+
             return response()->json(['message' => 'Batch assignments berhasil disimpan', 'data' => $created], 201);
         }
 
         $data = MappingTimAkreditasi::create($validated);
+
         return response()->json(['message' => 'Penugasan berhasil disimpan', 'data' => $data], 201);
     }
 

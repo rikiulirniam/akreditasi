@@ -25,7 +25,7 @@ class Indikator extends Model
     {
         return [
             'id_subkriteria' => 'integer',
-            'bobot'          => 'decimal:2',
+            'bobot' => 'decimal:2',
         ];
     }
 
