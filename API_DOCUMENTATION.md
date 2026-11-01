@@ -305,7 +305,7 @@ export interface MappingTimAkreditasi {
   id_project: number;
   id_user: number;
   id_indikator: number;
-  role: 'ADMINISTRATOR' | 'REVIEWER' | 'DOSEN' | 'KAPRODI'; // Selalu 'DOSEN' untuk anggota tim akreditasi
+  role: 'PJ' | 'PIC' | string; // 'PJ' (Penanggung Jawab) atau 'PIC' (Pelaksana)
 }
 
 export interface LembarProdi {
@@ -494,12 +494,12 @@ Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integr
 * **`GET /projects/{id}`**: Detail project lengkap dengan relasi prodi, versi, jenjang, lembar prodi, dll.
 * **`PUT /projects/{id}`**: Update project akreditasi.
 * **`DELETE /projects/{id}`**: Hapus project akreditasi.
-* **`POST /projects/{id}/mapping-tim`**: Menugaskan dosen/PIC per indikator.
+* **`POST /projects/{id}/mapping-tim`**: Menugaskan dosen/PIC/PJ per indikator.
   ```json
   {
     "id_user": 101,
     "id_indikator": 1,
-    "role": "Penyusun"
+    "role": "PJ" // 'PJ' (Penanggung Jawab) atau 'PIC' (Pelaksana)
   }
   ```
 

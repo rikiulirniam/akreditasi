@@ -16,6 +16,7 @@ class MappingTimAkreditasi extends Model
         'id_project',
         'id_user',
         'id_indikator',
+        'role',
     ];
 
     protected function casts(): array
@@ -24,17 +25,18 @@ class MappingTimAkreditasi extends Model
             'id_project' => 'integer',
             'id_user' => 'integer', // Disesuaikan dengan API Kelompok 2
             'id_indikator' => 'integer',
+            'role' => 'string',
         ];
     }
 
     protected $appends = ['role'];
 
     /**
-     * Anggota tim akreditasi yang dipetakan pada indikator/butir selalu ber-role DOSEN.
+     * Peran penugasan anggota tim pada indikator (misal: 'PJ' atau 'PIC').
      */
     public function getRoleAttribute(): string
     {
-        return $this->attributes['role'] ?? 'DOSEN';
+        return strtoupper($this->attributes['role'] ?? 'PIC');
     }
 
     public function project(): BelongsTo
