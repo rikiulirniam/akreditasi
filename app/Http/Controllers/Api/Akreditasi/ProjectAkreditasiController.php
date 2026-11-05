@@ -93,23 +93,29 @@ class ProjectAkreditasiController extends Controller
         DB::transaction(function () use ($projectId, $validated, &$createdRecords) {
             if (isset($validated['assignments']) && is_array($validated['assignments'])) {
                 foreach ($validated['assignments'] as $item) {
+                    $role = strtoupper($item['role'] ?? 'PIC');
                     $createdRecords[] = MappingTimAkreditasi::updateOrCreate(
                         [
                             'id_project' => $projectId,
                             'id_indikator' => $item['id_indikator'],
-                            'id_user' => $item['id_user'],
+                            'role' => $role,
                         ],
-                        []
+                        [
+                            'id_user' => $item['id_user'],
+                        ]
                     );
                 }
             } else {
+                $role = strtoupper($validated['role'] ?? 'PIC');
                 $createdRecords[] = MappingTimAkreditasi::updateOrCreate(
                     [
                         'id_project' => $projectId,
                         'id_indikator' => $validated['id_indikator'],
-                        'id_user' => $validated['id_user'],
+                        'role' => $role,
                     ],
-                    []
+                    [
+                        'id_user' => $validated['id_user'],
+                    ]
                 );
             }
         });

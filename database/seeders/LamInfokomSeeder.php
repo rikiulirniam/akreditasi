@@ -837,17 +837,31 @@ class LamInfokomSeeder extends Seeder
         }
 
         // =========================================================================
-        // 14. MAPPING TIM AKREDITASI DEMO
+        // 14. MAPPING TIM AKREDITASI DEMO (PJ & PIC)
         // =========================================================================
         if ($sampleIndikators->isNotEmpty()) {
             foreach ($sampleIndikators as $idx => $ind) {
+                // Seed Pelaksana (PIC)
                 MappingTimAkreditasi::firstOrCreate(
                     [
                         'id_project' => $projectDiploma->id,
                         'id_indikator' => $ind->id,
+                        'role' => 'PIC',
                     ],
                     [
                         'id_user' => 100 + $idx, // ID User dosen dari API Kelompok 2
+                    ]
+                );
+
+                // Seed Penanggung Jawab (PJ)
+                MappingTimAkreditasi::firstOrCreate(
+                    [
+                        'id_project' => $projectDiploma->id,
+                        'id_indikator' => $ind->id,
+                        'role' => 'PJ',
+                    ],
+                    [
+                        'id_user' => 100 + ($idx % 2),
                     ]
                 );
             }
