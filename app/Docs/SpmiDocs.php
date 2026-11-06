@@ -132,4 +132,49 @@ class SpmiDocs
         ]
     )]
     public function spmiAuditDocs() {}
+
+    // ==========================================
+    // EVIDENCE SPMI (KAPRODI)
+    // ==========================================
+    #[OA\Get(
+        path: '/evidence-spmi',
+        summary: 'Mendapatkan data evidence SPMI berdasarkan project_id',
+        description: 'Mengambil data evidence SPMI untuk suatu project. Jika belum ada data, mengembalikan data: null dengan status 200 OK.',
+        tags: ['SPMI - Evidence Mutu'],
+        parameters: [
+            new OA\Parameter(name: 'project_id', in: 'query', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Data evidence SPMI berhasil diambil', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 422, description: 'Parameter project_id tidak disertakan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
+        ]
+    )]
+    #[OA\Post(
+        path: '/evidence-spmi',
+        summary: 'Menyimpan atau memperbarui data evidence SPMI project',
+        description: 'Menyimpan rekaman 4 pilar bukti SPMI berbasis updateOrCreate pada project_id.',
+        tags: ['SPMI - Evidence Mutu'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['project_id'],
+                properties: [
+                    new OA\Property(property: 'project_id', type: 'integer', example: 1),
+                    new OA\Property(property: 'link_bukti_evaluasi', type: 'string', example: 'https://drive.google.com/evaluasi', nullable: true),
+                    new OA\Property(property: 'deskripsi_bukti_evaluasi', type: 'string', example: 'Laporan AMI Semester Genap', nullable: true),
+                    new OA\Property(property: 'link_bukti_pengendalian', type: 'string', example: 'https://drive.google.com/pengendalian', nullable: true),
+                    new OA\Property(property: 'deskripsi_bukti_pengendalian', type: 'string', example: 'Tindakan korektif dan RTL rapat tinjauan manajemen', nullable: true),
+                    new OA\Property(property: 'link_bukti_dampak', type: 'string', example: 'https://drive.google.com/dampak', nullable: true),
+                    new OA\Property(property: 'deskripsi_bukti_dampak', type: 'string', example: 'Bukti luaran tridharma dan prestasi mahasiswa', nullable: true),
+                    new OA\Property(property: 'link_dokumen_implementasi', type: 'string', example: 'https://drive.google.com/implementasi', nullable: true),
+                    new OA\Property(property: 'deskripsi_dokumen_implementasi', type: 'string', example: 'SOP dan formulir operasional harian prodi', nullable: true),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Evidence SPMI berhasil disimpan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
+        ]
+    )]
+    public function evidenceSpmiDocs() {}
 }

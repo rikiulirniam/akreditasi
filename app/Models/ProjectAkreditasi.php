@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ProjectAkreditasi extends Model
 {
@@ -107,5 +108,13 @@ class ProjectAkreditasi extends Model
     public function dataSarprasProdi(): HasMany
     {
         return $this->hasMany(DataSarprasProdi::class, 'id_project');
+    }
+
+    /**
+     * Relasi ke Evidence SPMI (One-to-One).
+     */
+    public function evidenceSpmi(): HasOne
+    {
+        return $this->hasOne(EvidenceSpmi::class, 'project_id');
     }
 }

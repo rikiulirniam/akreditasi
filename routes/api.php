@@ -10,11 +10,11 @@ use App\Http\Controllers\Api\Master\JenjangController;
 use App\Http\Controllers\Api\Master\KriteriaController;
 use App\Http\Controllers\Api\Master\LembagaAkreditasiController;
 use App\Http\Controllers\Api\Master\RubrikController;
-use App\Http\Controllers\Api\Master\StandarMutuController;
 use App\Http\Controllers\Api\Master\SubkriteriaController;
 use App\Http\Controllers\Api\Master\VersiInstrumenController;
 use App\Http\Controllers\Api\Sarpras\DataSaranaProdiController;
 use App\Http\Controllers\Api\Sarpras\DataSarprasProdiController;
+use App\Http\Controllers\Api\Spmi\EvidenceSpmiController;
 use App\Http\Controllers\Api\Spmi\SpmiAuditController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -75,9 +75,6 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
             Route::get('rubrik', [RubrikController::class, 'index']);
             Route::get('rubrik/{id}', [RubrikController::class, 'show']);
 
-            Route::get('standar-mutu', [StandarMutuController::class, 'index']);
-            Route::get('standar-mutu/{id}', [StandarMutuController::class, 'show']);
-
             Route::get('jenis-pembiayaan', [JenisPembiayaanController::class, 'index']);
             Route::get('jenis-pembiayaan/{id}', [JenisPembiayaanController::class, 'show']);
         });
@@ -92,7 +89,6 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
             Route::apiResource('subkriteria', SubkriteriaController::class)->except(['index', 'show']);
             Route::apiResource('indikator', IndikatorController::class)->except(['index', 'show']);
             Route::apiResource('rubrik', RubrikController::class)->except(['index', 'show']);
-            Route::apiResource('standar-mutu', StandarMutuController::class)->except(['index', 'show']);
             Route::apiResource('jenis-pembiayaan', JenisPembiayaanController::class)->except(['index', 'show']);
         });
     });
@@ -164,7 +160,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
     |--------------------------------------------------------------------------
     | 3. Modul SPMI & Audit
     |--------------------------------------------------------------------------
-    | Read (GET): administrator, kaprodi, reviewer
+    | Read (GET): administrator, kaprodi, reviewer, dosen
     | Write (POST, PUT, DELETE, Tindak Lanjut): administrator, kaprodi
     */
     Route::middleware('role:administrator,kaprodi,reviewer')->group(function () {
@@ -179,6 +175,15 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         Route::delete('spmi-audit/{id}', [SpmiAuditController::class, 'destroy']);
         Route::put('spmi-audit/{id}/tindak-lanjut', [SpmiAuditController::class, 'updateTindakLanjut']);
         Route::patch('spmi-audit/{id}/tindak-lanjut', [SpmiAuditController::class, 'updateTindakLanjut']);
+    });
+
+    // Modul Evidence SPMI (One-to-One dengan Project Akreditasi)
+    Route::middleware('role:administrator,kaprodi,reviewer,dosen')->group(function () {
+        Route::get('evidence-spmi', [EvidenceSpmiController::class, 'show']);
+    });
+
+    Route::middleware('role:administrator,kaprodi')->group(function () {
+        Route::post('evidence-spmi', [EvidenceSpmiController::class, 'store']);
     });
 
     /*
