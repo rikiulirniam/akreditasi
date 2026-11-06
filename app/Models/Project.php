@@ -17,4 +17,3 @@ class Project extends ProjectAkreditasi
         return $this->hasOne(EvidenceSpmi::class, 'project_id');
     }
 }
-

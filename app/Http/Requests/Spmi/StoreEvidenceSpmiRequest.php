@@ -4,8 +4,6 @@ namespace App\Http\Requests\Spmi;
 
 use App\Http\Requests\BaseApiRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Validation\Rule;
 
 class StoreEvidenceSpmiRequest extends BaseApiRequest
 {
@@ -16,13 +14,11 @@ class StoreEvidenceSpmiRequest extends BaseApiRequest
      */
     public function rules(): array
     {
-        $projectTable = Schema::hasTable('projects') ? 'projects' : 'project_akreditasi';
-
         return [
             'project_id' => [
                 'required',
                 'integer',
-                Rule::exists($projectTable, 'id'),
+                'exists:project_akreditasi,id',
             ],
             'link_bukti_evaluasi' => 'nullable|string',
             'deskripsi_bukti_evaluasi' => 'nullable|string',

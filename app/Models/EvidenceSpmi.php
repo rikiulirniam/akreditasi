@@ -37,11 +37,18 @@ class EvidenceSpmi extends Model
     }
 
     /**
-     * Relasi ke model Project (ProjectAkreditasi).
+     * Relasi ke model ProjectAkreditasi.
      */
     public function project(): BelongsTo
     {
-        return $this->belongsTo(Project::class, 'project_id');
+        return $this->belongsTo(ProjectAkreditasi::class, 'project_id');
+    }
+
+    /**
+     * Relasi ke model ProjectAkreditasi (alias eksplisit).
+     */
+    public function projectAkreditasi(): BelongsTo
+    {
+        return $this->belongsTo(ProjectAkreditasi::class, 'project_id');
     }
 }
-

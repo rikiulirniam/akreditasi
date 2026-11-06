@@ -239,8 +239,8 @@ class EvidenceSpmiTest extends TestCase
             'link_bukti_evaluasi' => 'https://drive.google.com/relasi-test',
         ]);
 
-        // Test belongsTo Project
-        $this->assertInstanceOf(Project::class, $evidence->project);
+        // Test belongsTo Project (ProjectAkreditasi)
+        $this->assertInstanceOf(ProjectAkreditasi::class, $evidence->project);
         $this->assertEquals($this->project->id, $evidence->project->id);
 
         // Test hasOne pada Project
@@ -254,4 +254,3 @@ class EvidenceSpmiTest extends TestCase
         $this->assertEquals($evidence->id, $projectAkreditasiModel->evidenceSpmi->id);
     }
 }
-

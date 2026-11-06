@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $projectTable = Schema::hasTable('projects') ? 'projects' : 'project_akreditasi';
-
-        Schema::create('evidence_spmi', function (Blueprint $table) use ($projectTable) {
+        Schema::create('evidence_spmi', function (Blueprint $table) {
             $table->id();
 
-            // Foreign Key ke tabel projects / project_akreditasi (One-to-One)
+            // Foreign Key ke tabel project_akreditasi (One-to-One)
             $table->foreignId('project_id')
-                ->constrained($projectTable)
+                ->constrained('project_akreditasi')
                 ->cascadeOnDelete()
                 ->unique();
 
@@ -50,4 +48,3 @@ return new class extends Migration
         Schema::dropIfExists('evidence_spmi');
     }
 };
-
