@@ -14,7 +14,7 @@ class EvidenceSpmiController extends Controller
     use ApiResponseTrait;
 
     /**
-     * Mengambil data evidence SPMI untuk project tertentu.
+     * Mengambil data evidence SPMI untuk project akreditasi tertentu.
      */
     public function show(Request $request, ?int $id = null): JsonResponse
     {
@@ -32,7 +32,7 @@ class EvidenceSpmiController extends Controller
     }
 
     /**
-     * Menyimpan atau memperbarui data evidence SPMI (updateOrCreate).
+     * Menyimpan atau memperbarui data evidence SPMI (updateOrCreate berbasis project_id).
      */
     public function store(StoreEvidenceSpmiRequest $request): JsonResponse
     {
