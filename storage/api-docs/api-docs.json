@@ -769,7 +769,7 @@
                     "Autentikasi - SSO Akademik"
                 ],
                 "summary": "Login SSO Akademik (Layanan Autentikasi Terpusat)",
-                "description": "Melakukan login akun pengguna ke server SSO Akademik (`https://akademik.fayra.my.id`).\n\n**Kredensial Demo:**\n* Administrator: `administrator@polines.ac.id` / `password`\n* Output token Bearer JWT digunakan untuk mengakses seluruh endpoint API Akreditasi & SPMI.",
+                "description": "Melakukan login akun pengguna ke server SSO Akademik (`https://akademik.fayra.my.id`).\n\n**Perhatian Keamanan:**\n* Email dan password tidak di-prefill secara otomatis di Swagger UI demi keamanan sistem.\n* Pengguna wajib mengetikkan alamat email dan password akun SSO terdaftar secara manual terlebih dahulu sebelum menekan Execute.\n* Output token Bearer JWT digunakan untuk mengakses seluruh endpoint API Akreditasi & SPMI.",
                 "operationId": "c34dec07634d0bdcec1c5ce5b64d6c98",
                 "requestBody": {
                     "required": true,
@@ -782,16 +782,16 @@
                                 ],
                                 "properties": {
                                     "email": {
-                                        "description": "Email pengguna terdaftar",
+                                        "description": "Email pengguna terdaftar (wajib diketikkan secara manual)",
                                         "type": "string",
                                         "format": "email",
-                                        "example": "administrator@polines.ac.id"
+                                        "example": ""
                                     },
                                     "password": {
-                                        "description": "Kata sandi pengguna",
+                                        "description": "Kata sandi pengguna (wajib diketikkan secara manual)",
                                         "type": "string",
                                         "format": "password",
-                                        "example": "password"
+                                        "example": ""
                                     }
                                 },
                                 "type": "object"
@@ -828,11 +828,11 @@
                                                         },
                                                         "nama": {
                                                             "type": "string",
-                                                            "example": "Administrator Sistem"
+                                                            "example": "User Terdaftar"
                                                         },
                                                         "email": {
                                                             "type": "string",
-                                                            "example": "administrator@polines.ac.id"
+                                                            "example": "user@polines.ac.id"
                                                         },
                                                         "role": {
                                                             "type": "string",
@@ -974,11 +974,11 @@
                                                 },
                                                 "nama": {
                                                     "type": "string",
-                                                    "example": "Administrator Sistem"
+                                                    "example": "User Terdaftar"
                                                 },
                                                 "email": {
                                                     "type": "string",
-                                                    "example": "administrator@polines.ac.id"
+                                                    "example": "user@polines.ac.id"
                                                 },
                                                 "role": {
                                                     "type": "string",
@@ -1043,11 +1043,11 @@
                                                         },
                                                         "nama": {
                                                             "type": "string",
-                                                            "example": "Administrator Sistem"
+                                                            "example": "User Terdaftar"
                                                         },
                                                         "email": {
                                                             "type": "string",
-                                                            "example": "administrator@polines.ac.id"
+                                                            "example": "user@polines.ac.id"
                                                         },
                                                         "role": {
                                                             "type": "string",
@@ -2785,16 +2785,17 @@
                 }
             }
         },
-        "/master/standar-mutu": {
+        "/master/jenjang": {
             "get": {
                 "tags": [
-                    "Master Data - Standar Mutu"
+                    "Master Data - Jenjang"
                 ],
-                "summary": "Mendapatkan daftar standar mutu",
-                "operationId": "66d26f1c92ea1d72a1e290b2e335a4c7",
+                "summary": "Mendapatkan daftar jenjang pendidikan",
+                "description": "Menampilkan list master jenjang pendidikan (D3, D4, S1, S2, dll).",
+                "operationId": "88306625557d022f1735f93956fefd7c",
                 "responses": {
                     "200": {
-                        "description": "Berhasil memuat daftar standar mutu",
+                        "description": "Berhasil memuat daftar jenjang",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2804,73 +2805,15 @@
                         }
                     }
                 }
-            },
-            "post": {
-                "tags": [
-                    "Master Data - Standar Mutu"
-                ],
-                "summary": "Menambahkan standar mutu baru",
-                "operationId": "f6d23eefc8f89bc0ccf4d2db36cdc851",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "kode_standar",
-                                    "nama_standar",
-                                    "pernyataan_standar"
-                                ],
-                                "properties": {
-                                    "kode_standar": {
-                                        "type": "string",
-                                        "example": "SM-01"
-                                    },
-                                    "nama_standar": {
-                                        "type": "string",
-                                        "example": "Standar Kompetensi Lulusan"
-                                    },
-                                    "pernyataan_standar": {
-                                        "type": "string",
-                                        "example": "Program studi wajib menetapkan profil dan capaian pembelajaran lulusan."
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Standar mutu berhasil ditambahkan",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseSuccess"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validasi gagal",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
             }
         },
-        "/master/standar-mutu/{id}": {
+        "/master/jenjang/{id}": {
             "get": {
                 "tags": [
-                    "Master Data - Standar Mutu"
+                    "Master Data - Jenjang"
                 ],
-                "summary": "Mendapatkan detail standar mutu",
-                "operationId": "dd421413bcbfc220ad60e48e88a2d098",
+                "summary": "Mendapatkan detail jenjang pendidikan",
+                "operationId": "2682746de9769942b340c00a889658c2",
                 "parameters": [
                     {
                         "name": "id",
@@ -2883,7 +2826,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Detail standar mutu berhasil dimuat",
+                        "description": "Detail jenjang berhasil dimuat",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2893,124 +2836,7 @@
                         }
                     },
                     "404": {
-                        "description": "Standar mutu tidak ditemukan",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseNotFound"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "put": {
-                "tags": [
-                    "Master Data - Standar Mutu"
-                ],
-                "summary": "Memperbarui standar mutu",
-                "operationId": "10e284a469839b265ac62bbfb26cf525",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "kode_standar",
-                                    "nama_standar",
-                                    "pernyataan_standar"
-                                ],
-                                "properties": {
-                                    "kode_standar": {
-                                        "type": "string",
-                                        "example": "SM-01"
-                                    },
-                                    "nama_standar": {
-                                        "type": "string",
-                                        "example": "Standar Kompetensi Lulusan Revisi"
-                                    },
-                                    "pernyataan_standar": {
-                                        "type": "string",
-                                        "example": "Pernyataan standar diperbarui."
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Standar mutu berhasil diperbarui",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseSuccess"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validasi gagal",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseValidationError"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Standar mutu tidak ditemukan",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseNotFound"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Master Data - Standar Mutu"
-                ],
-                "summary": "Menghapus standar mutu",
-                "operationId": "4d18b4db2d915f91b41d6924c4fd6a1e",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Standar mutu berhasil dihapus",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseSuccess"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Standar mutu tidak ditemukan",
+                        "description": "Jenjang tidak ditemukan",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4176,6 +4002,138 @@
                     }
                 }
             }
+        },
+        "/evidence-spmi": {
+            "get": {
+                "tags": [
+                    "SPMI - Evidence Mutu"
+                ],
+                "summary": "Mendapatkan data evidence SPMI berdasarkan project_id",
+                "description": "Mengambil data evidence SPMI untuk suatu project. Jika belum ada data, mengembalikan data: null dengan status 200 OK.",
+                "operationId": "be20cba1b0f30e10a9621bcbf5c0b038",
+                "parameters": [
+                    {
+                        "name": "project_id",
+                        "in": "query",
+                        "description": "ID Project Akreditasi",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data evidence SPMI berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Parameter project_id tidak disertakan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "SPMI - Evidence Mutu"
+                ],
+                "summary": "Menyimpan atau memperbarui data evidence SPMI project",
+                "description": "Menyimpan rekaman 4 pilar bukti SPMI berbasis updateOrCreate pada project_id.",
+                "operationId": "a7fadaf60a0bd0e3c1308e564f82c0f1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "project_id"
+                                ],
+                                "properties": {
+                                    "project_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "link_bukti_evaluasi": {
+                                        "type": "string",
+                                        "example": "https://drive.google.com/evaluasi",
+                                        "nullable": true
+                                    },
+                                    "deskripsi_bukti_evaluasi": {
+                                        "type": "string",
+                                        "example": "Laporan AMI Semester Genap",
+                                        "nullable": true
+                                    },
+                                    "link_bukti_pengendalian": {
+                                        "type": "string",
+                                        "example": "https://drive.google.com/pengendalian",
+                                        "nullable": true
+                                    },
+                                    "deskripsi_bukti_pengendalian": {
+                                        "type": "string",
+                                        "example": "Tindakan korektif dan RTL rapat tinjauan manajemen",
+                                        "nullable": true
+                                    },
+                                    "link_bukti_dampak": {
+                                        "type": "string",
+                                        "example": "https://drive.google.com/dampak",
+                                        "nullable": true
+                                    },
+                                    "deskripsi_bukti_dampak": {
+                                        "type": "string",
+                                        "example": "Bukti luaran tridharma dan prestasi mahasiswa",
+                                        "nullable": true
+                                    },
+                                    "link_dokumen_implementasi": {
+                                        "type": "string",
+                                        "example": "https://drive.google.com/implementasi",
+                                        "nullable": true
+                                    },
+                                    "deskripsi_dokumen_implementasi": {
+                                        "type": "string",
+                                        "example": "SOP dan formulir operasional harian prodi",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Evidence SPMI berhasil disimpan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -4298,6 +4256,10 @@
             "description": "Manajemen Versi Instrumen Akreditasi (1.0, 2.0, 2.1, dll)"
         },
         {
+            "name": "Master Data - Jenjang",
+            "description": "Manajemen Data Master Jenjang Pendidikan (D3, D4, S1, dll)"
+        },
+        {
             "name": "Master Data - Instrumen",
             "description": "Manajemen Instrumen Akreditasi (Jembatan Versi Instrumen, Jenjang, dan Jenis Instrumen)"
         },
@@ -4306,16 +4268,16 @@
             "description": "Manajemen Data Master Kriteria"
         },
         {
+            "name": "Master Data - Subkriteria",
+            "description": "Manajemen Data Master Subkriteria"
+        },
+        {
             "name": "Master Data - Indikator",
             "description": "Manajemen Data Master Indikator"
         },
         {
             "name": "Master Data - Rubrik",
             "description": "Manajemen Data Master Rubrik Penilaian"
-        },
-        {
-            "name": "Master Data - Standar Mutu",
-            "description": "Manajemen Data Master Standar Mutu"
         },
         {
             "name": "Master Data - Jenis Pembiayaan",
@@ -4338,12 +4300,12 @@
             "description": "Audit SPMI dan Tindak Lanjut Temuan"
         },
         {
-            "name": "Sarpras - Sarana & Prasarana",
-            "description": "Manajemen Data Sarana dan Prasarana Program Studi"
+            "name": "SPMI - Evidence Mutu",
+            "description": "Manajemen Evidence SPMI (4 Pilar Bukti) per Project Akreditasi"
         },
         {
-            "name": "Master Data - Subkriteria",
-            "description": "Master Data - Subkriteria"
+            "name": "Sarpras - Sarana & Prasarana",
+            "description": "Manajemen Data Sarana dan Prasarana Program Studi"
         }
     ]
 }

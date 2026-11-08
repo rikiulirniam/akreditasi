@@ -12,7 +12,7 @@ class AuthDocs
     #[OA\Post(
         path: '/api/auth/login',
         summary: 'Login SSO Akademik (Layanan Autentikasi Terpusat)',
-        description: "Melakukan login akun pengguna ke server SSO Akademik (`https://akademik.fayra.my.id`).\n\n**Kredensial Demo:**\n* Administrator: `administrator@polines.ac.id` / `password`\n* Output token Bearer JWT digunakan untuk mengakses seluruh endpoint API Akreditasi & SPMI.",
+        description: "Melakukan login akun pengguna ke server SSO Akademik (`https://akademik.fayra.my.id`).\n\n**Perhatian Keamanan:**\n* Email dan password tidak di-prefill secara otomatis di Swagger UI demi keamanan sistem.\n* Pengguna wajib mengetikkan alamat email dan password akun SSO terdaftar secara manual terlebih dahulu sebelum menekan Execute.\n* Output token Bearer JWT digunakan untuk mengakses seluruh endpoint API Akreditasi & SPMI.",
         tags: ['Autentikasi - SSO Akademik'],
         servers: [
             new OA\Server(url: 'https://akademik.fayra.my.id', description: 'Server SSO Akademik'),
@@ -22,8 +22,8 @@ class AuthDocs
             content: new OA\JsonContent(
                 required: ['email', 'password'],
                 properties: [
-                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'administrator@polines.ac.id', description: 'Email pengguna terdaftar'),
-                    new OA\Property(property: 'password', type: 'string', format: 'password', example: 'password', description: 'Kata sandi pengguna'),
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: '', description: 'Email pengguna terdaftar (wajib diketikkan secara manual)'),
+                    new OA\Property(property: 'password', type: 'string', format: 'password', example: '', description: 'Kata sandi pengguna (wajib diketikkan secara manual)'),
                 ]
             )
         ),
@@ -45,8 +45,8 @@ class AuthDocs
                                     type: 'object',
                                     properties: [
                                         new OA\Property(property: 'id', type: 'integer', example: 1),
-                                        new OA\Property(property: 'nama', type: 'string', example: 'Administrator Sistem'),
-                                        new OA\Property(property: 'email', type: 'string', example: 'administrator@polines.ac.id'),
+                                        new OA\Property(property: 'nama', type: 'string', example: 'User Terdaftar'),
+                                        new OA\Property(property: 'email', type: 'string', example: 'user@polines.ac.id'),
                                         new OA\Property(property: 'role', type: 'string', example: 'ADMINISTRATOR'),
                                     ]
                                 ),
@@ -129,8 +129,8 @@ class AuthDocs
                             type: 'object',
                             properties: [
                                 new OA\Property(property: 'id', type: 'integer', example: 1),
-                                new OA\Property(property: 'nama', type: 'string', example: 'Administrator Sistem'),
-                                new OA\Property(property: 'email', type: 'string', example: 'administrator@polines.ac.id'),
+                                new OA\Property(property: 'nama', type: 'string', example: 'User Terdaftar'),
+                                new OA\Property(property: 'email', type: 'string', example: 'user@polines.ac.id'),
                                 new OA\Property(property: 'role', type: 'string', example: 'ADMINISTRATOR'),
                             ]
                         ),
@@ -168,8 +168,8 @@ class AuthDocs
                                     type: 'object',
                                     properties: [
                                         new OA\Property(property: 'id', type: 'integer', example: 1),
-                                        new OA\Property(property: 'nama', type: 'string', example: 'Administrator Sistem'),
-                                        new OA\Property(property: 'email', type: 'string', example: 'administrator@polines.ac.id'),
+                                        new OA\Property(property: 'nama', type: 'string', example: 'User Terdaftar'),
+                                        new OA\Property(property: 'email', type: 'string', example: 'user@polines.ac.id'),
                                         new OA\Property(property: 'role', type: 'string', example: 'ADMINISTRATOR'),
                                         new OA\Property(property: 'permissions', type: 'array', items: new OA\Items(type: 'string')),
                                     ]
