@@ -22,8 +22,37 @@
                     "Akreditasi - Project"
                 ],
                 "summary": "Mendapatkan daftar project akreditasi",
-                "description": "Menampilkan list project akreditasi.",
+                "description": "Menampilkan list project akreditasi dengan filter opsional.",
                 "operationId": "9035343aff8fddc2aab5b01dbf171e8d",
+                "parameters": [
+                    {
+                        "name": "id_prodi",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Program Studi",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "id_jenjang",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Jenjang",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "status_project",
+                        "in": "query",
+                        "description": "Filter berdasarkan status project (draft, pengisian, review, submit)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Berhasil memuat daftar project akreditasi",
@@ -292,6 +321,64 @@
             }
         },
         "/projects/{id}/mapping-tim": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Mapping Tim"
+                ],
+                "summary": "Mendapatkan daftar penugasan tim akreditasi untuk project tertentu",
+                "description": "Menampilkan list penugasan tim per indikator untuk ID project yang ditentukan pada path URL.",
+                "operationId": "cc90c69939bbe4930d75d155d434a59f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Project Akreditasi",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "description": "Filter berdasarkan peran / role (contoh: PJ, PIC, Penyusun)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar penugasan tim berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Project tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "tags": [
                     "Akreditasi - Mapping Tim"
@@ -399,8 +486,37 @@
                     "Akreditasi - Mapping Tim"
                 ],
                 "summary": "Mendapatkan daftar semua penugasan tim akreditasi",
-                "description": "Menampilkan list seluruh mapping penugasan tim beserta relasi project dan indikator.",
+                "description": "Menampilkan list seluruh mapping penugasan tim beserta relasi project dan indikator. Filter id_project dikirimkan melalui query parameter (bukan body request).",
                 "operationId": "58420c71b3e7f9dc5112c6d17f0f65de",
+                "parameters": [
+                    {
+                        "name": "id_project",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Project Akreditasi (Query Parameter)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "project_id",
+                        "in": "query",
+                        "description": "Alias filter berdasarkan ID Project Akreditasi (Query Parameter)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "description": "Filter berdasarkan peran / role (contoh: PJ, PIC, Penyusun)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Daftar penugasan berhasil dimuat",
@@ -3362,25 +3478,25 @@
                             "schema": {
                                 "required": [
                                     "id_prasarana",
-                                    "nama_sarana"
+                                    "jumlah_unit",
+                                    "kondisi"
                                 ],
                                 "properties": {
                                     "id_prasarana": {
                                         "type": "integer",
                                         "example": 1
                                     },
-                                    "nama_sarana": {
-                                        "type": "string",
-                                        "example": "PC Workstation Core i7 32GB RAM"
-                                    },
-                                    "jumlah": {
+                                    "jumlah_unit": {
                                         "type": "integer",
-                                        "example": 30,
-                                        "nullable": true
+                                        "example": 30
                                     },
                                     "kondisi": {
                                         "type": "string",
-                                        "example": "Baik",
+                                        "example": "Baik"
+                                    },
+                                    "keterangan": {
+                                        "type": "string",
+                                        "example": "PC Workstation Core i7 32GB RAM di Lab RPL",
                                         "nullable": true
                                     }
                                 },
@@ -3475,12 +3591,12 @@
                         "application/json": {
                             "schema": {
                                 "properties": {
-                                    "nama_sarana": {
-                                        "type": "string",
-                                        "example": "PC Workstation Core i7 32GB RAM (Upgrade SSD)",
+                                    "id_prasarana": {
+                                        "type": "integer",
+                                        "example": 1,
                                         "nullable": true
                                     },
-                                    "jumlah": {
+                                    "jumlah_unit": {
                                         "type": "integer",
                                         "example": 35,
                                         "nullable": true
@@ -3488,6 +3604,11 @@
                                     "kondisi": {
                                         "type": "string",
                                         "example": "Sangat Baik",
+                                        "nullable": true
+                                    },
+                                    "keterangan": {
+                                        "type": "string",
+                                        "example": "Upgrade spesifikasi RAM & SSD",
                                         "nullable": true
                                     }
                                 },
@@ -3575,31 +3696,45 @@
                     "SPMI - Audit Mutu Internal"
                 ],
                 "summary": "Mendapatkan daftar data audit SPMI",
-                "description": "Menampilkan list data audit SPMI dengan filter id_prodi, tahun, dan status_audit.",
+                "description": "Menampilkan list data audit SPMI dengan filter id_project, jenis_kegiatan, tahun_audit, dan status_penyelesaian.",
                 "operationId": "b6039ac073a99b798902a9cc40fa9354",
                 "parameters": [
                     {
-                        "name": "id_prodi",
+                        "name": "id_project",
                         "in": "query",
-                        "description": "Filter ID Program Studi",
+                        "description": "Filter berdasarkan ID Project Akreditasi",
                         "required": false,
                         "schema": {
                             "type": "integer"
                         }
                     },
                     {
-                        "name": "tahun",
+                        "name": "jenis_kegiatan",
                         "in": "query",
-                        "description": "Filter Tahun Audit",
+                        "description": "Filter jenis kegiatan audit",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "PPEPP",
+                                "AMI",
+                                "RTM"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "tahun_audit",
+                        "in": "query",
+                        "description": "Filter Tahun Audit (4 digit)",
                         "required": false,
                         "schema": {
                             "type": "integer"
                         }
                     },
                     {
-                        "name": "status_audit",
+                        "name": "status_penyelesaian",
                         "in": "query",
-                        "description": "Filter status (Open / Closed / In Progress)",
+                        "description": "Filter status penyelesaian (Open / In Progress / Selesai)",
                         "required": false,
                         "schema": {
                             "type": "string"
@@ -3631,59 +3766,58 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "id_prodi",
-                                    "id_standar_mutu",
-                                    "id_auditor",
-                                    "tahun",
-                                    "hasil_audit",
-                                    "kondisi_temuan",
-                                    "status_audit",
-                                    "tanggal_audit"
+                                    "id_project",
+                                    "id_standar",
+                                    "tanggal_pelaksanaan",
+                                    "tahun_audit"
                                 ],
                                 "properties": {
-                                    "id_prodi": {
+                                    "id_project": {
                                         "type": "integer",
                                         "example": 1
                                     },
-                                    "id_standar_mutu": {
+                                    "id_standar": {
                                         "type": "integer",
                                         "example": 1
                                     },
-                                    "id_auditor": {
+                                    "id_indikator": {
                                         "type": "integer",
-                                        "example": 401
-                                    },
-                                    "tahun": {
-                                        "type": "integer",
-                                        "example": 2026
-                                    },
-                                    "hasil_audit": {
-                                        "description": "Kesesuaian / Ketidaksesuaian Mayor / Minor / Observasi",
-                                        "type": "string",
-                                        "example": "Observasi"
-                                    },
-                                    "kondisi_temuan": {
-                                        "type": "string",
-                                        "example": "Dokumen SOP pelaksanaan RPS belum diperbarui sesuai kurikulum OBE terbaru."
-                                    },
-                                    "akar_masalah": {
-                                        "type": "string",
-                                        "example": "Keterbatasan waktu koordinasi tim kurikulum pada semester gasal.",
+                                        "example": 1,
                                         "nullable": true
                                     },
-                                    "rekomendasi": {
+                                    "jenis_kegiatan": {
                                         "type": "string",
-                                        "example": "Lakukan workshop review SOP dan penyelarasan RPS serentak sebelum semester genap.",
-                                        "nullable": true
+                                        "example": "AMI",
+                                        "nullable": true,
+                                        "enum": [
+                                            "PPEPP",
+                                            "AMI",
+                                            "RTM"
+                                        ]
                                     },
-                                    "status_audit": {
-                                        "type": "string",
-                                        "example": "Open"
-                                    },
-                                    "tanggal_audit": {
+                                    "tanggal_pelaksanaan": {
                                         "type": "string",
                                         "format": "date",
                                         "example": "2026-10-15"
+                                    },
+                                    "tahun_audit": {
+                                        "type": "integer",
+                                        "example": 2026
+                                    },
+                                    "temuan": {
+                                        "type": "string",
+                                        "example": "Dokumen SOP pelaksanaan RPS belum diperbarui sesuai kurikulum OBE terbaru.",
+                                        "nullable": true
+                                    },
+                                    "tindak_lanjut": {
+                                        "type": "string",
+                                        "example": "Workshop review SOP kurikulum pada semester depan.",
+                                        "nullable": true
+                                    },
+                                    "status_penyelesaian": {
+                                        "type": "string",
+                                        "example": "Open",
+                                        "nullable": true
                                     }
                                 },
                                 "type": "object"
@@ -3776,59 +3910,57 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "id_prodi",
-                                    "id_standar_mutu",
-                                    "id_auditor",
-                                    "tahun",
-                                    "hasil_audit",
-                                    "kondisi_temuan",
-                                    "status_audit",
-                                    "tanggal_audit"
-                                ],
                                 "properties": {
-                                    "id_prodi": {
+                                    "id_project": {
                                         "type": "integer",
-                                        "example": 1
-                                    },
-                                    "id_standar_mutu": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "id_auditor": {
-                                        "type": "integer",
-                                        "example": 401
-                                    },
-                                    "tahun": {
-                                        "type": "integer",
-                                        "example": 2026
-                                    },
-                                    "hasil_audit": {
-                                        "type": "string",
-                                        "example": "Ketidaksesuaian Minor"
-                                    },
-                                    "kondisi_temuan": {
-                                        "type": "string",
-                                        "example": "Revisi kondisi temuan audit oleh auditor."
-                                    },
-                                    "akar_masalah": {
-                                        "type": "string",
-                                        "example": "Akar masalah diperbarui.",
+                                        "example": 1,
                                         "nullable": true
                                     },
-                                    "rekomendasi": {
-                                        "type": "string",
-                                        "example": "Rekomendasi audit diperbarui.",
+                                    "id_standar": {
+                                        "type": "integer",
+                                        "example": 1,
                                         "nullable": true
                                     },
-                                    "status_audit": {
-                                        "type": "string",
-                                        "example": "In Progress"
+                                    "id_indikator": {
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
                                     },
-                                    "tanggal_audit": {
+                                    "jenis_kegiatan": {
+                                        "type": "string",
+                                        "example": "AMI",
+                                        "nullable": true,
+                                        "enum": [
+                                            "PPEPP",
+                                            "AMI",
+                                            "RTM"
+                                        ]
+                                    },
+                                    "tanggal_pelaksanaan": {
                                         "type": "string",
                                         "format": "date",
-                                        "example": "2026-10-15"
+                                        "example": "2026-10-15",
+                                        "nullable": true
+                                    },
+                                    "tahun_audit": {
+                                        "type": "integer",
+                                        "example": 2026,
+                                        "nullable": true
+                                    },
+                                    "temuan": {
+                                        "type": "string",
+                                        "example": "Revisi temuan audit SPMI.",
+                                        "nullable": true
+                                    },
+                                    "tindak_lanjut": {
+                                        "type": "string",
+                                        "example": "Revisi rencana tindak lanjut audit.",
+                                        "nullable": true
+                                    },
+                                    "status_penyelesaian": {
+                                        "type": "string",
+                                        "example": "In Progress",
+                                        "nullable": true
                                     }
                                 },
                                 "type": "object"
@@ -3915,7 +4047,7 @@
                     "SPMI - Audit Mutu Internal"
                 ],
                 "summary": "Memperbarui tindak lanjut temuan audit SPMI",
-                "description": "Auditee (Ketua Prodi / Gugus Mutu) mengisi rencana tindak lanjut, tanggal efektif, dan evaluasi hasil perbaikan.",
+                "description": "Auditee (Ketua Prodi / Gugus Mutu) mengisi rencana tindak lanjut dan status penyelesaian perbaikan.",
                 "operationId": "ecf469bd314443cfb2d8e0e55cea46c2",
                 "parameters": [
                     {
@@ -3934,33 +4066,16 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "rencana_tindak_lanjut",
-                                    "status_tindak_lanjut"
+                                    "tindak_lanjut"
                                 ],
                                 "properties": {
-                                    "rencana_tindak_lanjut": {
+                                    "tindak_lanjut": {
                                         "type": "string",
                                         "example": "Mengadakan rapat konsinyasi penyelarasan RPS dan revisi SOP pembelajaran."
                                     },
-                                    "status_tindak_lanjut": {
+                                    "status_penyelesaian": {
                                         "type": "string",
                                         "example": "Selesai",
-                                        "enum": [
-                                            "Belum Dilaksanakan",
-                                            "Sedang Berjalan",
-                                            "Selesai",
-                                            "Efektif"
-                                        ]
-                                    },
-                                    "tanggal_efektif": {
-                                        "type": "string",
-                                        "format": "date",
-                                        "example": "2026-11-01",
-                                        "nullable": true
-                                    },
-                                    "evaluasi_efektivitas": {
-                                        "type": "string",
-                                        "example": "Seluruh RPS telah sesuai panduan kurikulum OBE terbaru.",
                                         "nullable": true
                                     }
                                 },

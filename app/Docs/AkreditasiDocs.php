@@ -12,8 +12,13 @@ class AkreditasiDocs
     #[OA\Get(
         path: '/projects',
         summary: 'Mendapatkan daftar project akreditasi',
-        description: 'Menampilkan list project akreditasi.',
+        description: 'Menampilkan list project akreditasi dengan filter opsional.',
         tags: ['Akreditasi - Project'],
+        parameters: [
+            new OA\Parameter(name: 'id_prodi', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Program Studi'),
+            new OA\Parameter(name: 'id_jenjang', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Jenjang'),
+            new OA\Parameter(name: 'status_project', in: 'query', required: false, schema: new OA\Schema(type: 'string'), description: 'Filter berdasarkan status project (draft, pengisian, review, submit)'),
+        ],
         responses: [
             new OA\Response(response: 200, description: 'Berhasil memuat daftar project akreditasi', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess')),
         ]
@@ -93,6 +98,24 @@ class AkreditasiDocs
             new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
+    #[OA\Get(
+        path: '/projects/{id}/mapping-tim',
+        summary: 'Mendapatkan daftar penugasan tim akreditasi untuk project tertentu',
+        description: 'Menampilkan list penugasan tim per indikator untuk ID project yang ditentukan pada path URL.',
+        tags: ['Akreditasi - Mapping Tim'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
+            new OA\Parameter(name: 'role', in: 'query', required: false, schema: new OA\Schema(type: 'string'), description: 'Filter berdasarkan peran / role (contoh: PJ, PIC, Penyusun)'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Daftar penugasan tim berhasil dimuat', content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'data', type: 'array', items: new OA\Items(type: 'object')),
+                ]
+            )),
+            new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
     #[OA\Post(
         path: '/projects/{id}/mapping-tim',
         summary: 'Menyimpan pembagian tugas tim per indikator untuk project tertentu',
@@ -137,8 +160,13 @@ class AkreditasiDocs
     #[OA\Get(
         path: '/mapping-tim',
         summary: 'Mendapatkan daftar semua penugasan tim akreditasi',
-        description: 'Menampilkan list seluruh mapping penugasan tim beserta relasi project dan indikator.',
+        description: 'Menampilkan list seluruh mapping penugasan tim beserta relasi project dan indikator. Filter id_project dikirimkan melalui query parameter (bukan body request).',
         tags: ['Akreditasi - Mapping Tim'],
+        parameters: [
+            new OA\Parameter(name: 'id_project', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Project Akreditasi (Query Parameter)'),
+            new OA\Parameter(name: 'project_id', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Alias filter berdasarkan ID Project Akreditasi (Query Parameter)'),
+            new OA\Parameter(name: 'role', in: 'query', required: false, schema: new OA\Schema(type: 'string'), description: 'Filter berdasarkan peran / role (contoh: PJ, PIC, Penyusun)'),
+        ],
         responses: [
             new OA\Response(response: 200, description: 'Daftar penugasan berhasil dimuat', content: new OA\JsonContent(
                 properties: [

@@ -2368,7 +2368,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id_project\": 1,\n  \"id_standar_mutu\": 1,\n  \"auditor_id\": 1,\n  \"tanggal_audit\": \"2026-10-24\",\n  \"kondisi_temuan\": \"Rencana pembelajaran semester (RPS) belum mencantumkan asesmen berbasis OBE secara menyeluruh.\",\n  \"kriteria_standar\": \"Standar Mutu Pembelajaran No. 04\",\n  \"akar_masalah\": \"Kurangnya sosialisasi format rubrik OBE kepada dosen pengampu matakuliah baru.\",\n  \"rekomendasi\": \"Pusat Pengembangan Kurikulum mengadakan workshop penyusunan RPS OBE.\",\n  \"status_temuan\": \"Open\"\n}"
+              "raw": "{\n  \"id_project\": 1,\n  \"id_standar\": 1,\n  \"id_indikator\": 1,\n  \"jenis_kegiatan\": \"AMI\",\n  \"tanggal_pelaksanaan\": \"2026-10-24\",\n  \"tahun_audit\": 2026,\n  \"temuan\": \"Rencana pembelajaran semester (RPS) belum mencantumkan asesmen berbasis OBE secara menyeluruh.\",\n  \"tindak_lanjut\": \"Pusat Pengembangan Kurikulum mengadakan workshop penyusunan RPS OBE.\",\n  \"status_penyelesaian\": \"Open\"\n}"
             }
           },
           "event": [
@@ -2447,7 +2447,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id_project\": 1,\n  \"id_standar_mutu\": 1,\n  \"auditor_id\": 1,\n  \"tanggal_audit\": \"2026-10-24\",\n  \"kondisi_temuan\": \"RPS belum mencantumkan asesmen OBE (Diperbarui)\",\n  \"kriteria_standar\": \"Standar Mutu Pembelajaran No. 04\",\n  \"akar_masalah\": \"Sosialisasi belum merata.\",\n  \"rekomendasi\": \"Adakan Bimtek secepatnya.\",\n  \"status_temuan\": \"In Progress\"\n}"
+              "raw": "{\n  \"id_project\": 1,\n  \"id_standar\": 1,\n  \"id_indikator\": 1,\n  \"jenis_kegiatan\": \"AMI\",\n  \"tanggal_pelaksanaan\": \"2026-10-24\",\n  \"tahun_audit\": 2026,\n  \"temuan\": \"RPS belum mencantumkan asesmen OBE (Diperbarui)\",\n  \"tindak_lanjut\": \"Adakan Bimtek secepatnya.\",\n  \"status_penyelesaian\": \"In Progress\"\n}"
             }
           },
           "event": [
@@ -2491,7 +2491,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"rencana_tindak_lanjut\": \"Mengadakan Bimtek kurikulum OBE pada akhir bulan.\",\n  \"jadwal_penyelesaian\": \"2026-11-15\",\n  \"penanggung_jawab\": \"Kaprodi\",\n  \"status_temuan\": \"In Progress\"\n}"
+              "raw": "{\n  \"tindak_lanjut\": \"Mengadakan Bimtek kurikulum OBE pada akhir bulan.\",\n  \"status_penyelesaian\": \"In Progress\"\n}"
             }
           },
           "event": [
@@ -2535,7 +2535,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status_temuan\": \"Closed\"\n}"
+              "raw": "{\n  \"tindak_lanjut\": \"Bimtek kurikulum OBE telah terlaksana dengan efektif.\",\n  \"status_penyelesaian\": \"Closed\"\n}"
             }
           },
           "event": [
