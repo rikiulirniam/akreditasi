@@ -1548,10 +1548,10 @@
           ]
         },
         {
-          "name": "Standar Mutu",
+          "name": "Jenjang",
           "item": [
             {
-              "name": "4.1 GET Semua Standar Mutu",
+              "name": "4.1 GET Semua Jenjang",
               "request": {
                 "method": "GET",
                 "header": [
@@ -1562,13 +1562,13 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{base_url}}/master/standar-mutu",
+                  "raw": "{{base_url}}/master/jenjang",
                   "host": [
                     "{{base_url}}"
                   ],
                   "path": [
                     "master",
-                    "standar-mutu"
+                    "jenjang"
                   ]
                 }
               },
@@ -1585,52 +1585,7 @@
               ]
             },
             {
-              "name": "4.2 POST Tambah Standar Mutu",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/master/standar-mutu",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "standar-mutu"
-                  ]
-                },
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"kode_standar\": \"STD-01\",\n  \"nama_standar\": \"Standar Kompetensi Lulusan\",\n  \"target\": \"IPK Rata-rata >= 3.50 dan masa tunggu kerja <= 3 bulan\"\n}"
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
-                      "var res = pm.response.json();",
-                      "if (res.data && res.data.id) { pm.environment.set('standar_mutu_id', res.data.id); }"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "4.3 GET Detail Standar Mutu",
+              "name": "4.2 GET Detail Jenjang",
               "request": {
                 "method": "GET",
                 "header": [
@@ -1641,14 +1596,14 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{base_url}}/master/standar-mutu/{{standar_mutu_id}}",
+                  "raw": "{{base_url}}/master/jenjang/{{jenjang_id}}",
                   "host": [
                     "{{base_url}}"
                   ],
                   "path": [
                     "master",
-                    "standar-mutu",
-                    "{{standar_mutu_id}}"
+                    "jenjang",
+                    "{{jenjang_id}}"
                   ]
                 }
               },
@@ -1658,86 +1613,6 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "4.4 PUT Update Standar Mutu",
-              "request": {
-                "method": "PUT",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/master/standar-mutu/{{standar_mutu_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "standar-mutu",
-                    "{{standar_mutu_id}}"
-                  ]
-                },
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"nama_standar\": \"Standar Kompetensi Lulusan (Revisi)\",\n  \"target\": \"IPK Rata-rata >= 3.55\"\n}"
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
-                    ],
-                    "type": "text/javascript"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "4.5 DELETE Standar Mutu",
-              "request": {
-                "method": "DELETE",
-                "header": [
-                  {
-                    "key": "Accept",
-                    "value": "application/json",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/master/standar-mutu/{{standar_mutu_id}}",
-                  "host": [
-                    "{{base_url}}"
-                  ],
-                  "path": [
-                    "master",
-                    "standar-mutu",
-                    "{{standar_mutu_id}}"
-                  ]
-                }
-              },
-              "event": [
-                {
-                  "listen": "test",
-                  "script": {
-                    "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.environment.set('standar_mutu_id', '1');"
                     ],
                     "type": "text/javascript"
                   }
@@ -2704,6 +2579,88 @@
                 "exec": [
                   "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
                   "pm.environment.set('spmi_audit_id', '1');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "9.8 GET Evidence SPMI",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/evidence-spmi?project_id={{project_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "evidence-spmi"
+              ],
+              "query": [
+                {
+                  "key": "project_id",
+                  "value": "{{project_id}}",
+                  "description": "ID Project Akreditasi"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "9.9 POST Simpan / Update Evidence SPMI",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/evidence-spmi",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "evidence-spmi"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_id\": 1,\n  \"link_bukti_evaluasi\": \"https://drive.google.com/drive/folders/evaluasi-spmi-link\",\n  \"deskripsi_bukti_evaluasi\": \"Laporan AMI Siklus 2025/2026 dan Monev Berkala\",\n  \"link_bukti_pengendalian\": \"https://drive.google.com/drive/folders/pengendalian-spmi-link\",\n  \"deskripsi_bukti_pengendalian\": \"Notula Rapat Tinjauan Manajemen (RTM)\",\n  \"link_bukti_dampak\": \"https://drive.google.com/drive/folders/dampak-spmi-link\",\n  \"deskripsi_bukti_dampak\": \"Rekapitulasi IKU dan kepuasan pemangku kepentingan\",\n  \"link_dokumen_implementasi\": \"https://drive.google.com/drive/folders/implementasi-spmi-link\",\n  \"deskripsi_dokumen_implementasi\": \"Manual Mutu & Standar SPMI\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
                 ],
                 "type": "text/javascript"
               }
