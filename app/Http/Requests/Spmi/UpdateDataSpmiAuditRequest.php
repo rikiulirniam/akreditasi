@@ -10,7 +10,6 @@ class UpdateDataSpmiAuditRequest extends BaseApiRequest
     {
         return [
             'id_project' => 'sometimes|required|integer|exists:project_akreditasi,id',
-            'id_standar' => 'sometimes|required|integer|exists:standar_mutu,id',
             'id_indikator' => 'nullable|integer|exists:indikator,id',
             'jenis_kegiatan' => 'sometimes|required|string|in:PPEPP,AMI,RTM',
             'tanggal_pelaksanaan' => 'sometimes|required|date',

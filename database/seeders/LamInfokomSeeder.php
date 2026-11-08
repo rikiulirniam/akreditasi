@@ -17,7 +17,6 @@ use App\Models\MappingTimAkreditasi;
 use App\Models\ProjectAkreditasi;
 use App\Models\Rubrik;
 use App\Models\SelfAssessment;
-use App\Models\StandarMutu;
 use App\Models\Subkriteria;
 use App\Models\VersiInstrumen;
 use Illuminate\Database\Schema\Blueprint;
@@ -483,32 +482,7 @@ class LamInfokomSeeder extends Seeder
             }
         }
 
-        // =========================================================================
-        // 7. STANDAR MUTU SPMI (LENGKAP SIKLUS PPEPP)
-        // =========================================================================
-        $standarMutuList = [
-            ['kode_standar' => 'STD-INFOKOM-01', 'nama_standar' => 'Standar Kompetensi Lulusan Bidang Komputasi Vokasi', 'deskripsi' => 'Pedoman perumusan dan evaluasi CPL terapan selaras SKKNI dan standar global.'],
-            ['kode_standar' => 'STD-INFOKOM-02', 'nama_standar' => 'Standar Isi Kurikulum & OBE Vokasi', 'deskripsi' => 'Struktur kurikulum berbasis capaian, RPS terintegrasi proyek, dan modular competency.'],
-            ['kode_standar' => 'STD-INFOKOM-03', 'nama_standar' => 'Standar Pembelajaran Berbasis Proyek (Project-Based Learning)', 'deskripsi' => 'Ketentuan pelaksanaan praktikum kolaboratif pemecahan kasus riil industri.'],
-            ['kode_standar' => 'STD-INFOKOM-04', 'nama_standar' => 'Standar Penilaian Capaian Pembelajaran', 'deskripsi' => 'Pedoman rubrik penilaian autentik dan pengukuran ketercapaian CPL tiap mahasiswa.'],
-            ['kode_standar' => 'STD-INFOKOM-05', 'nama_standar' => 'Standar Dosen dan Tenaga Kependidikan Bidang TIK', 'deskripsi' => 'Kriteria kualifikasi akademik, sertifikasi keahlian industri, dan beban kerja dosen.'],
-            ['kode_standar' => 'STD-INFOKOM-06', 'nama_standar' => 'Standar Sarana Laboratorium Komputasi dan Jaringan', 'deskripsi' => 'Spesifikasi rasio PC 1:1, bandwidth, cloud sandbox, dan lisensi perangkat lunak resmi.'],
-            ['kode_standar' => 'STD-INFOKOM-07', 'nama_standar' => 'Standar Tata Pamong dan Akuntabilitas UPPS', 'deskripsi' => 'Prinsip good university governance, kepemimpinan visioner, dan manajemen risiko.'],
-            ['kode_standar' => 'STD-INFOKOM-08', 'nama_standar' => 'Standar Pembiayaan Pembelajaran Vokasi', 'deskripsi' => 'Kecukupan dana operasional pendidikan minimal dan transparansi alokasi belanja modal.'],
-            ['kode_standar' => 'STD-INFOKOM-09', 'nama_standar' => 'Standar Riset Terapan & Publikasi Bidang TIK', 'deskripsi' => 'Kewajiban publikasi jurnal, keterlibatan mahasiswa vokasi, dan hilirisasi riset.'],
-            ['kode_standar' => 'STD-INFOKOM-10', 'nama_standar' => 'Standar Pengabdian kepada Masyarakat Berbasis IT', 'deskripsi' => 'Pemanfaatan solusi teknologi digital untuk transformasi masyarakat dan UMKM lokal.'],
-            ['kode_standar' => 'STD-INFOKOM-11', 'nama_standar' => 'Standar Kerjasama Industri dan Kemitraan Strategis', 'deskripsi' => 'Kriteria kemitraan industri bersertifikat, kuota magang industri, dan teaching factory.'],
-        ];
 
-        foreach ($standarMutuList as $std) {
-            StandarMutu::firstOrCreate(
-                ['kode_standar' => $std['kode_standar']],
-                [
-                    'nama_standar' => $std['nama_standar'],
-                    'deskripsi' => $std['deskripsi'],
-                ]
-            );
-        }
 
         // =========================================================================
         // 8. JENIS PEMBIAYAAN
@@ -740,9 +714,6 @@ class LamInfokomSeeder extends Seeder
             }
         }
 
-        $stdSpmi1 = StandarMutu::where('kode_standar', 'STD-INFOKOM-01')->first();
-        $stdSpmi3 = StandarMutu::where('kode_standar', 'STD-INFOKOM-03')->first();
-        $stdSpmi6 = StandarMutu::where('kode_standar', 'STD-INFOKOM-06')->first();
 
         $hasTahunAudit = Schema::hasColumn('data_spmi_audit', 'tahun_audit');
 

@@ -17,7 +17,7 @@ class SpmiAuditController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = DataSpmiAudit::with(['project', 'standarMutu', 'indikator']);
+        $query = DataSpmiAudit::with(['project', 'indikator']);
 
         if ($request->has('id_project')) {
             $query->where('id_project', $request->query('id_project'));
@@ -43,14 +43,14 @@ class SpmiAuditController extends Controller
     public function store(StoreDataSpmiAuditRequest $request): JsonResponse
     {
         $audit = DataSpmiAudit::create($request->validated());
-        $audit->load(['project', 'standarMutu', 'indikator']);
+        $audit->load(['project', 'indikator']);
 
         return $this->successResponse($audit, 'Temuan audit SPMI berhasil ditambahkan', 201);
     }
 
     public function show(int $id): JsonResponse
     {
-        $audit = DataSpmiAudit::with(['project', 'standarMutu', 'indikator'])->find($id);
+        $audit = DataSpmiAudit::with(['project', 'indikator'])->find($id);
 
         if (! $audit) {
             return $this->errorResponse('Data temuan audit SPMI tidak ditemukan', null, 404);
@@ -68,7 +68,7 @@ class SpmiAuditController extends Controller
         }
 
         $audit->update($request->validated());
-        $audit->load(['project', 'standarMutu', 'indikator']);
+        $audit->load(['project', 'indikator']);
 
         return $this->successResponse($audit, 'Data temuan audit SPMI berhasil diperbarui');
     }
@@ -92,7 +92,7 @@ class SpmiAuditController extends Controller
         }
 
         $audit->save();
-        $audit->load(['project', 'standarMutu', 'indikator']);
+        $audit->load(['project', 'indikator']);
 
         return $this->successResponse(
             $audit,

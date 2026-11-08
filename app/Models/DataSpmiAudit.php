@@ -14,7 +14,6 @@ class DataSpmiAudit extends Model
 
     protected $fillable = [
         'id_project',
-        'id_standar',
         'id_indikator',
         'jenis_kegiatan',
         'tanggal_pelaksanaan',
@@ -28,7 +27,6 @@ class DataSpmiAudit extends Model
     {
         return [
             'id_project' => 'integer',
-            'id_standar' => 'integer',
             'id_indikator' => 'integer',
             'tahun_audit' => 'integer',
             'tanggal_pelaksanaan' => 'date',
@@ -40,10 +38,6 @@ class DataSpmiAudit extends Model
         return $this->belongsTo(ProjectAkreditasi::class, 'id_project');
     }
 
-    public function standarMutu(): BelongsTo
-    {
-        return $this->belongsTo(StandarMutu::class, 'id_standar');
-    }
 
     public function indikator(): BelongsTo
     {
