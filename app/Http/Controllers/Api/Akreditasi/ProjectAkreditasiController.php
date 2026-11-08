@@ -10,17 +10,28 @@ use App\Models\MappingTimAkreditasi;
 use App\Models\ProjectAkreditasi;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ProjectAkreditasiController extends Controller
 {
     use ApiResponseTrait;
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $projects = ProjectAkreditasi::with(['versiInstrumen', 'jenjang', 'jenisInstrumen'])
-            ->latest()
-            ->get();
+        $query = ProjectAkreditasi::with(['versiInstrumen', 'jenjang', 'jenisInstrumen']);
+
+        if ($request->filled('id_prodi')) {
+            $query->where('id_prodi', $request->query('id_prodi'));
+        }
+        if ($request->filled('id_jenjang')) {
+            $query->where('id_jenjang', $request->query('id_jenjang'));
+        }
+        if ($request->filled('status_project')) {
+            $query->where('status_project', $request->query('status_project'));
+        }
+
+        $projects = $query->latest()->get();
 
         return $this->successResponse($projects, 'Daftar project akreditasi berhasil diambil');
     }
@@ -125,5 +136,15 @@ class ProjectAkreditasiController extends Controller
             'Pembagian tugas tim akreditasi berhasil disimpan',
             201
         );
+    }
+
+    /**
+     * Mengambil pembagian tugas tim/user per indikator untuk project tertentu.
+     */
+    public function getMappingTim(Request $request, int $id): JsonResponse
+    {
+        $request->merge(['id_project' => $id]);
+
+        return app(MappingTimAkreditasiController::class)->index($request);
     }
 }

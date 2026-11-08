@@ -6,6 +6,13 @@ use App\Http\Requests\BaseApiRequest;
 
 class StoreMappingTimRequest extends BaseApiRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if ($this->route('id') && ! $this->has('id_project')) {
+            $this->merge(['id_project' => (int) $this->route('id')]);
+        }
+    }
+
     public function rules(): array
     {
         return [

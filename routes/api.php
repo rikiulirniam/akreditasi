@@ -129,6 +129,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
     Route::middleware('role:administrator,kaprodi,reviewer,dosen')->group(function () {
         Route::get('projects', [ProjectAkreditasiController::class, 'index']);
         Route::get('projects/{id}', [ProjectAkreditasiController::class, 'show']);
+        Route::get('projects/{id}/mapping-tim', [ProjectAkreditasiController::class, 'getMappingTim']);
     });
 
     Route::middleware('role:administrator,kaprodi')->group(function () {

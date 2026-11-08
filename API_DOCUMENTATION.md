@@ -513,6 +513,7 @@ Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integr
   }
   ```
 * **`GET /projects/{id}`**: Detail project lengkap dengan relasi prodi, versi, jenjang, lembar prodi, dll.
+* **`GET /projects/{id}/mapping-tim`**: Mengambil daftar penugasan tim per indikator untuk project tertentu.
 * **`PUT /projects/{id}`**: Update project akreditasi.
 * **`DELETE /projects/{id}`**: Hapus project akreditasi.
 * **`POST /projects/{id}/mapping-tim`**: Menugaskan dosen/PIC/PJ per indikator via project.
@@ -525,7 +526,7 @@ Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integr
   ```
 
 #### 2. Penugasan Tim Akreditasi (`/mapping-tim`)
-* **`GET /mapping-tim`** (`?id_project=1&role=PJ`): Mengambil daftar penugasan tim akreditasi berdasarkan project dan/atau role.
+* **`GET /mapping-tim`** (`?id_project=1&role=PJ`): Mengambil daftar penugasan tim akreditasi. Filter `id_project` dan `role` dikirimkan melalui **Query Parameter** (bukan Request Body).
 * **`POST /mapping-tim`** (Single Assignment):
   ```json
   {
@@ -609,20 +610,19 @@ Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integr
 ### C. Modul SPMI & Audit Mutu
 
 #### 1. Audit Mutu Internal (`/spmi-audit`)
-* **`GET /spmi-audit`** (`?id_prodi=&tahun=&status_audit=`): List temuan audit mutu.
+* **`GET /spmi-audit`** (`?id_project=1&jenis_kegiatan=AMI&tahun_audit=2026&status_penyelesaian=Open`): List temuan audit mutu dengan filter opsional.
 * **`POST /spmi-audit`**: Tambah temuan audit baru.
   ```json
   {
-    "id_prodi": 1,
-    "id_standar_mutu": 1,
-    "id_auditor": 401,
-    "tahun": 2026,
-    "hasil_audit": "Observasi", // 'Kesesuaian' | 'Ketidaksesuaian Mayor' | 'Ketidaksesuaian Minor' | 'Observasi'
-    "kondisi_temuan": "Dokumen SOP pelaksanaan RPS belum diperbarui.",
-    "akar_masalah": "Keterbatasan waktu koordinasi tim kurikulum.",
-    "rekomendasi": "Lakukan workshop review SOP pembelajaran.",
-    "status_audit": "Open",
-    "tanggal_audit": "2026-10-15"
+    "id_project": 1,
+    "id_standar": 1,
+    "id_indikator": 1,
+    "jenis_kegiatan": "AMI", // 'PPEPP' | 'AMI' | 'RTM'
+    "tanggal_pelaksanaan": "2026-10-15",
+    "tahun_audit": 2026,
+    "temuan": "Dokumen SOP pelaksanaan RPS belum diperbarui sesuai kurikulum OBE terbaru.",
+    "tindak_lanjut": "Workshop review SOP pembelajaran.",
+    "status_penyelesaian": "Open"
   }
   ```
 * **`GET /spmi-audit/{id}`**: Detail temuan audit.
@@ -631,10 +631,8 @@ Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integr
 * **`PUT /spmi-audit/{id}/tindak-lanjut`** (atau `PATCH`): Auditee mengisi rencana tindak lanjut perbaikan temuan audit.
   ```json
   {
-    "rencana_tindak_lanjut": "Mengadakan rapat konsinyasi penyelarasan RPS.",
-    "status_tindak_lanjut": "Selesai", // 'Belum Dilaksanakan' | 'Sedang Berjalan' | 'Selesai' | 'Efektif'
-    "tanggal_efektif": "2026-11-01",
-    "evaluasi_efektivitas": "Seluruh RPS telah sesuai kurikulum terbaru."
+    "tindak_lanjut": "Mengadakan rapat konsinyasi penyelarasan RPS dan pembaruan SOP pembelajaran.",
+    "status_penyelesaian": "Selesai"
   }
   ```
 
@@ -676,13 +674,13 @@ Modul ini mengelola 4 pilar bukti pelaksanaan SPMI (Siklus PPEPP) tingkat Progra
 
 #### 2. Sarana Prodi (`/sarana-prodi`)
 * **`GET /sarana-prodi`** (`?id_prasarana=1`): List sarana per prasarana (PC, Switch, Proyektor, dll).
-* **`POST /sarana-prodi`**: Tambah sarana.
+* **`POST /sarana-prodi`**: Tambah sarana prodi.
   ```json
   {
     "id_prasarana": 1,
-    "nama_sarana": "PC Workstation Core i7 32GB RAM",
-    "jumlah": 30,
-    "kondisi": "Baik"
+    "jumlah_unit": 30,
+    "kondisi": "Baik",
+    "keterangan": "PC Workstation Core i7 32GB RAM di Lab RPL"
   }
   ```
 * **`GET /sarana-prodi/{id}`**: Detail sarana.

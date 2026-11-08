@@ -18,8 +18,10 @@ class DataSaranaProdiController extends Controller
     {
         $query = DataSaranaProdi::with('prasarana');
 
-        if ($request->has('id_prasarana')) {
-            $query->where('id_prasarana', $request->query('id_prasarana'));
+        if ($request->filled('id_prasarana')) {
+            $query->where('id_prasarana', $request->input('id_prasarana'));
+        } elseif ($request->filled('id_sarpras_prodi')) {
+            $query->where('id_prasarana', $request->input('id_sarpras_prodi'));
         }
 
         $data = $query->latest()->get();
