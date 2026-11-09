@@ -482,8 +482,6 @@ class LamInfokomSeeder extends Seeder
             }
         }
 
-
-
         // =========================================================================
         // 8. JENIS PEMBIAYAAN
         // =========================================================================
@@ -713,7 +711,6 @@ class LamInfokomSeeder extends Seeder
                 // Abaikan jika sudah ada
             }
         }
-
 
         $hasTahunAudit = Schema::hasColumn('data_spmi_audit', 'tahun_audit');
 

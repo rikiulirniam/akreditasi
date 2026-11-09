@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class VersiInstrumen extends Model
 {
@@ -38,11 +39,26 @@ class VersiInstrumen extends Model
     }
 
     /**
-     * Relasi ke daftar Kriteria pada versi instrumen ini.
+     * Relasi ke daftar Instrumen pada versi ini.
      */
-    public function kriteria(): HasMany
+    public function instrumen(): HasMany
     {
-        return $this->hasMany(Kriteria::class, 'id_versi_instrumen');
+        return $this->hasMany(Instrumen::class, 'id_versi_instrumen');
+    }
+
+    /**
+     * Relasi ke daftar Kriteria pada versi instrumen ini melalui Instrumen.
+     */
+    public function kriteria(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Kriteria::class,
+            Instrumen::class,
+            'id_versi_instrumen',
+            'id_instrumen',
+            'id',
+            'id'
+        );
     }
 
     /**
