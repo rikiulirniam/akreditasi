@@ -278,13 +278,6 @@ export interface Rubrik {
   indikator?: Indikator;
 }
 
-export interface StandarMutu {
-  id: number;
-  kode_standar: string;
-  nama_standar: string;
-  pernyataan_standar: string;
-}
-
 export interface JenisBukti {
   id: number;
   nama_jenis: string;
@@ -293,7 +286,6 @@ export interface JenisBukti {
 export interface JenisPembiayaan {
   id: number;
   nama_pembiayaan: string;
-  kategori: string;
 }
 
 // Akreditasi
@@ -350,19 +342,17 @@ export interface SelfAssessment {
 // SPMI & Sarpras
 export interface SpmiAudit {
   id: number;
-  id_prodi: number;
-  id_standar_mutu: number;
-  id_auditor: number;
-  tahun: number;
-  hasil_audit: 'Kesesuaian' | 'Ketidaksesuaian Mayor' | 'Ketidaksesuaian Minor' | 'Observasi';
-  kondisi_temuan: string;
-  akar_masalah: string | null;
-  rekomendasi: string | null;
-  status_audit: 'Open' | 'Closed' | 'In Progress';
-  rencana_tindak_lanjut: string | null;
-  status_tindak_lanjut: string | null;
-  evaluasi_efektivitas: string | null;
-  tanggal_audit: string;
+  id_project: number;
+  id_indikator: number | null;
+  jenis_kegiatan: 'PPEPP' | 'AMI' | 'RTM' | null;
+  tanggal_pelaksanaan: string;
+  tahun_audit: number;
+  temuan: string | null;
+  tindak_lanjut: string | null;
+  status_penyelesaian: string;
+  created_at?: string;
+  updated_at?: string;
+}
   tanggal_efektif: string | null;
 }
 
@@ -615,7 +605,6 @@ Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integr
   ```json
   {
     "id_project": 1,
-    "id_standar": 1,
     "id_indikator": 1,
     "jenis_kegiatan": "AMI", // 'PPEPP' | 'AMI' | 'RTM'
     "tanggal_pelaksanaan": "2026-10-15",

@@ -3767,16 +3767,11 @@
                             "schema": {
                                 "required": [
                                     "id_project",
-                                    "id_standar",
                                     "tanggal_pelaksanaan",
                                     "tahun_audit"
                                 ],
                                 "properties": {
                                     "id_project": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "id_standar": {
                                         "type": "integer",
                                         "example": 1
                                     },
@@ -3912,11 +3907,6 @@
                             "schema": {
                                 "properties": {
                                     "id_project": {
-                                        "type": "integer",
-                                        "example": 1,
-                                        "nullable": true
-                                    },
-                                    "id_standar": {
                                         "type": "integer",
                                         "example": 1,
                                         "nullable": true
