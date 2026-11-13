@@ -514,6 +514,11 @@ Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integr
   ```
 * **`GET /projects/{id}`**: Detail project lengkap dengan relasi prodi, versi, jenjang, lembar prodi, dll.
 * **`GET /projects/{id}/mapping-tim`**: Mengambil daftar penugasan tim per indikator untuk project tertentu.
+* **`POST /projects/quick-create`**: Membuat project TRK dengan versi instrumen aktif 2.1, jenjang Sarjana Terapan, jenis Akreditasi Unggul, nama default berdasarkan tahun berjalan, dan status `Draft`. Wajib mengirim `id_prodi`.
+* **`GET /projects/{id}/dashboard-progress`**: Mengambil progres bukti per kriteria dan progres total berdasarkan jumlah indikator yang memiliki link evidence.
+* **`GET /projects/{id}/readiness`**: Mengambil indikator yang belum siap karena belum memiliki PIC, link evidence, atau skor reviewer.
+* **`GET /projects/{id}/indicators/{indicatorId}/evidence`**: Mengambil link evidence indikator pada project tersebut.
+* **`PUT /projects/{id}/indicators/{indicatorId}/evidence`**: Menyimpan atau memperbarui link evidence indikator. Wajib mengirim `link_evidence` sebagai string.
 * **`PUT /projects/{id}`**: Update project akreditasi.
 * **`DELETE /projects/{id}`**: Hapus project akreditasi.
 * **`POST /projects/{id}/mapping-tim`**: Menugaskan dosen/PIC/PJ per indikator via project.

@@ -95,6 +95,14 @@ class ProjectAkreditasi extends Model
     }
 
     /**
+     * Relasi ke bukti yang diunggah untuk setiap indikator project.
+     */
+    public function indikatorEvidences(): HasMany
+    {
+        return $this->hasMany(ProjectIndicatorEvidence::class, 'id_project');
+    }
+
+    /**
      * Relasi ke Data Audit SPMI.
      */
     public function dataSpmiAudit(): HasMany
