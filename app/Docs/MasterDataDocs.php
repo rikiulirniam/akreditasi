@@ -582,85 +582,30 @@ class MasterDataDocs
     public function rubrikDocs() {}
 
     // ==========================================
-    // STANDAR MUTU
+    // JENJANG PENDIDIKAN
     // ==========================================
     #[OA\Get(
-        path: '/master/standar-mutu',
-        summary: 'Mendapatkan daftar standar mutu',
-        tags: ['Master Data - Standar Mutu'],
+        path: '/master/jenjang',
+        summary: 'Mendapatkan daftar jenjang pendidikan',
+        description: 'Menampilkan list master jenjang pendidikan (D3, D4, S1, S2, dll).',
+        tags: ['Master Data - Jenjang'],
         responses: [
-            new OA\Response(response: 200, description: 'Berhasil memuat daftar standar mutu', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess')),
-        ]
-    )]
-    #[OA\Post(
-        path: '/master/standar-mutu',
-        summary: 'Menambahkan standar mutu baru',
-        tags: ['Master Data - Standar Mutu'],
-        requestBody: new OA\RequestBody(
-            required: true,
-            content: new OA\JsonContent(
-                required: ['kode_standar', 'nama_standar', 'pernyataan_standar'],
-                properties: [
-                    new OA\Property(property: 'kode_standar', type: 'string', example: 'SM-01'),
-                    new OA\Property(property: 'nama_standar', type: 'string', example: 'Standar Kompetensi Lulusan'),
-                    new OA\Property(property: 'pernyataan_standar', type: 'string', example: 'Program studi wajib menetapkan profil dan capaian pembelajaran lulusan.'),
-                ]
-            )
-        ),
-        responses: [
-            new OA\Response(response: 201, description: 'Standar mutu berhasil ditambahkan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
+            new OA\Response(response: 200, description: 'Berhasil memuat daftar jenjang', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess')),
         ]
     )]
     #[OA\Get(
-        path: '/master/standar-mutu/{id}',
-        summary: 'Mendapatkan detail standar mutu',
-        tags: ['Master Data - Standar Mutu'],
+        path: '/master/jenjang/{id}',
+        summary: 'Mendapatkan detail jenjang pendidikan',
+        tags: ['Master Data - Jenjang'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'Detail standar mutu berhasil dimuat', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 404, description: 'Standar mutu tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+            new OA\Response(response: 200, description: 'Detail jenjang berhasil dimuat', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 404, description: 'Jenjang tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
-    #[OA\Put(
-        path: '/master/standar-mutu/{id}',
-        summary: 'Memperbarui standar mutu',
-        tags: ['Master Data - Standar Mutu'],
-        parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
-        ],
-        requestBody: new OA\RequestBody(
-            required: true,
-            content: new OA\JsonContent(
-                required: ['kode_standar', 'nama_standar', 'pernyataan_standar'],
-                properties: [
-                    new OA\Property(property: 'kode_standar', type: 'string', example: 'SM-01'),
-                    new OA\Property(property: 'nama_standar', type: 'string', example: 'Standar Kompetensi Lulusan Revisi'),
-                    new OA\Property(property: 'pernyataan_standar', type: 'string', example: 'Pernyataan standar diperbarui.'),
-                ]
-            )
-        ),
-        responses: [
-            new OA\Response(response: 200, description: 'Standar mutu berhasil diperbarui', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
-            new OA\Response(response: 404, description: 'Standar mutu tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
-        ]
-    )]
-    #[OA\Delete(
-        path: '/master/standar-mutu/{id}',
-        summary: 'Menghapus standar mutu',
-        tags: ['Master Data - Standar Mutu'],
-        parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
-        ],
-        responses: [
-            new OA\Response(response: 200, description: 'Standar mutu berhasil dihapus', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 404, description: 'Standar mutu tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
-        ]
-    )]
-    public function standarMutuDocs() {}
+    public function jenjangDocs() {}
 
     // ==========================================
     // JENIS PEMBIAYAAN

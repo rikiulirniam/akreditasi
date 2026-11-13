@@ -16,7 +16,6 @@ return new class extends Migration
 
             // Relasi ke project lokal dan master lokal
             $table->foreignId('id_project')->constrained('project_akreditasi')->cascadeOnDelete();
-            $table->foreignId('id_standar')->constrained('standar_mutu')->cascadeOnDelete();
             $table->foreignId('id_indikator')->nullable()->constrained('indikator')->nullOnDelete();
 
             // Ditambahkan nullable() agar sesuai dengan aturan validation request

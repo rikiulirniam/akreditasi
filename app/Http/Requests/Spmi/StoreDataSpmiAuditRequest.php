@@ -10,7 +10,6 @@ class StoreDataSpmiAuditRequest extends BaseApiRequest
     {
         return [
             'id_project' => 'required|integer|exists:project_akreditasi,id',
-            'id_standar' => 'required|integer|exists:standar_mutu,id',
             'id_indikator' => 'nullable|integer|exists:indikator,id',
             'jenis_kegiatan' => 'nullable|string|in:PPEPP,AMI,RTM',
             'tanggal_pelaksanaan' => 'required|date',

@@ -111,12 +111,12 @@ class SarprasDocs
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['id_prasarana', 'nama_sarana'],
+                required: ['id_prasarana', 'jumlah_unit', 'kondisi'],
                 properties: [
                     new OA\Property(property: 'id_prasarana', type: 'integer', example: 1),
-                    new OA\Property(property: 'nama_sarana', type: 'string', example: 'PC Workstation Core i7 32GB RAM'),
-                    new OA\Property(property: 'jumlah', type: 'integer', example: 30, nullable: true),
-                    new OA\Property(property: 'kondisi', type: 'string', example: 'Baik', nullable: true),
+                    new OA\Property(property: 'jumlah_unit', type: 'integer', example: 30),
+                    new OA\Property(property: 'kondisi', type: 'string', example: 'Baik'),
+                    new OA\Property(property: 'keterangan', type: 'string', example: 'PC Workstation Core i7 32GB RAM di Lab RPL', nullable: true),
                 ]
             )
         ),
@@ -148,9 +148,10 @@ class SarprasDocs
             required: true,
             content: new OA\JsonContent(
                 properties: [
-                    new OA\Property(property: 'nama_sarana', type: 'string', example: 'PC Workstation Core i7 32GB RAM (Upgrade SSD)', nullable: true),
-                    new OA\Property(property: 'jumlah', type: 'integer', example: 35, nullable: true),
+                    new OA\Property(property: 'id_prasarana', type: 'integer', example: 1, nullable: true),
+                    new OA\Property(property: 'jumlah_unit', type: 'integer', example: 35, nullable: true),
                     new OA\Property(property: 'kondisi', type: 'string', example: 'Sangat Baik', nullable: true),
+                    new OA\Property(property: 'keterangan', type: 'string', example: 'Upgrade spesifikasi RAM & SSD', nullable: true),
                 ]
             )
         ),

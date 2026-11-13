@@ -95,6 +95,9 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
 
     // Direct alias endpoint untuk akses master instrumen & kriteria tanpa prefix /master/
     Route::middleware('role:administrator,kaprodi,reviewer,dosen')->group(function () {
+        Route::get('versi-instrumen', [VersiInstrumenController::class, 'index']);
+        Route::get('versi-instrumen/{id}', [VersiInstrumenController::class, 'show']);
+
         Route::get('instrumen', [InstrumenController::class, 'index']);
         Route::get('instrumen/{id}', [InstrumenController::class, 'show']);
 
@@ -129,6 +132,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
     Route::middleware('role:administrator,kaprodi,reviewer,dosen')->group(function () {
         Route::get('projects', [ProjectAkreditasiController::class, 'index']);
         Route::get('projects/{id}', [ProjectAkreditasiController::class, 'show']);
+        Route::get('projects/{id}/mapping-tim', [ProjectAkreditasiController::class, 'getMappingTim']);
     });
 
     Route::middleware('role:administrator,kaprodi')->group(function () {

@@ -16,7 +16,12 @@ class VersiInstrumenController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = VersiInstrumen::with(['lembaga', 'kriteria']);
+        $query = VersiInstrumen::with([
+            'lembaga',
+            'instrumen.jenjang',
+            'instrumen.jenisInstrumen',
+            'kriteria',
+        ]);
 
         if ($request->has('id_lembaga')) {
             $query->where('id_lembaga', $request->query('id_lembaga'));
@@ -41,7 +46,12 @@ class VersiInstrumenController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $versi = VersiInstrumen::with(['lembaga', 'kriteria.subkriteria'])->find($id);
+        $versi = VersiInstrumen::with([
+            'lembaga',
+            'instrumen.jenjang',
+            'instrumen.jenisInstrumen',
+            'kriteria.subkriteria',
+        ])->find($id);
 
         if (! $versi) {
             return $this->errorResponse('Versi instrumen tidak ditemukan', null, 404);

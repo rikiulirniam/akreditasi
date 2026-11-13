@@ -15,13 +15,13 @@ class MappingTimAkreditasiController extends Controller
         $query = MappingTimAkreditasi::with(['project', 'indikator']);
 
         if ($request->filled('id_project')) {
-            $query->where('id_project', $request->query('id_project'));
+            $query->where('id_project', $request->input('id_project'));
         } elseif ($request->filled('project_id')) {
-            $query->where('id_project', $request->query('project_id'));
+            $query->where('id_project', $request->input('project_id'));
         }
 
         if ($request->filled('role')) {
-            $query->where('role', strtoupper($request->query('role')));
+            $query->where('role', strtoupper($request->input('role')));
         }
 
         $data = $query->get();

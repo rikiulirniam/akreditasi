@@ -16,13 +16,13 @@
     },
     {
       "key": "auth_email",
-      "value": "administrator@polines.ac.id",
+      "value": "",
       "type": "default",
       "enabled": true
     },
     {
       "key": "auth_password",
-      "value": "password",
+      "value": "",
       "type": "secret",
       "enabled": true
     },

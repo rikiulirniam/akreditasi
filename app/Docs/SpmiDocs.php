@@ -12,12 +12,13 @@ class SpmiDocs
     #[OA\Get(
         path: '/spmi-audit',
         summary: 'Mendapatkan daftar data audit SPMI',
-        description: 'Menampilkan list data audit SPMI dengan filter id_prodi, tahun, dan status_audit.',
+        description: 'Menampilkan list data audit SPMI dengan filter id_project, jenis_kegiatan, tahun_audit, dan status_penyelesaian.',
         tags: ['SPMI - Audit Mutu Internal'],
         parameters: [
-            new OA\Parameter(name: 'id_prodi', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter ID Program Studi'),
-            new OA\Parameter(name: 'tahun', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter Tahun Audit'),
-            new OA\Parameter(name: 'status_audit', in: 'query', required: false, schema: new OA\Schema(type: 'string'), description: 'Filter status (Open / Closed / In Progress)'),
+            new OA\Parameter(name: 'id_project', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Project Akreditasi'),
+            new OA\Parameter(name: 'jenis_kegiatan', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['PPEPP', 'AMI', 'RTM']), description: 'Filter jenis kegiatan audit'),
+            new OA\Parameter(name: 'tahun_audit', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter Tahun Audit (4 digit)'),
+            new OA\Parameter(name: 'status_penyelesaian', in: 'query', required: false, schema: new OA\Schema(type: 'string'), description: 'Filter status penyelesaian (Open / In Progress / Selesai)'),
         ],
         responses: [
             new OA\Response(response: 200, description: 'Berhasil memuat daftar audit SPMI', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess')),
@@ -30,18 +31,17 @@ class SpmiDocs
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['id_prodi', 'id_standar_mutu', 'id_auditor', 'tahun', 'hasil_audit', 'kondisi_temuan', 'status_audit', 'tanggal_audit'],
+                required: ['id_project', 'id_standar', 'tanggal_pelaksanaan', 'tahun_audit'],
                 properties: [
-                    new OA\Property(property: 'id_prodi', type: 'integer', example: 1),
-                    new OA\Property(property: 'id_standar_mutu', type: 'integer', example: 1),
-                    new OA\Property(property: 'id_auditor', type: 'integer', example: 401),
-                    new OA\Property(property: 'tahun', type: 'integer', example: 2026),
-                    new OA\Property(property: 'hasil_audit', type: 'string', example: 'Observasi', description: 'Kesesuaian / Ketidaksesuaian Mayor / Minor / Observasi'),
-                    new OA\Property(property: 'kondisi_temuan', type: 'string', example: 'Dokumen SOP pelaksanaan RPS belum diperbarui sesuai kurikulum OBE terbaru.'),
-                    new OA\Property(property: 'akar_masalah', type: 'string', example: 'Keterbatasan waktu koordinasi tim kurikulum pada semester gasal.', nullable: true),
-                    new OA\Property(property: 'rekomendasi', type: 'string', example: 'Lakukan workshop review SOP dan penyelarasan RPS serentak sebelum semester genap.', nullable: true),
-                    new OA\Property(property: 'status_audit', type: 'string', example: 'Open'),
-                    new OA\Property(property: 'tanggal_audit', type: 'string', format: 'date', example: '2026-10-15'),
+                    new OA\Property(property: 'id_project', type: 'integer', example: 1),
+                    new OA\Property(property: 'id_standar', type: 'integer', example: 1),
+                    new OA\Property(property: 'id_indikator', type: 'integer', example: 1, nullable: true),
+                    new OA\Property(property: 'jenis_kegiatan', type: 'string', enum: ['PPEPP', 'AMI', 'RTM'], example: 'AMI', nullable: true),
+                    new OA\Property(property: 'tanggal_pelaksanaan', type: 'string', format: 'date', example: '2026-10-15'),
+                    new OA\Property(property: 'tahun_audit', type: 'integer', example: 2026),
+                    new OA\Property(property: 'temuan', type: 'string', example: 'Dokumen SOP pelaksanaan RPS belum diperbarui sesuai kurikulum OBE terbaru.', nullable: true),
+                    new OA\Property(property: 'tindak_lanjut', type: 'string', example: 'Workshop review SOP kurikulum pada semester depan.', nullable: true),
+                    new OA\Property(property: 'status_penyelesaian', type: 'string', example: 'Open', nullable: true),
                 ]
             )
         ),
@@ -72,18 +72,16 @@ class SpmiDocs
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['id_prodi', 'id_standar_mutu', 'id_auditor', 'tahun', 'hasil_audit', 'kondisi_temuan', 'status_audit', 'tanggal_audit'],
                 properties: [
-                    new OA\Property(property: 'id_prodi', type: 'integer', example: 1),
-                    new OA\Property(property: 'id_standar_mutu', type: 'integer', example: 1),
-                    new OA\Property(property: 'id_auditor', type: 'integer', example: 401),
-                    new OA\Property(property: 'tahun', type: 'integer', example: 2026),
-                    new OA\Property(property: 'hasil_audit', type: 'string', example: 'Ketidaksesuaian Minor'),
-                    new OA\Property(property: 'kondisi_temuan', type: 'string', example: 'Revisi kondisi temuan audit oleh auditor.'),
-                    new OA\Property(property: 'akar_masalah', type: 'string', example: 'Akar masalah diperbarui.', nullable: true),
-                    new OA\Property(property: 'rekomendasi', type: 'string', example: 'Rekomendasi audit diperbarui.', nullable: true),
-                    new OA\Property(property: 'status_audit', type: 'string', example: 'In Progress'),
-                    new OA\Property(property: 'tanggal_audit', type: 'string', format: 'date', example: '2026-10-15'),
+                    new OA\Property(property: 'id_project', type: 'integer', example: 1, nullable: true),
+                    new OA\Property(property: 'id_standar', type: 'integer', example: 1, nullable: true),
+                    new OA\Property(property: 'id_indikator', type: 'integer', example: 1, nullable: true),
+                    new OA\Property(property: 'jenis_kegiatan', type: 'string', enum: ['PPEPP', 'AMI', 'RTM'], example: 'AMI', nullable: true),
+                    new OA\Property(property: 'tanggal_pelaksanaan', type: 'string', format: 'date', example: '2026-10-15', nullable: true),
+                    new OA\Property(property: 'tahun_audit', type: 'integer', example: 2026, nullable: true),
+                    new OA\Property(property: 'temuan', type: 'string', example: 'Revisi temuan audit SPMI.', nullable: true),
+                    new OA\Property(property: 'tindak_lanjut', type: 'string', example: 'Revisi rencana tindak lanjut audit.', nullable: true),
+                    new OA\Property(property: 'status_penyelesaian', type: 'string', example: 'In Progress', nullable: true),
                 ]
             )
         ),
@@ -108,7 +106,7 @@ class SpmiDocs
     #[OA\Put(
         path: '/spmi-audit/{id}/tindak-lanjut',
         summary: 'Memperbarui tindak lanjut temuan audit SPMI',
-        description: 'Auditee (Ketua Prodi / Gugus Mutu) mengisi rencana tindak lanjut, tanggal efektif, dan evaluasi hasil perbaikan.',
+        description: 'Auditee (Ketua Prodi / Gugus Mutu) mengisi rencana tindak lanjut dan status penyelesaian perbaikan.',
         tags: ['SPMI - Audit Mutu Internal'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Audit SPMI'),
@@ -116,12 +114,10 @@ class SpmiDocs
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['rencana_tindak_lanjut', 'status_tindak_lanjut'],
+                required: ['tindak_lanjut'],
                 properties: [
-                    new OA\Property(property: 'rencana_tindak_lanjut', type: 'string', example: 'Mengadakan rapat konsinyasi penyelarasan RPS dan revisi SOP pembelajaran.'),
-                    new OA\Property(property: 'status_tindak_lanjut', type: 'string', enum: ['Belum Dilaksanakan', 'Sedang Berjalan', 'Selesai', 'Efektif'], example: 'Selesai'),
-                    new OA\Property(property: 'tanggal_efektif', type: 'string', format: 'date', example: '2026-11-01', nullable: true),
-                    new OA\Property(property: 'evaluasi_efektivitas', type: 'string', example: 'Seluruh RPS telah sesuai panduan kurikulum OBE terbaru.', nullable: true),
+                    new OA\Property(property: 'tindak_lanjut', type: 'string', example: 'Mengadakan rapat konsinyasi penyelarasan RPS dan revisi SOP pembelajaran.'),
+                    new OA\Property(property: 'status_penyelesaian', type: 'string', example: 'Selesai', nullable: true),
                 ]
             )
         ),

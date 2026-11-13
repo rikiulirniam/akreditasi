@@ -11,10 +11,12 @@ Sistem Akreditasi menggunakan autentikasi SSO terpusat dari server Akademik:
 * **Metode Otentikasi:** JWT Bearer Token (`Authorization: Bearer <access_token>`)
 * **Masa Berlaku Token:** 3600 detik (1 Jam)
 
-### Kredensial Pengujian (Demo Akun)
-* **Email:** `administrator@polines.ac.id`
-* **Password:** `password`
-* **Role:** `ADMINISTRATOR` *(Dukungan Role: ADMINISTRATOR, KAPRODI, REVIEWER, DOSEN)*
+### Kredensial Pengguna (SSO Polines)
+Untuk keamanan sistem dan pencegahan akses tidak sah (*unauthorized access/hack*), **email dan password akun pengguna tidak di-prefill secara otomatis** di Swagger UI (`/documentation`). Setiap pengguna wajib mengetikkan alamat email dan password akun terdaftar mereka secara manual.
+
+* **Format Email:** `email_anda@polines.ac.id` (contoh: akun dosen, kaprodi, reviewer, atau administrator)
+* **Password:** Kata sandi akun pengguna SSO
+* **Role Tersedia:** `ADMINISTRATOR`, `KAPRODI`, `REVIEWER`, `DOSEN`
 
 ---
 
@@ -30,8 +32,8 @@ Mengirim kredensial pengguna untuk mendapatkan token JWT akses.
 * **Request Body:**
   ```json
   {
-    "email": "administrator@polines.ac.id",
-    "password": "password"
+    "email": "user@polines.ac.id", // Ketikkan email pengguna SSO Anda
+    "password": "kata_sandi_anda"   // Ketikkan password akun SSO Anda
   }
   ```
 * **Respons Berhasil (HTTP 200):**
@@ -43,8 +45,8 @@ Mengirim kredensial pengguna untuk mendapatkan token JWT akses.
     "data": {
       "user": {
         "id": 1,
-        "nama": "Administrator Sistem",
-        "email": "administrator@polines.ac.id",
+        "nama": "User Terdaftar",
+        "email": "user@polines.ac.id",
         "role": "ADMINISTRATOR"
       },
       "authorization": {
@@ -97,8 +99,8 @@ Mendapatkan data identitas akun langsung dari server SSO Akademik.
     "message": "Data profil berhasil diambil",
     "data": {
       "id": 1,
-      "nama": "Administrator Sistem",
-      "email": "administrator@polines.ac.id",
+      "nama": "User Terdaftar",
+      "email": "user@polines.ac.id",
       "role": "ADMINISTRATOR"
     }
   }
@@ -123,8 +125,8 @@ Memverifikasi klaim token JWT pengguna lokal di subsistem Akreditasi & SPMI.
     "data": {
       "user": {
         "id": "1",
-        "nama": "Administrator Sistem",
-        "email": "administrator@polines.ac.id",
+        "nama": "User Terdaftar",
+        "email": "user@polines.ac.id",
         "role": "ADMINISTRATOR",
         "permissions": ["*"]
       }
@@ -203,6 +205,12 @@ export interface LembagaAkreditasi {
   keterangan: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface Jenjang {
+  id: number;
+  nama_jenjang: string;
+  kode_jenjang: string;
 }
 
 export interface VersiInstrumen {
@@ -358,6 +366,22 @@ export interface SpmiAudit {
   tanggal_efektif: string | null;
 }
 
+export interface EvidenceSpmi {
+  id: number;
+  project_id: number;
+  link_bukti_evaluasi: string | null;
+  deskripsi_bukti_evaluasi: string | null;
+  link_bukti_pengendalian: string | null;
+  deskripsi_bukti_pengendalian: string | null;
+  link_bukti_dampak: string | null;
+  deskripsi_bukti_dampak: string | null;
+  link_dokumen_implementasi: string | null;
+  deskripsi_dokumen_implementasi: string | null;
+  created_at?: string;
+  updated_at?: string;
+  project?: ProjectAkreditasi;
+}
+
 export interface DataSarprasProdi {
   id: number;
   id_project: number;
@@ -420,11 +444,8 @@ export interface DataSaranaProdi {
 | `GET` | `/master/rubrik/{id}` atau `/rubrik/{id}` | - | Detail butir rubrik skor |
 | `PUT` | `/master/rubrik/{id}` atau `/rubrik/{id}` | `{ id_indikator?, skor?, deskripsi_rubrik? }` | Update rubrik skor |
 | `DELETE` | `/master/rubrik/{id}` atau `/rubrik/{id}` | - | Hapus rubrik skor |
-| `GET` | `/master/standar-mutu` | - | Mengambil daftar standar mutu SPMI |
-| `POST` | `/master/standar-mutu` | `{ kode_standar, nama_standar, pernyataan_standar }` | Tambah standar mutu baru |
-| `GET` | `/master/standar-mutu/{id}` | - | Detail standar mutu |
-| `PUT` | `/master/standar-mutu/{id}` | `{ kode_standar, nama_standar, pernyataan_standar }` | Update standar mutu |
-| `DELETE` | `/master/standar-mutu/{id}` | - | Hapus standar mutu |
+| `GET` | `/master/jenjang` | - | Mengambil daftar jenjang pendidikan (D3, D4/S1, dll) |
+| `GET` | `/master/jenjang/{id}` | - | Detail jenjang pendidikan |
 | `GET` | `/master/jenis-bukti` | - | Mengambil opsi jenis dokumen bukti |
 | `POST` | `/master/jenis-bukti` | `{ nama_jenis }` | Tambah jenis bukti |
 | `GET` | `/master/jenis-bukti/{id}` | - | Detail jenis bukti |
@@ -492,9 +513,10 @@ Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integr
   }
   ```
 * **`GET /projects/{id}`**: Detail project lengkap dengan relasi prodi, versi, jenjang, lembar prodi, dll.
+* **`GET /projects/{id}/mapping-tim`**: Mengambil daftar penugasan tim per indikator untuk project tertentu.
 * **`PUT /projects/{id}`**: Update project akreditasi.
 * **`DELETE /projects/{id}`**: Hapus project akreditasi.
-* **`POST /projects/{id}/mapping-tim`**: Menugaskan dosen/PIC/PJ per indikator.
+* **`POST /projects/{id}/mapping-tim`**: Menugaskan dosen/PIC/PJ per indikator via project.
   ```json
   {
     "id_user": 101,
@@ -503,7 +525,38 @@ Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integr
   }
   ```
 
-#### 2. Lembar Kerja Prodi (`/lembar-prodi`)
+#### 2. Penugasan Tim Akreditasi (`/mapping-tim`)
+* **`GET /mapping-tim`** (`?id_project=1&role=PJ`): Mengambil daftar penugasan tim akreditasi. Filter `id_project` dan `role` dikirimkan melalui **Query Parameter** (bukan Request Body).
+* **`POST /mapping-tim`** (Single Assignment):
+  ```json
+  {
+    "id_project": 1,
+    "id_user": 101,
+    "id_indikator": 1,
+    "role": "PJ"
+  }
+  ```
+* **`POST /mapping-tim`** (Batch Assignments):
+  ```json
+  {
+    "id_project": 1,
+    "assignments": [
+      {
+        "id_user": 101,
+        "id_indikator": 1,
+        "role": "PJ"
+      },
+      {
+        "id_user": 102,
+        "id_indikator": 2,
+        "role": "PIC"
+      }
+    ]
+  }
+  ```
+* **`DELETE /mapping-tim/{id}`**: Menghapus penugasan tim berdasarkan ID.
+
+#### 3. Lembar Kerja Prodi (`/lembar-prodi`)
 * **`GET /lembar-prodi`** (`?id_project=1&id_indikator=1`): Mengambil narasi penjelasan prodi untuk indikator tertentu.
 * **`POST /lembar-prodi`** (atau `PUT /lembar-prodi`): Simpan / Update narasi prodi.
   ```json
@@ -516,7 +569,7 @@ Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integr
 * **`GET /lembar-prodi/{id}`**: Mengambil detail lembar prodi berdasarkan ID beserta lampiran bukti dukungnya.
 * **`DELETE /lembar-prodi/{id}`**: Menghapus data lembar prodi.
 
-#### 3. Upload & Validasi Berkas Bukti (`/bukti`)
+#### 4. Upload & Validasi Berkas Bukti (`/bukti`)
 * **`GET /bukti`** (`?id_lembar_prodi=1`): List berkas bukti dukung.
 * **`POST /bukti`** (*Multipart Form-Data*): Upload berkas fisik atau sertakan tautan eksternal.
   * `id_lembar_prodi`: integer (wajib)
@@ -536,7 +589,7 @@ Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integr
   ```
 * **`DELETE /bukti/{id}`**: Hapus berkas bukti dari database dan storage fisik.
 
-#### 4. Self Assessment / Penilaian Mandiri (`/self-assessment`)
+#### 5. Self Assessment / Penilaian Mandiri (`/self-assessment`)
 * **`GET /self-assessment`** (`?id_project=1`): List penilaian mandiri.
 * **`POST /self-assessment`**: Reviewer memilih rubrik. **Sistem otomatis menghitung `skor_terbobot = skor * nilai_bobot`**.
   ```json
@@ -554,22 +607,22 @@ Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integr
 
 ---
 
-### C. Modul SPMI & Audit Mutu (`/spmi-audit`)
+### C. Modul SPMI & Audit Mutu
 
-* **`GET /spmi-audit`** (`?id_prodi=&tahun=&status_audit=`): List temuan audit mutu.
+#### 1. Audit Mutu Internal (`/spmi-audit`)
+* **`GET /spmi-audit`** (`?id_project=1&jenis_kegiatan=AMI&tahun_audit=2026&status_penyelesaian=Open`): List temuan audit mutu dengan filter opsional.
 * **`POST /spmi-audit`**: Tambah temuan audit baru.
   ```json
   {
-    "id_prodi": 1,
-    "id_standar_mutu": 1,
-    "id_auditor": 401,
-    "tahun": 2026,
-    "hasil_audit": "Observasi", // 'Kesesuaian' | 'Ketidaksesuaian Mayor' | 'Ketidaksesuaian Minor' | 'Observasi'
-    "kondisi_temuan": "Dokumen SOP pelaksanaan RPS belum diperbarui.",
-    "akar_masalah": "Keterbatasan waktu koordinasi tim kurikulum.",
-    "rekomendasi": "Lakukan workshop review SOP pembelajaran.",
-    "status_audit": "Open",
-    "tanggal_audit": "2026-10-15"
+    "id_project": 1,
+    "id_standar": 1,
+    "id_indikator": 1,
+    "jenis_kegiatan": "AMI", // 'PPEPP' | 'AMI' | 'RTM'
+    "tanggal_pelaksanaan": "2026-10-15",
+    "tahun_audit": 2026,
+    "temuan": "Dokumen SOP pelaksanaan RPS belum diperbarui sesuai kurikulum OBE terbaru.",
+    "tindak_lanjut": "Workshop review SOP pembelajaran.",
+    "status_penyelesaian": "Open"
   }
   ```
 * **`GET /spmi-audit/{id}`**: Detail temuan audit.
@@ -578,10 +631,26 @@ Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integr
 * **`PUT /spmi-audit/{id}/tindak-lanjut`** (atau `PATCH`): Auditee mengisi rencana tindak lanjut perbaikan temuan audit.
   ```json
   {
-    "rencana_tindak_lanjut": "Mengadakan rapat konsinyasi penyelarasan RPS.",
-    "status_tindak_lanjut": "Selesai", // 'Belum Dilaksanakan' | 'Sedang Berjalan' | 'Selesai' | 'Efektif'
-    "tanggal_efektif": "2026-11-01",
-    "evaluasi_efektivitas": "Seluruh RPS telah sesuai kurikulum terbaru."
+    "tindak_lanjut": "Mengadakan rapat konsinyasi penyelarasan RPS dan pembaruan SOP pembelajaran.",
+    "status_penyelesaian": "Selesai"
+  }
+  ```
+
+#### 2. Evidence SPMI Project Akreditasi (`/evidence-spmi`)
+Modul ini mengelola 4 pilar bukti pelaksanaan SPMI (Siklus PPEPP) tingkat Program Studi yang terikat secara relasional (One-to-One) dengan Project Akreditasi.
+* **`GET /evidence-spmi?project_id={id}`**: Mengambil data bukti SPMI 4 pilar untuk project akreditasi terkait. Jika belum pernah diisi, mengembalikan `data: null` dengan kode 200 OK.
+* **`POST /evidence-spmi`**: Menyimpan atau memperbarui data bukti SPMI (*updateOrCreate* berdasarkan `project_id`).
+  ```json
+  {
+    "project_id": 1,
+    "link_bukti_evaluasi": "https://drive.google.com/drive/folders/evaluasi-spmi-link",
+    "deskripsi_bukti_evaluasi": "Laporan Audit Mutu Internal (AMI) Siklus 2025/2026 dan Monev Berkala.",
+    "link_bukti_pengendalian": "https://drive.google.com/drive/folders/pengendalian-spmi-link",
+    "deskripsi_bukti_pengendalian": "Notula Rapat Tinjauan Manajemen (RTM) dan Lembar Tindak Lanjut Temuan AMI.",
+    "link_bukti_dampak": "https://drive.google.com/drive/folders/dampak-spmi-link",
+    "deskripsi_bukti_dampak": "Rekapitulasi ketercapaian Indikator Kinerja Utama (IKU) dan kepuasan stakeholder.",
+    "link_dokumen_implementasi": "https://drive.google.com/drive/folders/implementasi-spmi-link",
+    "deskripsi_dokumen_implementasi": "Manual Mutu, Standar SPMI, serta formulir implementasi penjaminan mutu program studi."
   }
   ```
 
@@ -605,13 +674,13 @@ Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integr
 
 #### 2. Sarana Prodi (`/sarana-prodi`)
 * **`GET /sarana-prodi`** (`?id_prasarana=1`): List sarana per prasarana (PC, Switch, Proyektor, dll).
-* **`POST /sarana-prodi`**: Tambah sarana.
+* **`POST /sarana-prodi`**: Tambah sarana prodi.
   ```json
   {
     "id_prasarana": 1,
-    "nama_sarana": "PC Workstation Core i7 32GB RAM",
-    "jumlah": 30,
-    "kondisi": "Baik"
+    "jumlah_unit": 30,
+    "kondisi": "Baik",
+    "keterangan": "PC Workstation Core i7 32GB RAM di Lab RPL"
   }
   ```
 * **`GET /sarana-prodi/{id}`**: Detail sarana.
