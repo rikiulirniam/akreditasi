@@ -38,7 +38,7 @@ class InstrumenDrilldownTest extends TestCase
     public function test_get_instrumen_index_returns_instruments_with_jenis_and_jenjang_without_kriterias(): void
     {
         $lembaga = LembagaAkreditasi::create(['nama_lembaga' => 'LAM-INFOKOM']);
-        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'status_aktif' => true, 'tanggal_berlaku' => '2026-01-25']);
+        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'tanggal_berlaku' => '2026-01-25']);
         $jenjang = Jenjang::create(['nama_jenjang' => 'Diploma Tiga', 'kode_jenjang' => 'D3']);
         $jenis = JenisInstrumen::create(['nama_jenis' => 'Akreditasi Pertama']);
 
@@ -80,7 +80,7 @@ class InstrumenDrilldownTest extends TestCase
     public function test_get_instrumen_show_returns_all_kriteria_under_that_instrument(): void
     {
         $lembaga = LembagaAkreditasi::create(['nama_lembaga' => 'LAM-INFOKOM']);
-        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'status_aktif' => true, 'tanggal_berlaku' => '2026-01-25']);
+        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'tanggal_berlaku' => '2026-01-25']);
         $jenjang = Jenjang::create(['nama_jenjang' => 'Sarjana Terapan', 'kode_jenjang' => 'D4']);
         $jenis = JenisInstrumen::create(['nama_jenis' => 'Reakreditasi Unggul']);
 
@@ -125,7 +125,7 @@ class InstrumenDrilldownTest extends TestCase
     public function test_get_kriteria_index_and_show_returns_subkriteria_count(): void
     {
         $lembaga = LembagaAkreditasi::create(['nama_lembaga' => 'LAM-INFOKOM']);
-        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'status_aktif' => true, 'tanggal_berlaku' => '2026-01-25']);
+        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'tanggal_berlaku' => '2026-01-25']);
         $jenjang = Jenjang::create(['nama_jenjang' => 'Diploma Tiga', 'kode_jenjang' => 'D3']);
         $jenis = JenisInstrumen::create(['nama_jenis' => 'Akreditasi Pertama']);
 
@@ -176,7 +176,7 @@ class InstrumenDrilldownTest extends TestCase
     public function test_get_subkriteria_index_and_show_returns_indikator_count(): void
     {
         $lembaga = LembagaAkreditasi::create(['nama_lembaga' => 'LAM-INFOKOM']);
-        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'status_aktif' => true, 'tanggal_berlaku' => '2026-01-25']);
+        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'tanggal_berlaku' => '2026-01-25']);
         $jenjang = Jenjang::create(['nama_jenjang' => 'Diploma Tiga', 'kode_jenjang' => 'D3']);
         $jenis = JenisInstrumen::create(['nama_jenis' => 'Akreditasi Pertama']);
 
@@ -233,7 +233,7 @@ class InstrumenDrilldownTest extends TestCase
     public function test_get_indikator_index_and_show_returns_rubriks_count(): void
     {
         $lembaga = LembagaAkreditasi::create(['nama_lembaga' => 'LAM-INFOKOM']);
-        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'status_aktif' => true, 'tanggal_berlaku' => '2026-01-25']);
+        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'tanggal_berlaku' => '2026-01-25']);
         $jenjang = Jenjang::create(['nama_jenjang' => 'Diploma Tiga', 'kode_jenjang' => 'D3']);
         $jenis = JenisInstrumen::create(['nama_jenis' => 'Akreditasi Pertama']);
 
