@@ -1,42 +1,142 @@
-# REST API Documentation — Sistem Akreditasi & SPMI (LAM INFOKOM 2.1)
+# Panduan Lengkap Integrasi REST API (Frontend Developer Guide)
+### Sistem Penjaminan Mutu Internal (SPMI) & Akreditasi Program Studi (LAM-INFOKOM 2.1)
 
-Dokumentasi ini dirancang khusus sebagai panduan integrasi bagi **Agent AI / Pengembang Frontend**. Seluruh endpoint diproteksi menggunakan **JWT Bearer Token** yang diterbitkan oleh layanan SSO Akademik.
+Dokumentasi ini disusun khusus sebagai **panduan integrasi resmi bagi Pengembang Frontend (React, Vue, Next.js, Nuxt, atau mobile)**. Seluruh endpoint, parameter, tipe data TypeScript, dan contoh JSON di bawah ini **100% akurat dan terverifikasi sesuai rute aktif pada backend Laravel**.
 
 ---
 
-## 1. Layanan Autentikasi Terpusat (SSO Akademik)
+## 1. Konfigurasi Lingkungan (Environment Setup)
 
-Sistem Akreditasi menggunakan autentikasi SSO terpusat dari server Akademik:
-* **Host SSO Auth:** `https://akademik.fayra.my.id/api/auth`
-* **Metode Otentikasi:** JWT Bearer Token (`Authorization: Bearer <access_token>`)
+Frontend dapat menghubungkan aplikasi ke backend menggunakan konfigurasi berikut:
+
+* **Production Base URL:** `https://akreditasi.fayra.my.id/api/v1`
+* **Local Development Base URL:** `http://127.0.0.1:8000/api/v1`
+* **SSO Auth Base URL:** `https://akademik.fayra.my.id/api/auth`
+* **Format Data:** JSON (`Accept: application/json`, `Content-Type: application/json`)
+* **Metode Autentikasi:** JWT Bearer Token (`Authorization: Bearer <access_token>`)
 * **Masa Berlaku Token:** 3600 detik (1 Jam)
 
-### Kredensial Pengguna (SSO Polines)
-Untuk keamanan sistem dan pencegahan akses tidak sah (*unauthorized access/hack*), **email dan password akun pengguna tidak di-prefill secara otomatis** di Swagger UI (`/documentation`). Setiap pengguna wajib mengetikkan alamat email dan password akun terdaftar mereka secara manual.
+---
 
-* **Format Email:** `email_anda@polines.ac.id` (contoh: akun dosen, kaprodi, reviewer, atau administrator)
-* **Password:** Kata sandi akun pengguna SSO
-* **Role Tersedia:** `ADMINISTRATOR`, `KAPRODI`, `REVIEWER`, `DOSEN`
+## 2. Alur Penggunaan Aplikasi di Frontend (User Flow)
+
+Agar tim frontend memiliki gambaran jelas mengenai arsitektur sistem, berikut adalah alur utama interaksi aplikasi:
+
+```text
+[1. LOGIN SSO] ──► Dapatkan JWT Token & Role Pengguna (Admin, Kaprodi, Reviewer, Dosen)
+       │
+       ▼
+[2. PILIH / BUAT PROJECT] ──► Gunakan 'Quick Create' (1-klik otomatis TRK) atau Form Kustom
+       │
+       ▼
+[3. DASHBOARD METRICS] ──► Ambil progres persentase keterisian 9 Kriteria (0 - 100%)
+       │
+       ▼
+[4. PLOTTING TIM] ──► Kaprodi menugaskan Dosen sebagai PJ & PIC per Butir Indikator
+       │
+       ├─────────────────────────────────┬─────────────────────────────────┐
+       ▼                                 ▼                                 ▼
+[5. INPUT BUKTI INDIKATOR]     [6. EVIDENCE SPMI 4 PILAR]     [7. PENILAIAN MANDIRI]
+Dosen PIC mengunggah link      Kaprodi menginput link         Reviewer memilih skor (1-4).
+bukti Google Drive per butir.  bukti mutu institusi.          Backend otomatis menghitung
+                                                              'skor_terbobot' (skor * bobot).
+       │                                 │                                 │
+       └─────────────────────────────────┴─────────────────────────────────┘
+       │
+       ▼
+[8. READINESS CHECK] ──► Validasi otomatis apakah ada butir yang belum ada PIC / Bukti / Nilai
+       │
+       ▼
+[9. FINALISASI STATUS] ──► Update status project ke 'Selesai' (Wajib input Nomor SK & Tanggal Verif)
+```
 
 ---
 
-### A. Endpoint Login SSO
-Mengirim kredensial pengguna untuk mendapatkan token JWT akses.
+## 3. Matriks Hak Akses Peran Pengguna (Role-Based Access)
 
+Setiap request ke backend wajib menyertakan token JWT pada header `Authorization: Bearer <token>`. Akses dibatasi berdasarkan role pengguna:
+
+| Modul / Fitur | Administrator | Kaprodi | Reviewer | Dosen |
+| :--- | :---: | :---: | :---: | :---: |
+| **Master Data Instrumen & Kriteria** | Read / Write | Read Only | Read Only | Read Only |
+| **Buat & Edit Project Akreditasi** | Full Access | Full Access | Read Only | Read Only |
+| **Dashboard Progres & Readiness** | Full Access | Full Access | Full Access | Full Access |
+| **Plotting Tim (PJ & PIC)** | Full Access | Full Access | Read Only | Read Only |
+| **Upload Link Bukti per Butir** | Full Access | Full Access | Read Only | **Khusus Butir Tugasnya** |
+| **Evidence SPMI 4 Pilar** | Full Access | Full Access | Read Only | Read Only |
+| **Penilaian Mandiri (Skor 1 - 4)** | Full Access | Read Only | **Full Access** | Read Only |
+| **Audit SPMI & Tindak Lanjut** | Full Access | Full Access | Read Only | Read Only |
+| **Sarana & Prasarana Prodi** | Full Access | Full Access | Read Only | Read Only |
+
+---
+
+## 4. Standar Format Respons JSON (Response Envelope)
+
+Seluruh respons dari server dibungkus secara seragam dalam format standar:
+
+### A. Respons Berhasil (HTTP 200 / 201)
+```json
+{
+  "success": true,
+  "message": "Deskripsi aksi berhasil dilakukan",
+  "data": { ... } // Berupa objek atau array data
+}
+```
+
+### B. Respons Validasi Form Gagal (HTTP 422)
+Frontend dapat langsung memetakan objek `errors` ke form input error message:
+```json
+{
+  "success": false,
+  "message": "Validasi gagal",
+  "data": null,
+  "errors": {
+    "status_project": [
+      "Status Selesai ditolak. Tanggal verifikasi akreditasi dan nomor SK akreditasi wajib diisi."
+    ],
+    "link_evidence": [
+      "Kolom link evidence wajib diisi."
+    ]
+  }
+}
+```
+
+### C. Respons Tidak Ditemukan (HTTP 404)
+```json
+{
+  "success": false,
+  "message": "Project akreditasi tidak ditemukan",
+  "data": null
+}
+```
+
+### D. Respons Tidak Memiliki Hak Akses (HTTP 401 / 403)
+```json
+{
+  "success": false,
+  "message": "Akses ditolak. Anda tidak memiliki izin untuk mengakses resource ini.",
+  "data": null
+}
+```
+
+---
+
+## 5. Rincian Endpoint REST API Lengkap
+
+### MODUL 0: AUTENTIKASI (SSO AKADEMIK)
+
+#### 0.1 Login SSO Pengguna
+Mengirim email dan password untuk mendapatkan token JWT.
 * **URL:** `POST https://akademik.fayra.my.id/api/auth/login`
-* **Headers:**
-  ```http
-  Accept: application/json
-  Content-Type: application/json
-  ```
+* **Headers:** `Accept: application/json`, `Content-Type: application/json`
 * **Request Body:**
   ```json
   {
-    "email": "user@polines.ac.id", // Ketikkan email pengguna SSO Anda
-    "password": "kata_sandi_anda"   // Ketikkan password akun SSO Anda
+    "email": "user@polines.ac.id",
+    "password": "password_rahasia"
   }
   ```
-* **Respons Berhasil (HTTP 200):**
+* **Respons Sukses (HTTP 200):**
   ```json
   {
     "success": true,
@@ -45,172 +145,547 @@ Mengirim kredensial pengguna untuk mendapatkan token JWT akses.
     "data": {
       "user": {
         "id": 1,
-        "nama": "User Terdaftar",
+        "nama": "Dr. Dosen Penguji, M.Kom.",
         "email": "user@polines.ac.id",
-        "role": "ADMINISTRATOR"
+        "role": "DOSEN"
       },
       "authorization": {
-        "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2FrYWRlbWlrLmZheXJhLm15LmlkL2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzkyOTMxMTA4LCJleHAiOjE3OTI5MzQ3MDgsIm5iZiI6MTc5MjkzMTEwOCwianRpIjoicE84aVl0c1Jxamt6c2x2NiIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3IiwiZW1haWwiOiJhZG1pbmlzdHJhdG9yQHBvbGluZXMuYWMuaWQiLCJuYW1hIjoiQWRtaW5pc3RyYXRvciBTaXN0ZW0iLCJyb2xlIjoiQURNSU5JU1RSQVRPUiIsInBlcm1pc3Npb25zIjpbIioiXX0...",
+        "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOi...",
         "token_type": "Bearer",
-        "expires_in": 3600,
-        "permissions": []
+        "expires_in": 3600
       }
     }
   }
   ```
 
----
-
-### B. Endpoint Logout SSO
-Mencabut dan mengakhiri sesi token yang aktif.
-
-* **URL:** `POST https://akademik.fayra.my.id/api/auth/logout`
-* **Headers:**
-  ```http
-  Accept: application/json
-  Authorization: Bearer <access_token>
-  ```
-* **Respons Berhasil (HTTP 200):**
-  ```json
-  {
-    "success": true,
-    "code": 200,
-    "message": "Logout berhasil",
-    "data": null
-  }
-  ```
-
----
-
-### C. Endpoint Profil Pengguna SSO (Akademik)
-Mendapatkan data identitas akun langsung dari server SSO Akademik.
-
-* **URL:** `GET https://akademik.fayra.my.id/api/auth/me`
-* **Headers:**
-  ```http
-  Accept: application/json
-  Authorization: Bearer <access_token>
-  ```
-* **Respons Berhasil (HTTP 200):**
-  ```json
-  {
-    "success": true,
-    "code": 200,
-    "message": "Data profil berhasil diambil",
-    "data": {
-      "id": 1,
-      "nama": "User Terdaftar",
-      "email": "user@polines.ac.id",
-      "role": "ADMINISTRATOR"
-    }
-  }
-  ```
-
----
-
-### D. Endpoint Verifikasi Profil (Sistem Akreditasi)
-Memverifikasi klaim token JWT pengguna lokal di subsistem Akreditasi & SPMI.
-
-* **URL:** `GET https://akreditasi.fayra.my.id/api/v1/auth/me`
-* **Headers:**
-  ```http
-  Accept: application/json
-  Authorization: Bearer <access_token>
-  ```
-* **Respons Berhasil (HTTP 200):**
+#### 0.2 Verifikasi Profil Lokal Akreditasi API
+Mengecek identitas user yang saat ini sedang login pada sistem akreditasi.
+* **URL:** `GET {{base_url}}/auth/me`
+* **Headers:** `Authorization: Bearer <access_token>`
+* **Respons Sukses (HTTP 200):**
   ```json
   {
     "success": true,
     "message": "Profil pengguna terautentikasi berhasil diambil.",
     "data": {
       "user": {
-        "id": "1",
-        "nama": "User Terdaftar",
+        "id": 1,
+        "nama": "Dr. Dosen Penguji, M.Kom.",
         "email": "user@polines.ac.id",
-        "role": "ADMINISTRATOR",
-        "permissions": ["*"]
+        "role": "DOSEN"
       }
-    },
-    "errors": null
+    }
   }
   ```
 
 ---
 
-## 2. Konfigurasi Dasar API Akreditasi (Base Configuration)
+### MODUL 1: MASTER DATA INSTRUMEN & HIERARKI
 
-* **Base URL Production:** `https://akreditasi.fayra.my.id/api/v1`
-* **Base URL Lokal:** `http://127.0.0.1:8000/api/v1`
-* **Swagger UI Interaktif:** `https://akreditasi.fayra.my.id/documentation`
-* **Default Request Headers:**
-  ```http
-  Accept: application/json
-  Content-Type: application/json
-  Authorization: Bearer <access_token>
+Master data dapat diakses melalui dua cara:
+1. Dengan prefix: `/api/v1/master/{endpoint}`
+2. Direct alias tanpa prefix: `/api/v1/{endpoint}` (direkomendasikan untuk frontend)
+
+#### 1.1 Ambil Hierarki Lengkap Instrumen (Full Tree)
+**Endpoint paling penting untuk Frontend!** Mengembalikan seluruh struktur pohon akreditasi (Versi, Jenjang, Jenis, Kriteria, Subkriteria, Indikator, hingga Rubrik skor 1–4) dalam **satu kali pemanggilan** tanpa perlu request berulang.
+* **URL:** `GET {{base_url}}/instrumen/{id_instrumen_uuid}/hierarchy`
+* **Headers:** `Authorization: Bearer <access_token>`
+* **Respons Sukses (HTTP 200):**
+  ```json
+  {
+    "success": true,
+    "message": "Struktur hierarki lengkap instrumen berhasil diambil",
+    "data": {
+      "id": "68d8ff1b-028f-410a-8bf7-814cb2a781b2",
+      "versi_instrumen": {
+        "id": 1,
+        "nomor_versi": "2.1",
+        "lembaga": {
+          "id": 1,
+          "nama_lembaga": "LAM INFOKOM"
+        }
+      },
+      "jenjang": {
+        "id": 1,
+        "nama_jenjang": "Sarjana Terapan"
+      },
+      "jenis_instrumen": {
+        "id": 1,
+        "nama_jenis": "Instrumen APS untuk Status Terakreditasi Unggul"
+      },
+      "kriterias": [
+        {
+          "id": 1,
+          "kode_kriteria": "A",
+          "nama_kriteria": "Kondisi Eksternal",
+          "subkriteria": [
+            {
+              "id": 1,
+              "kode_subkriteria": "A.1",
+              "nama_subkriteria": "Tren Industri TIK",
+              "indikator": [
+                {
+                  "id": 1,
+                  "kode_indikator": "IND-A.1.1",
+                  "deskripsi_indikator": "Kesesuaian kurikulum dengan perkembangan teknologi Cloud & AI",
+                  "bobot": 2.50,
+                  "rubriks": [
+                    { "id": 1, "skor": 4, "deskripsi_rubrik": "Sangat Sesuai dan kurikulum direview tiap tahun bersama industri" },
+                    { "id": 2, "skor": 3, "deskripsi_rubrik": "Sesuai standar asosiasi profesi" },
+                    { "id": 3, "skor": 2, "deskripsi_rubrik": "Cukup sesuai namun review belum berkala" },
+                    { "id": 4, "skor": 1, "deskripsi_rubrik": "Kurang sesuai dengan kebutuhan industri" }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
   ```
 
-## 2. Struktur Standar Respons JSON (Response Envelope)
-
-Seluruh respons dari server selalu dibungkus dalam format standar seragam:
-
-### Respons Sukses (HTTP 200 / 201)
-```json
-{
-  "success": true,
-  "message": "Data berhasil dimuat / ditambahkan / diperbarui",
-  "data": { ... } // Objek tunggal atau Array data
-}
-```
-
-### Respons Validasi Gagal (HTTP 422)
-```json
-{
-  "success": false,
-  "message": "Validasi gagal, silakan periksa data input Anda",
-  "data": null,
-  "errors": {
-    "nama_field": [
-      "Pesan error validasi"
+#### 1.2 Ambil Daftar Versi Instrumen
+* **URL:** `GET {{base_url}}/versi-instrumen` (atau `GET {{base_url}}/master/versi-instrumen`)
+* **Query Parameters (Opsional):**
+  * `id_lembaga`: ID lembaga akreditasi (contoh: `1` untuk LAM-INFOKOM)
+  * `id_jenjang`: ID jenjang (contoh: `1` untuk Sarjana Terapan)
+  * `status_aktif`: Status keaktifan versi pada jenjang (`true` atau `false`)
+* **Respons Sukses (HTTP 200):**
+  ```json
+  {
+    "success": true,
+    "message": "Data versi instrumen berhasil diambil",
+    "data": [
+      {
+        "id": 1,
+        "id_lembaga": 1,
+        "nomor_versi": "2.1",
+        "tanggal_berlaku": "2026-01-25",
+        "lembaga": {
+          "id": 1,
+          "nama_lembaga": "LAM-INFOKOM"
+        },
+        "jenjangs": [
+          {
+            "id": 1,
+            "nama_jenjang": "Sarjana Terapan",
+            "pivot": {
+              "id_versi_instrumen": 1,
+              "id_jenjang": 1,
+              "status_aktif": true
+            }
+          }
+        ]
+      }
     ]
   }
-}
-```
+  ```
 
-### Respons Not Found (HTTP 404)
-```json
-{
-  "success": false,
-  "message": "Data tidak ditemukan",
-  "data": null
-}
-```
+#### 1.3 Aktifkan Versi Instrumen (Khusus Admin)
+Menjadikan versi tertentu aktif pada jenjang yang ditentukan sekaligus secara atomik menonaktifkan versi lain pada jenjang yang sama.
+* **URL:** `PATCH {{base_url}}/master/versi-instrumen/{id}/aktifkan` (atau `PATCH {{base_url}}/versi-instrumen/{id}/aktifkan`)
+* **Headers:** `Authorization: Bearer <admin_token>`
+* **Request Body:**
+  ```json
+  {
+    "id_jenjang": 1
+  }
+  ```
+* **Respons Sukses (HTTP 200):**
+  ```json
+  {
+    "success": true,
+    "message": "Versi instrumen berhasil diaktifkan untuk jenjang tersebut",
+    "data": {
+      "id": 1,
+      "nomor_versi": "2.1",
+      "jenjangs": [
+        {
+          "id": 1,
+          "nama_jenjang": "Sarjana Terapan",
+          "pivot": {
+            "status_aktif": true
+          }
+        }
+      ]
+    }
+  }
+  ```
 
 ---
 
-## 3. TypeScript Interfaces (Copy-Paste Ready untuk Frontend)
+### MODUL 2: PROJECT AKREDITASI & DASHBOARD
+
+#### 2.1 Pembuatan Cepat Project TRK (Quick Create — Rekomendasi Frontend)
+Membuat project akreditasi baru dengan 1-klik. Sistem otomatis memilih Versi 2.1 aktif, Jenjang Sarjana Terapan, dan Jenis Akreditasi Unggul.
+* **URL:** `POST {{base_url}}/projects/quick-create`
+* **Request Body:**
+  ```json
+  {
+    "id_prodi": 101 // ID Prodi TRK
+  }
+  ```
+* **Respons Sukses (HTTP 201):**
+  ```json
+  {
+    "success": true,
+    "message": "Project TRK berhasil dibuat",
+    "data": {
+      "id": 4,
+      "id_prodi": 101,
+      "id_versi_instrumen": 2,
+      "id_jenjang": 1,
+      "id_jenis_instrumen": 1,
+      "nama_project": "Akreditasi Program Studi TRK 2026",
+      "tahun_target_submit": 2026,
+      "status_project": "Draft"
+    }
+  }
+  ```
+
+#### 2.2 Pembuatan Project Kustom
+* **URL:** `POST {{base_url}}/projects`
+* **Request Body:**
+  ```json
+  {
+    "id_prodi": 101,
+    "id_versi_instrumen": 2,
+    "id_jenjang": 1,
+    "id_jenis_instrumen": 1,
+    "nama_project": "Akreditasi Sarjana Terapan TRK 2026",
+    "tahun_target_submit": 2026,
+    "status_project": "Draft"
+  }
+  ```
+
+#### 2.3 Ambil Metrik Dasbor Keterisian 9 Kriteria (Dashboard Metrics)
+Digunakan untuk merender grafik persentase keterisian data pada 9 kriteria akreditasi.
+* **URL:** `GET {{base_url}}/projects/{id}/dashboard-progress`
+* **Respons Sukses (HTTP 200):**
+  ```json
+  {
+    "success": true,
+    "message": "Metrik progres dashboard berhasil dihitung",
+    "data": {
+      "project_id": 4,
+      "kriteria": [
+        {
+          "id": 1,
+          "kode_kriteria": "A",
+          "nama_kriteria": "Kondisi Eksternal",
+          "total_indikator": 2,
+          "indikator_terisi_bukti": 2,
+          "progres_persen": 100
+        },
+        {
+          "id": 2,
+          "kode_kriteria": "C.2",
+          "nama_kriteria": "Relevansi Pendidikan",
+          "total_indikator": 10,
+          "indikator_terisi_bukti": 7,
+          "progres_persen": 70
+        }
+      ],
+      "total_indikator": 53,
+      "indikator_terisi_bukti": 35,
+      "progres_total_persen": 66.04
+    }
+  }
+  ```
+
+#### 2.4 Pengecekan Kesiapan Submit (Readiness Check)
+Digunakan saat Kaprodi ingin memeriksa apakah dokumen sudah lengkap sebelum diajukan.
+* **URL:** `GET {{base_url}}/projects/{id}/readiness`
+* **Respons Sukses (HTTP 200):**
+  ```json
+  {
+    "success": true,
+    "message": "Pengecekan kesiapan submit berhasil dilakukan",
+    "data": {
+      "project_id": 4,
+      "total_indikator_kritis": 53,
+      "jumlah_indikator_belum_siap": 2,
+      "siap_submit": false,
+      "indikator_belum_siap": [
+        {
+          "id_indikator": 12,
+          "kode_indikator": "IND-C.2.3.1",
+          "deskripsi_indikator": "Rasio komputer workstation di lab",
+          "belum_terpenuhi": ["link_evidence", "skor_reviewer"]
+        }
+      ]
+    }
+  }
+  ```
+
+#### 2.5 Update Status Siklus Hidup Project
+* **URL:** `PATCH {{base_url}}/projects/{id}/status`
+* **Request Body:**
+  ```json
+  {
+    "status_project": "On Progress" // Pilihan: 'Draft', 'On Progress', 'Pending', 'Cancel', 'Selesai'
+  }
+  ```
+  *(Catatan: Jika memilih status `Selesai`, wajib mengirimkan `tanggal_verifikasi_akreditasi` dan `nomor_sk_akreditasi`)*:
+  ```json
+  {
+    "status_project": "Selesai",
+    "tanggal_verifikasi_akreditasi": "2026-12-10",
+    "nomor_sk_akreditasi": "SK-BANPT-LAM-2026/01"
+  }
+  ```
+
+---
+
+### MODUL 3: PLOTTING TIM AKREDITASI (PJ & PIC)
+
+#### 3.1 Penugasan Dosen per Butir Indikator (Batch Assignment)
+* **URL:** `POST {{base_url}}/projects/{id}/mapping-tim`
+* **Request Body:**
+  ```json
+  {
+    "assignments": [
+      {
+        "id_user": 101, // ID Dosen dari SSO / API Kelompok 2
+        "id_indikator": 1,
+        "role": "PJ" // 'PJ' (Penanggung Jawab Kriteria) atau 'PIC' (Pelaksana Upload)
+      },
+      {
+        "id_user": 102,
+        "id_indikator": 1,
+        "role": "PIC"
+      }
+    ]
+  }
+  ```
+
+#### 3.2 Ambil Daftar Penugasan Tim
+* **URL:** `GET {{base_url}}/projects/{id}/mapping-tim`
+* **URL Alternatif:** `GET {{base_url}}/mapping-tim?id_project={id}&role=PIC`
+
+#### 3.3 Hapus Penugasan Dosen
+* **URL:** `DELETE {{base_url}}/mapping-tim/{id_mapping}`
+
+---
+
+### MODUL 4: PENGISIAN BUKTI INDIKATOR (DOSEN / PIC)
+
+#### 4.1 Ambil Data Bukti pada Indikator Tertentu
+* **URL:** `GET {{base_url}}/projects/{id}/indicators/{indicatorId}/evidence`
+* **Respons Sukses (HTTP 200):**
+  ```json
+  {
+    "success": true,
+    "message": "Bukti indikator berhasil diambil",
+    "data": {
+      "id": 1,
+      "id_project": 4,
+      "id_indikator": 1,
+      "link_evidence": "https://drive.google.com/drive/folders/link-folder-bukti-cpl"
+    }
+  }
+  ```
+
+#### 4.2 Simpan / Perbarui Link Bukti Indikator
+Dosen PIC menautkan link Google Drive / cloud dokumen bukti pendukung.
+* **URL:** `PUT {{base_url}}/projects/{id}/indicators/{indicatorId}/evidence`
+* **Request Body:**
+  ```json
+  {
+    "link_evidence": "https://drive.google.com/drive/folders/1A2B3C4D5E_bukti_cpl"
+  }
+  ```
+
+---
+
+### MODUL 5: EVIDENCE SPMI DOKUMEN MUTU (4 PILAR)
+
+Model ini menyimpan rekapitulasi bukti mutu institusi untuk project akreditasi (*One-to-One*).
+
+#### 5.1 Ambil Dokumen Evidence SPMI
+* **URL:** `GET {{base_url}}/evidence-spmi?project_id={id}`
+* **Respons Sukses (HTTP 200):**
+  ```json
+  {
+    "success": true,
+    "message": "Data evidence SPMI berhasil diambil",
+    "data": {
+      "id": 1,
+      "project_id": 4,
+      "link_bukti_evaluasi": "https://drive.google.com/drive/folders/evaluasi-ami-2026",
+      "deskripsi_bukti_evaluasi": "Laporan Audit Mutu Internal Siklus 2025/2026",
+      "link_bukti_pengendalian": "https://drive.google.com/drive/folders/rtm-rtl-2026",
+      "deskripsi_bukti_pengendalian": "Notula Rapat Tinjauan Manajemen & Rencana Tindak Lanjut",
+      "link_bukti_dampak": "https://drive.google.com/drive/folders/dampak-kepuasan-2026",
+      "deskripsi_bukti_dampak": "Rekapitulasi IKU dan survei kepuasan mitra DUDI",
+      "link_dokumen_implementasi": "https://drive.google.com/drive/folders/manual-spmi-2026",
+      "deskripsi_dokumen_implementasi": "Buku Kebijakan SPMI, Manual Mutu, dan SOP PPEPP"
+    }
+  }
+  ```
+
+#### 5.2 Simpan / Perbarui Evidence SPMI
+* **URL:** `POST {{base_url}}/evidence-spmi`
+* **Request Body:**
+  ```json
+  {
+    "project_id": 4,
+    "link_bukti_evaluasi": "https://drive.google.com/drive/folders/evaluasi-ami-2026",
+    "deskripsi_bukti_evaluasi": "Laporan AMI Siklus 2025/2026",
+    "link_bukti_pengendalian": "https://drive.google.com/drive/folders/rtm-rtl-2026",
+    "deskripsi_bukti_pengendalian": "Notula RTM",
+    "link_bukti_dampak": "https://drive.google.com/drive/folders/dampak-kepuasan-2026",
+    "deskripsi_bukti_dampak": "Survei Kepuasan",
+    "link_dokumen_implementasi": "https://drive.google.com/drive/folders/manual-spmi-2026",
+    "deskripsi_dokumen_implementasi": "Manual PPEPP"
+  }
+  ```
+
+---
+
+### MODUL 6: PENILAIAN MANDIRI (SELF ASSESSMENT / REVIEWER)
+
+#### 6.1 Simpan Penilaian Mandiri (Skor Otomatis Terbobot)
+Reviewer memilih salah satu ID Rubrik (skor 1, 2, 3, atau 4). **Backend secara otomatis menghitung `skor_terbobot = skor * bobot_indikator`**.
+* **URL:** `POST {{base_url}}/self-assessment`
+* **Request Body:**
+  ```json
+  {
+    "id_project": 4,
+    "id_indikator": 1,
+    "id_rubrik": 1, // Rubrik skor 4
+    "reviewer_id": 1,
+    "catatan_reviewer": "Kurikulum telah berbasis OBE dan terverifikasi mitra industri.",
+    "tanggal_penilaian": "2026-11-15"
+  }
+  ```
+* **Respons Sukses (HTTP 200):**
+  ```json
+  {
+    "success": true,
+    "message": "Penilaian mandiri berhasil disimpan",
+    "data": {
+      "id": 1,
+      "id_project": 4,
+      "id_indikator": 1,
+      "id_rubrik": 1,
+      "skor_terbobot": 10.00, // Hasil otomatis: 4.0 * bobot 2.5
+      "catatan_reviewer": "Kurikulum telah berbasis OBE dan terverifikasi mitra industri.",
+      "reviewer_id": 1,
+      "tanggal_penilaian": "2026-11-15"
+    }
+  }
+  ```
+
+#### 6.2 Ambil Daftar Penilaian Project
+* **URL:** `GET {{base_url}}/self-assessment?id_project={id}`
+
+---
+
+### MODUL 7: AUDIT SPMI & TINDAK LANJUT TEMUAN
+
+#### 7.1 Tambah Temuan Audit SPMI
+* **URL:** `POST {{base_url}}/spmi-audit`
+* **Request Body:**
+  ```json
+  {
+    "id_project": 4,
+    "id_indikator": 1,
+    "jenis_kegiatan": "AMI", // 'PPEPP' | 'AMI' | 'RTM'
+    "tanggal_pelaksanaan": "2026-11-10",
+    "tahun_audit": 2026,
+    "temuan": "Modul praktikum cloud computing belum mengadopsi platform AWS/GCP terbaru.",
+    "tindak_lanjut": "Pengadaan workshop sertifikasi cloud untuk dosen pengampu.",
+    "status_penyelesaian": "Open"
+  }
+  ```
+
+#### 7.2 Update Khusus Tindak Lanjut oleh Kaprodi
+Kaprodi memperbarui status penyelesaian perbaikan atas temuan auditor.
+* **URL:** `PATCH {{base_url}}/spmi-audit/{id}/tindak-lanjut`
+* **Request Body:**
+  ```json
+  {
+    "tindak_lanjut": "Workshop cloud computing telah terlaksana pada 14 November 2026.",
+    "status_penyelesaian": "Closed" // 'Open' | 'In Progress' | 'Closed'
+  }
+  ```
+
+---
+
+### MODUL 8: INTEGRASI EKSTERNAL (KELOMPOK 1 & KELOMPOK 2)
+
+Endpoint ini digunakan oleh frontend untuk mengisi pilihan dropdown Program Studi dan Dosen tanpa takut server kelompok lain down (backend memiliki fallback data cerdas).
+
+#### 8.1 Daftar Program Studi Resmi (Kelompok 1)
+* **URL:** `GET {{base_url}}/external/prodi`
+* **Respons:** Daftar prodi (ID, Nama, Jenjang).
+
+#### 8.2 Program Studi Default TRK (Kelompok 1)
+* **URL:** `GET {{base_url}}/external/prodi/default`
+* **Respons:** Mengembalikan detail program studi TRK (*Teknologi Rekayasa Komputer*).
+
+#### 8.3 Daftar Dosen Resmi untuk Plotting Tim (Kelompok 2)
+* **URL:** `GET {{base_url}}/external/dosen`
+* **Respons Sukses (HTTP 200):**
+  ```json
+  {
+    "success": true,
+    "message": "Daftar dosen berhasil diambil",
+    "data": [
+      {
+        "id": 101,
+        "nidn": "0012058501",
+        "nama": "Budi Santoso, M.Kom.",
+        "email": "budi.santoso@polines.ac.id",
+        "bidang_minat": "Software Engineering & Cloud"
+      }
+    ]
+  }
+  ```
+
+---
+
+## 6. TypeScript Interfaces (Siap Pakai untuk Frontend)
+
+Frontend developer dapat menyalin langsung interface TypeScript di bawah ini ke dalam proyek frontend (`src/types/akreditasi.ts`):
 
 ```typescript
-// Envelope API
+// Envelope Standar API
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data: T;
-  errors?: Record<string, string[]> | null;
+  errors?: Record<string, string[]>;
 }
 
-// Master Data
+// User & Auth
+export interface UserProfile {
+  id: number;
+  nama: string;
+  email: string;
+  role: 'ADMINISTRATOR' | 'KAPRODI' | 'REVIEWER' | 'DOSEN';
+}
+
+// Hierarki Master Data
 export interface LembagaAkreditasi {
   id: number;
   nama_lembaga: string;
-  keterangan: string | null;
-  created_at: string;
-  updated_at: string;
+  keterangan?: string;
 }
 
 export interface Jenjang {
   id: number;
   nama_jenjang: string;
-  kode_jenjang: string;
+}
+
+export interface VersiInstrumenJenjang extends Jenjang {
+  pivot?: {
+    id_versi_instrumen: number;
+    id_jenjang: number;
+    status_aktif: boolean;
+  };
 }
 
 export interface VersiInstrumen {
@@ -218,44 +693,21 @@ export interface VersiInstrumen {
   id_lembaga: number;
   nomor_versi: string;
   tanggal_berlaku: string;
-  status_aktif: boolean;
+  status_aktif?: boolean;
   lembaga?: LembagaAkreditasi;
+  jenjangs?: VersiInstrumenJenjang[];
 }
 
-export interface Instrumen {
-  id: string; // UUID
-  id_versi_instrumen: number;
-  id_jenjang: number;
-  id_jenis_instrumen: number;
-  kriterias_count: number; // Jumlah kriteria di bawah instrumen ini
-  kriteria_count: number;  // Alias count kriteria
-  versi_instrumen?: VersiInstrumen;
-  jenjang?: { id: number; nama_jenjang: string; kode_jenjang: string };
-  jenis_instrumen?: { id: number; nama_jenis: string };
-  jenis_akreditasi?: { id: number; nama_jenis: string };
-  kriterias?: Kriteria[]; // Tersedia saat GET /instrumen/{id}
-}
-
-export interface Kriteria {
+export interface JenisInstrumen {
   id: number;
-  id_instrumen: string; // UUID
-  kode_kriteria: string;
-  nama_kriteria: string;
-  subkriteria_count: number; // Jumlah subkriteria di bawah kriteria ini
-  subkriterias_count: number; // Alias count subkriteria
-  instrumen?: Instrumen;
-  subkriteria?: Subkriteria[]; // Tersedia saat GET /kriteria/{id}
+  nama_jenis: string;
 }
 
-export interface Subkriteria {
+export interface Rubrik {
   id: number;
-  id_kriteria: number;
-  kode_subkriteria: string;
-  nama_subkriteria: string;
-  indikator_count: number; // Jumlah indikator di bawah subkriteria ini
-  indikators_count: number; // Alias count indikator
-  kriteria?: Kriteria;
-  indikator?: Indikator[]; // Tersedia saat GET /subkriteria/{id}
+  id_indikator: number;
+  skor: number; // 1 | 2 | 3 | 4
+  deskripsi_rubrik: string;
 }
 
 export interface Indikator {
@@ -264,446 +716,223 @@ export interface Indikator {
   kode_indikator: string;
   deskripsi_indikator: string;
   bobot: number;
-  rubriks_count: number; // Jumlah opsi rubrik skor di bawah indikator ini
-  rubrik_count: number;  // Alias count rubrik
-  subkriteria?: Subkriteria;
-  rubriks?: Rubrik[]; // Tersedia saat GET /indikator/{id}
+  rubriks?: Rubrik[];
 }
 
-export interface Rubrik {
+export interface Subkriteria {
   id: number;
-  id_indikator: number;
-  skor: number;
-  deskripsi_rubrik: string;
-  indikator?: Indikator;
+  id_kriteria: number;
+  kode_subkriteria: string;
+  nama_subkriteria: string;
+  indikator?: Indikator[];
 }
 
-export interface JenisBukti {
+export interface Kriteria {
   id: number;
-  nama_jenis: string;
+  id_instrumen: string;
+  kode_kriteria: string;
+  nama_kriteria: string;
+  subkriteria?: Subkriteria[];
 }
 
-export interface JenisPembiayaan {
-  id: number;
-  nama_pembiayaan: string;
+export interface InstrumenHierarchy {
+  id: string; // UUID
+  versi_instrumen: VersiInstrumen;
+  jenjang: Jenjang;
+  jenis_instrumen: JenisInstrumen;
+  kriterias: Kriteria[];
 }
 
-// Akreditasi
+// Project & Dashboard
 export interface ProjectAkreditasi {
   id: number;
   id_prodi: number;
   id_versi_instrumen: number;
   id_jenjang: number;
   id_jenis_instrumen: number;
-  tahun_akreditasi: string;
-  status: 'draft' | 'pengisian' | 'review' | 'selesai';
-  target_peringkat: string | null;
+  nama_project: string;
+  tahun_target_submit: number;
+  status_project: 'Draft' | 'On Progress' | 'Pending' | 'Cancel' | 'Selesai';
+  tanggal_verifikasi_akreditasi?: string | null;
+  nomor_sk_akreditasi?: string | null;
 }
 
+export interface CriteriaProgress {
+  id: number;
+  kode_kriteria: string;
+  nama_kriteria: string;
+  total_indikator: number;
+  indikator_terisi_bukti: number;
+  progres_persen: number;
+}
+
+export interface DashboardProgressData {
+  project_id: number;
+  kriteria: CriteriaProgress[];
+  total_indikator: number;
+  indikator_terisi_bukti: number;
+  progres_total_persen: number;
+}
+
+export interface ProjectReadinessData {
+  project_id: number;
+  total_indikator_kritis: number;
+  jumlah_indikator_belum_siap: number;
+  siap_submit: boolean;
+  indikator_belum_siap: Array<{
+    id_indikator: number;
+    kode_indikator: string;
+    deskripsi_indikator: string;
+    belum_terpenuhi: ('pic' | 'link_evidence' | 'skor_reviewer')[];
+  }>;
+}
+
+// Plotting Tim
 export interface MappingTimAkreditasi {
   id: number;
   id_project: number;
   id_user: number;
   id_indikator: number;
-  role: 'PJ' | 'PIC' | string; // 'PJ' (Penanggung Jawab) atau 'PIC' (Pelaksana)
+  role: 'PJ' | 'PIC';
+  user?: {
+    id: number;
+    nama: string;
+    email: string;
+  };
 }
 
-export interface LembarProdi {
+// Evidence per Indikator
+export interface IndicatorEvidence {
   id: number;
   id_project: number;
   id_indikator: number;
-  penjelasan_prodi: string;
-  bukti?: Bukti[];
+  link_evidence: string;
 }
 
-export interface Bukti {
+// Evidence SPMI 4 Pilar
+export interface EvidenceSpmi {
   id: number;
-  id_lembar_prodi: number;
-  id_jenis_bukti: number;
-  nama_bukti: string;
-  file_url: string | null;
-  tautan_eksternal: string | null;
-  status_validasi: 'Menunggu' | 'Disetujui' | 'Ditolak' | 'Perlu Revisi';
-  catatan_validasi: string | null;
-  uploaded_by: number;
-  validated_by: number | null;
+  project_id: number;
+  link_bukti_evaluasi?: string;
+  deskripsi_bukti_evaluasi?: string;
+  link_bukti_pengendalian?: string;
+  deskripsi_bukti_pengendalian?: string;
+  link_bukti_dampak?: string;
+  deskripsi_bukti_dampak?: string;
+  link_dokumen_implementasi?: string;
+  deskripsi_dokumen_implementasi?: string;
 }
 
+// Self Assessment
 export interface SelfAssessment {
   id: number;
   id_project: number;
   id_indikator: number;
   id_rubrik: number;
   skor_terbobot: number;
-  catatan_reviewer: string | null;
-  id_reviewer: number;
+  catatan_reviewer?: string;
+  reviewer_id?: number;
+  tanggal_penilaian?: string;
 }
 
-// SPMI & Sarpras
+// SPMI Audit
 export interface SpmiAudit {
   id: number;
   id_project: number;
-  id_indikator: number | null;
-  jenis_kegiatan: 'PPEPP' | 'AMI' | 'RTM' | null;
+  id_indikator?: number | null;
+  jenis_kegiatan: 'PPEPP' | 'AMI' | 'RTM';
   tanggal_pelaksanaan: string;
   tahun_audit: number;
-  temuan: string | null;
-  tindak_lanjut: string | null;
-  status_penyelesaian: string;
-  created_at?: string;
-  updated_at?: string;
-}
-  tanggal_efektif: string | null;
-}
-
-export interface EvidenceSpmi {
-  id: number;
-  project_id: number;
-  link_bukti_evaluasi: string | null;
-  deskripsi_bukti_evaluasi: string | null;
-  link_bukti_pengendalian: string | null;
-  deskripsi_bukti_pengendalian: string | null;
-  link_bukti_dampak: string | null;
-  deskripsi_bukti_dampak: string | null;
-  link_dokumen_implementasi: string | null;
-  deskripsi_dokumen_implementasi: string | null;
-  created_at?: string;
-  updated_at?: string;
-  project?: ProjectAkreditasi;
-}
-
-export interface DataSarprasProdi {
-  id: number;
-  id_project: number;
-  kapasitas: number | null;
-  keterangan: string | null;
-  sarana?: DataSaranaProdi[];
-}
-
-export interface DataSaranaProdi {
-  id: number;
-  id_prasarana: number;
-  nama_sarana: string;
-  jumlah: number | null;
-  kondisi: string | null;
+  temuan?: string;
+  tindak_lanjut?: string;
+  status_penyelesaian: 'Open' | 'In Progress' | 'Closed';
 }
 ```
 
 ---
 
-## 4. Daftar Lengkap Endpoint REST API
+## 7. Contoh Template Klien API di Frontend (Axios Service)
 
-### A. Modul Master Data (`/master/` atau direct alias `/`)
+Frontend dapat menggunakan boilerplate Axios ini (`src/services/api.ts`) untuk langsung berkomunikasi dengan backend:
 
-> [!TIP]
-> Seluruh endpoint master instrumen dapat diakses melalui prefix `/master/*` (misal `/master/instrumen`) maupun direct alias tanpa prefix (misal `/instrumen`).
-
-| Method | Endpoint | Query Param / Body | Deskripsi |
-|:---|:---|:---|:---|
-| `GET` | `/master/lembaga-akreditasi` | - | Mengambil semua lembaga akreditasi (LAM INFOKOM, BAN-PT, dll) |
-| `POST` | `/master/lembaga-akreditasi` | `{ nama_lembaga, keterangan? }` | Tambah lembaga baru |
-| `GET` | `/master/lembaga-akreditasi/{id}` | - | Detail lembaga beserta versi instrumennya |
-| `PUT` | `/master/lembaga-akreditasi/{id}` | `{ nama_lembaga?, keterangan? }` | Update lembaga |
-| `DELETE` | `/master/lembaga-akreditasi/{id}` | - | Hapus lembaga |
-| `GET` | `/master/versi-instrumen` | `?id_lembaga=&status_aktif=` | Mengambil semua versi instrumen |
-| `POST` | `/master/versi-instrumen` | `{ id_lembaga, nomor_versi, tanggal_berlaku, status_aktif? }` | Tambah versi instrumen baru |
-| `GET` | `/master/versi-instrumen/{id}` | - | Detail versi instrumen beserta hierarki kriteria |
-| `PUT` | `/master/versi-instrumen/{id}` | `{ id_lembaga?, nomor_versi?, tanggal_berlaku?, status_aktif? }` | Update versi instrumen |
-| `DELETE` | `/master/versi-instrumen/{id}` | - | Hapus versi instrumen |
-| `GET` | `/master/instrumen` atau `/instrumen` | `?id_jenjang=&id_versi_instrumen=&id_jenis_instrumen=` | Mengambil daftar instrumen akreditasi dengan relasi `jenis_akreditasi` (jenis_instrumen) dan `jenjang` (tanpa load kriteria untuk efisiensi) |
-| `POST` | `/master/instrumen` atau `/instrumen` | `{ id_versi_instrumen, id_jenjang, id_jenis_instrumen }` | Tambah instrumen baru (menghasilkan UUID) |
-| `GET` | `/master/instrumen/{id}` atau `/instrumen/{id}` | - | **Hierarki L1:** Detail instrumen (UUID) beserta seluruh kriteria (`kriterias`) di bawahnya |
-| `DELETE` | `/master/instrumen/{id}` atau `/instrumen/{id}` | - | Hapus instrumen |
-| `GET` | `/master/kriteria` atau `/kriteria` | `?id_instrumen=` | Mengambil daftar kriteria (opsional filter UUID instrumen) |
-| `POST` | `/master/kriteria` atau `/kriteria` | `{ id_instrumen, kode_kriteria, nama_kriteria }` | Tambah kriteria baru (`id_instrumen` UUID) |
-| `GET` | `/master/kriteria/{id}` atau `/kriteria/{id}` | - | **Hierarki L2:** Detail kriteria beserta seluruh subkriteria (`subkriteria`) di bawahnya |
-| `PUT` | `/master/kriteria/{id}` atau `/kriteria/{id}` | `{ kode_kriteria?, nama_kriteria? }` | Update kriteria |
-| `DELETE` | `/master/kriteria/{id}` atau `/kriteria/{id}` | - | Hapus kriteria |
-| `GET` | `/master/subkriteria` atau `/subkriteria` | `?id_kriteria=` | Mengambil daftar subkriteria (opsional filter id_kriteria) |
-| `POST` | `/master/subkriteria` atau `/subkriteria` | `{ id_kriteria, kode_subkriteria, nama_subkriteria }` | Tambah subkriteria baru |
-| `GET` | `/master/subkriteria/{id}` atau `/subkriteria/{id}` | - | **Hierarki L3:** Detail subkriteria beserta seluruh butir indikator (`indikator`) di bawahnya |
-| `PUT` | `/master/subkriteria/{id}` atau `/subkriteria/{id}` | `{ kode_subkriteria?, nama_subkriteria? }` | Update subkriteria |
-| `DELETE` | `/master/subkriteria/{id}` atau `/subkriteria/{id}` | - | Hapus subkriteria |
-| `GET` | `/master/indikator` atau `/indikator` | `?id_subkriteria=` | Mengambil daftar indikator / butir penilaian |
-| `POST` | `/master/indikator` atau `/indikator` | `{ id_subkriteria, kode_indikator, deskripsi_indikator, bobot }` | Tambah butir indikator baru |
-| `GET` | `/master/indikator/{id}` atau `/indikator/{id}` | - | **Hierarki L4:** Detail indikator beserta seluruh opsi butir skor (`rubriks`) di bawahnya |
-| `PUT` | `/master/indikator/{id}` atau `/indikator/{id}` | `{ id_subkriteria?, kode_indikator?, deskripsi_indikator?, bobot? }` | Update butir indikator |
-| `DELETE` | `/master/indikator/{id}` atau `/indikator/{id}` | - | Hapus butir indikator |
-| `GET` | `/master/rubrik` atau `/rubrik` | `?id_indikator=` | Mengambil opsi rubrik skor penilaian (terurut berdasarkan skor ascending) |
-| `POST` | `/master/rubrik` atau `/rubrik` | `{ id_indikator, skor, deskripsi_rubrik }` | Tambah opsi rubrik skor (1-4) |
-| `GET` | `/master/rubrik/{id}` atau `/rubrik/{id}` | - | Detail butir rubrik skor |
-| `PUT` | `/master/rubrik/{id}` atau `/rubrik/{id}` | `{ id_indikator?, skor?, deskripsi_rubrik? }` | Update rubrik skor |
-| `DELETE` | `/master/rubrik/{id}` atau `/rubrik/{id}` | - | Hapus rubrik skor |
-| `GET` | `/master/jenjang` | - | Mengambil daftar jenjang pendidikan (D3, D4/S1, dll) |
-| `GET` | `/master/jenjang/{id}` | - | Detail jenjang pendidikan |
-| `GET` | `/master/jenis-bukti` | - | Mengambil opsi jenis dokumen bukti |
-| `POST` | `/master/jenis-bukti` | `{ nama_jenis }` | Tambah jenis bukti |
-| `GET` | `/master/jenis-bukti/{id}` | - | Detail jenis bukti |
-| `PUT` | `/master/jenis-bukti/{id}` | `{ nama_jenis }` | Update jenis bukti |
-| `DELETE` | `/master/jenis-bukti/{id}` | - | Hapus jenis bukti |
-| `GET` | `/master/jenis-pembiayaan` | - | Mengambil opsi pembiayaan |
-| `POST` | `/master/jenis-pembiayaan` | `{ nama_pembiayaan, kategori }` | Tambah jenis pembiayaan |
-| `GET` | `/master/jenis-pembiayaan/{id}` | - | Detail jenis pembiayaan |
-| `PUT` | `/master/jenis-pembiayaan/{id}` | `{ nama_pembiayaan, kategori }` | Update jenis pembiayaan |
-| `DELETE` | `/master/jenis-pembiayaan/{id}` | - | Hapus jenis pembiayaan |
-
----
-
-### Alur Drill-Down Hierarki Master Instrumen Akreditasi
-
-Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integrasi frontend navigasi bertingkat (Lembaga -> Instrumen -> Kriteria -> Subkriteria -> Indikator -> Rubrik). Setiap level secara otomatis menyertakan **jumlah child (`*_count`)**:
-
-```
-[Instrumen]
-   │  GET /instrumen
-   │  • data: list instrumen + jenis_akreditasi + jenjang
-   │  • count child: `kriterias_count` (dan alias `kriteria_count`)
-   ▼
-[Instrumen Detail]
-   │  GET /instrumen/{id}
-   │  • data: detail instrumen + relasi `kriterias`
-   │  • count child: `kriterias_count`, dan setiap item kriteria menyertakan `subkriteria_count`
-   ▼
-[Kriteria]
-   │  GET /kriteria?id_instrumen={uuid}  /  GET /kriteria/{id}
-   │  • data: list / detail kriteria + relasi `subkriteria`
-   │  • count child: `subkriteria_count`, dan setiap item subkriteria menyertakan `indikator_count`
-   ▼
-[Subkriteria]
-   │  GET /subkriteria?id_kriteria={id}  /  GET /subkriteria/{id}
-   │  • data: list / detail subkriteria + relasi `indikator`
-   │  • count child: `indikator_count`, dan setiap item indikator menyertakan `rubriks_count`
-   ▼
-[Indikator]
-   │  GET /indikator?id_subkriteria={id}  /  GET /indikator/{id}
-   │  • data: list / detail indikator + relasi `rubriks`
-   │  • count child: `rubriks_count` (dan alias `rubrik_count`)
-   ▼
-[Rubrik]
-      GET /rubrik?id_indikator={id}
-      • data: list butir rubrik skor (1-4) terurut skor ascending
-```
-
----
-
-### B. Modul Akreditasi
-
-#### 1. Project Akreditasi (`/projects`)
-* **`GET /projects`** (`?id_prodi=&status=`): List project akreditasi prodi.
-* **`POST /projects`**: Membuat project akreditasi baru.
-  ```json
-  {
-    "id_prodi": 1,
-    "id_versi_instrumen": 1,
-    "id_jenjang": 1,
-    "id_jenis_instrumen": 1,
-    "tahun_akreditasi": "2026/2027",
-    "status": "draft",
-    "target_peringkat": "Unggul"
-  }
-  ```
-* **`GET /projects/{id}`**: Detail project lengkap dengan relasi prodi, versi, jenjang, lembar prodi, dll.
-* **`GET /projects/{id}/mapping-tim`**: Mengambil daftar penugasan tim per indikator untuk project tertentu.
-* **`PUT /projects/{id}`**: Update project akreditasi.
-* **`DELETE /projects/{id}`**: Hapus project akreditasi.
-* **`POST /projects/{id}/mapping-tim`**: Menugaskan dosen/PIC/PJ per indikator via project.
-  ```json
-  {
-    "id_user": 101,
-    "id_indikator": 1,
-    "role": "PJ" // 'PJ' (Penanggung Jawab) atau 'PIC' (Pelaksana)
-  }
-  ```
-
-#### 2. Penugasan Tim Akreditasi (`/mapping-tim`)
-* **`GET /mapping-tim`** (`?id_project=1&role=PJ`): Mengambil daftar penugasan tim akreditasi. Filter `id_project` dan `role` dikirimkan melalui **Query Parameter** (bukan Request Body).
-* **`POST /mapping-tim`** (Single Assignment):
-  ```json
-  {
-    "id_project": 1,
-    "id_user": 101,
-    "id_indikator": 1,
-    "role": "PJ"
-  }
-  ```
-* **`POST /mapping-tim`** (Batch Assignments):
-  ```json
-  {
-    "id_project": 1,
-    "assignments": [
-      {
-        "id_user": 101,
-        "id_indikator": 1,
-        "role": "PJ"
-      },
-      {
-        "id_user": 102,
-        "id_indikator": 2,
-        "role": "PIC"
-      }
-    ]
-  }
-  ```
-* **`DELETE /mapping-tim/{id}`**: Menghapus penugasan tim berdasarkan ID.
-
-#### 3. Lembar Kerja Prodi (`/lembar-prodi`)
-* **`GET /lembar-prodi`** (`?id_project=1&id_indikator=1`): Mengambil narasi penjelasan prodi untuk indikator tertentu.
-* **`POST /lembar-prodi`** (atau `PUT /lembar-prodi`): Simpan / Update narasi prodi.
-  ```json
-  {
-    "id_project": 1,
-    "id_indikator": 1,
-    "penjelasan_prodi": "Program studi telah menyusun visi keilmuan yang selaras dengan Renstra institusi..."
-  }
-  ```
-* **`GET /lembar-prodi/{id}`**: Mengambil detail lembar prodi berdasarkan ID beserta lampiran bukti dukungnya.
-* **`DELETE /lembar-prodi/{id}`**: Menghapus data lembar prodi.
-
-#### 4. Upload & Validasi Berkas Bukti (`/bukti`)
-* **`GET /bukti`** (`?id_lembar_prodi=1`): List berkas bukti dukung.
-* **`POST /bukti`** (*Multipart Form-Data*): Upload berkas fisik atau sertakan tautan eksternal.
-  * `id_lembar_prodi`: integer (wajib)
-  * `id_jenis_bukti`: integer (wajib)
-  * `nama_bukti`: string (wajib, max 255)
-  * `file_dokumen`: file (opsional, tipe: pdf, doc, docx, xlsx, zip, jpg, png max 20MB)
-  * `tautan_eksternal`: string url (opsional)
-  * `uploaded_by`: integer (wajib, ID user pengunggah)
-* **`GET /bukti/{id}`**: Detail berkas bukti (mengembalikan field `file_url` yang siap dibuka/didownload).
-* **`PUT /bukti/{id}/status`** (atau `PATCH /bukti/{id}/status`): Validasi reviewer/asesor.
-  ```json
-  {
-    "status_validasi": "Disetujui", // 'Menunggu' | 'Disetujui' | 'Ditolak' | 'Perlu Revisi'
-    "catatan_validasi": "Dokumen SK telah lengkap dan sesuai standar.",
-    "validated_by": 201
-  }
-  ```
-* **`DELETE /bukti/{id}`**: Hapus berkas bukti dari database dan storage fisik.
-
-#### 5. Self Assessment / Penilaian Mandiri (`/self-assessment`)
-* **`GET /self-assessment`** (`?id_project=1`): List penilaian mandiri.
-* **`POST /self-assessment`**: Reviewer memilih rubrik. **Sistem otomatis menghitung `skor_terbobot = skor * nilai_bobot`**.
-  ```json
-  {
-    "id_project": 1,
-    "id_indikator": 1,
-    "id_rubrik": 1,
-    "id_reviewer": 301,
-    "catatan_reviewer": "Bukti dukung sangat komprehensif dan implementasi terlaksana dengan baik."
-  }
-  ```
-* **`GET /self-assessment/rekap/{projectId}`**: **Rekapitulasi total skor terbobot seluruh indikator** untuk project akreditasi (sangat berguna untuk tampilan progress bar / skor akhir dashboard).
-* **`GET /self-assessment/{id}`**: Detail penilaian mandiri.
-* **`DELETE /self-assessment/{id}`**: Hapus penilaian mandiri.
-
----
-
-### C. Modul SPMI & Audit Mutu
-
-#### 1. Audit Mutu Internal (`/spmi-audit`)
-* **`GET /spmi-audit`** (`?id_project=1&jenis_kegiatan=AMI&tahun_audit=2026&status_penyelesaian=Open`): List temuan audit mutu dengan filter opsional.
-* **`POST /spmi-audit`**: Tambah temuan audit baru.
-  ```json
-  {
-    "id_project": 1,
-    "id_indikator": 1,
-    "jenis_kegiatan": "AMI", // 'PPEPP' | 'AMI' | 'RTM'
-    "tanggal_pelaksanaan": "2026-10-15",
-    "tahun_audit": 2026,
-    "temuan": "Dokumen SOP pelaksanaan RPS belum diperbarui sesuai kurikulum OBE terbaru.",
-    "tindak_lanjut": "Workshop review SOP pembelajaran.",
-    "status_penyelesaian": "Open"
-  }
-  ```
-* **`GET /spmi-audit/{id}`**: Detail temuan audit.
-* **`PUT /spmi-audit/{id}`**: Update data audit.
-* **`DELETE /spmi-audit/{id}`**: Hapus temuan audit.
-* **`PUT /spmi-audit/{id}/tindak-lanjut`** (atau `PATCH`): Auditee mengisi rencana tindak lanjut perbaikan temuan audit.
-  ```json
-  {
-    "tindak_lanjut": "Mengadakan rapat konsinyasi penyelarasan RPS dan pembaruan SOP pembelajaran.",
-    "status_penyelesaian": "Selesai"
-  }
-  ```
-
-#### 2. Evidence SPMI Project Akreditasi (`/evidence-spmi`)
-Modul ini mengelola 4 pilar bukti pelaksanaan SPMI (Siklus PPEPP) tingkat Program Studi yang terikat secara relasional (One-to-One) dengan Project Akreditasi.
-* **`GET /evidence-spmi?project_id={id}`**: Mengambil data bukti SPMI 4 pilar untuk project akreditasi terkait. Jika belum pernah diisi, mengembalikan `data: null` dengan kode 200 OK.
-* **`POST /evidence-spmi`**: Menyimpan atau memperbarui data bukti SPMI (*updateOrCreate* berdasarkan `project_id`).
-  ```json
-  {
-    "project_id": 1,
-    "link_bukti_evaluasi": "https://drive.google.com/drive/folders/evaluasi-spmi-link",
-    "deskripsi_bukti_evaluasi": "Laporan Audit Mutu Internal (AMI) Siklus 2025/2026 dan Monev Berkala.",
-    "link_bukti_pengendalian": "https://drive.google.com/drive/folders/pengendalian-spmi-link",
-    "deskripsi_bukti_pengendalian": "Notula Rapat Tinjauan Manajemen (RTM) dan Lembar Tindak Lanjut Temuan AMI.",
-    "link_bukti_dampak": "https://drive.google.com/drive/folders/dampak-spmi-link",
-    "deskripsi_bukti_dampak": "Rekapitulasi ketercapaian Indikator Kinerja Utama (IKU) dan kepuasan stakeholder.",
-    "link_dokumen_implementasi": "https://drive.google.com/drive/folders/implementasi-spmi-link",
-    "deskripsi_dokumen_implementasi": "Manual Mutu, Standar SPMI, serta formulir implementasi penjaminan mutu program studi."
-  }
-  ```
-
----
-
-### D. Modul Sarana & Prasarana
-
-#### 1. Prasarana Prodi (`/sarpras-prodi`)
-* **`GET /sarpras-prodi`** (`?id_project=1`): List prasarana prodi (Gedung, Lab, Ruang Kelas).
-* **`POST /sarpras-prodi`**: Tambah prasarana.
-  ```json
-  {
-    "id_project": 1,
-    "kapasitas": 40,
-    "keterangan": "Laboratorium Rekayasa Komputer Gedung B"
-  }
-  ```
-* **`GET /sarpras-prodi/{id}`**: Detail prasarana beserta daftar sarananya.
-* **`PUT /sarpras-prodi/{id}`**: Update prasarana.
-* **`DELETE /sarpras-prodi/{id}`**: Hapus prasarana.
-
-#### 2. Sarana Prodi (`/sarana-prodi`)
-* **`GET /sarana-prodi`** (`?id_prasarana=1`): List sarana per prasarana (PC, Switch, Proyektor, dll).
-* **`POST /sarana-prodi`**: Tambah sarana prodi.
-  ```json
-  {
-    "id_prasarana": 1,
-    "jumlah_unit": 30,
-    "kondisi": "Baik",
-    "keterangan": "PC Workstation Core i7 32GB RAM di Lab RPL"
-  }
-  ```
-* **`GET /sarana-prodi/{id}`**: Detail sarana.
-* **`PUT /sarana-prodi/{id}`**: Update sarana.
-* **`DELETE /sarana-prodi/{id}`**: Hapus sarana.
-
----
-
-## 5. Contoh Implementasi Fetch / Axios di Frontend
-
-```javascript
+```typescript
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api/v1',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://akreditasi.fayra.my.id/api/v1',
   headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json'
-  }
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+  },
+  timeout: 10000,
 });
 
-// Contoh 1: Ambil Rekap Skor Akreditasi
-export const getRekapSkor = async (projectId) => {
-  const response = await api.get(`/self-assessment/rekap/${projectId}`);
-  return response.data.data;
-};
+// Interceptor: Otomatis lampirkan Token JWT di setiap request
+api.interceptors.request.use((config) => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('jwt_token') : null;
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
-// Contoh 2: Upload File Bukti Fisik
-export const uploadBukti = async (formData) => {
-  const response = await api.post('/bukti', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
+// Interceptor: Tangani 401 Unauthorized otomatis (redirect login)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('jwt_token');
+        window.location.href = '/login';
+      }
     }
-  });
-  return response.data.data;
-};
+    return Promise.reject(error);
+  }
+);
+
+export default api;
 ```
+
+---
+
+## 8. Panduan Praktis & Tips Implementasi UI/UX Frontend
+
+Untuk mempermudah dan mempercepat pengerjaan antarmuka pengguna, berikut adalah panduan praktis implementasi setiap alur:
+
+### 8.1 Pembuatan Project (Quick Create vs Kustom)
+* **Rekomendasi UI:** Sediakan tombol utama bertuliskan **"Buat Cepat Project TRK 2026"** di samping tombol "Buat Project Manual".
+* Tombol cepat langsung menembak `POST /projects/quick-create` dengan payload `{ id_prodi: 101 }`. Pengguna tidak perlu dipusingkan dengan memilih versi instrumen 2.1, jenjang Sarjana Terapan, maupun jenis instrumen APS Unggul secara manual.
+
+### 8.2 Dashboard Progres 9 Kriteria LAM-INFOKOM
+* Panggil `GET /projects/{id}/dashboard-progress` saat halaman dashboard dibuka.
+* Backend sudah menyediakan metrik siap pakai:
+  * `progres_total_persen`: Persentase akumulasi seluruh butir indikator yang memiliki link evidence valid.
+  * Array `kriteria`: Menampung progres masing-masing kriteria (Kriteria 1 sampai Kriteria 9).
+* **Rekomendasi Warna Progress Bar:**
+  * `0%`: Badge abu-abu (`Belum Dimulai`)
+  * `1%` – `49%`: Bar merah/kuning (`Tahap Pengumpulan`)
+  * `50%` – `99%`: Bar biru (`Hampir Selesai`)
+  * `100%`: Bar hijau dengan ikon centang (`Lengkap`)
+
+### 8.3 Pengisian Bukti per Butir Indikator (Role Dosen PIC)
+* Panggil `GET /projects/{id}/indicators/{indicatorId}/evidence` untuk mengecek apakah bukti sudah pernah diisi.
+* Saat Dosen PIC memasukkan tautan Google Drive/Cloud, kirimkan `PUT /projects/{id}/indicators/{indicatorId}/evidence` dengan body `{ "link_evidence": "https://..." }`.
+* Sistem secara otomatis melacak butir mana saja yang telah terpenuhi buktinya.
+
+### 8.4 Penilaian Mandiri oleh Reviewer Internal
+* Reviewer membuka hierarki instrumen `GET /master/instrumen/{id}/hierarchy`.
+* Setiap indikator memiliki daftar rubrik (skor 1, 2, 3, 4) beserta deskripsinya.
+* Saat Reviewer memilih skor rubrik, kirimkan `POST /self-assessment` dengan body `{ id_project, id_indikator, id_rubrik, catatan_reviewer }`.
+* **Catatan Penting:** Frontend **TIDAK PERLU** menghitung perkalian bobot manual. Backend secara otomatis menghitung `skor_terbobot = skor_rubrik * bobot_indikator`.
+
+### 8.5 Pemeriksaan Kesiapan Submit (Readiness Checklist)
+* Sebelum tombol **"Finalisasi / Ajukan Akreditasi"** dapat diklik, frontend wajib memanggil `GET /projects/{id}/readiness`.
+* Jika `siap_submit: false`:
+  * Nonaktifkan (disable) tombol submit.
+  * Tampilkan modal / drawer berisikan daftar butir indikator yang belum siap (`indikator_belum_siap`).
+  * Tampilkan tag merah untuk komponen yang belum lengkap: `Belum ada PIC`, `Bukti Belum Diunggah`, atau `Belum Dinilai Reviewer`.
+
+### 8.6 Penanganan Error & Notifikasi Proteksi Hapus
+* Jika user mencoba menghapus Versi Instrumen atau Kriteria yang masih dipakai oleh project, backend mengembalikan status `HTTP 422` dengan pesan edukatif.
+* Pastikan frontend menangkap pesan `error.response.data.message` dan menampilkannya dalam SweetAlert/Toast notifikasi agar pengguna memahami alasan kegagalan tersebut.
+
