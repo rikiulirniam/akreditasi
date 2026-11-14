@@ -11,7 +11,6 @@ use App\Models\Kriteria;
 use App\Models\LembagaAkreditasi;
 use App\Models\ProjectAkreditasi;
 use App\Models\Rubrik;
-use App\Models\StandarMutu;
 use App\Models\Subkriteria;
 use App\Models\VersiInstrumen;
 use Illuminate\Database\Seeder;
@@ -76,15 +75,6 @@ class DatabaseSeeder extends Seeder
         Rubrik::firstOrCreate(
             ['id_indikator' => $indikator->id, 'skor' => 3],
             ['deskripsi_rubrik' => 'Baik: VMTS jelas dan memiliki bukti sosialisasi berkala']
-        );
-
-        // 6. Standar Mutu & Jenis Pembiayaan (Pending Module)
-        StandarMutu::firstOrCreate(
-            ['kode_standar' => 'STD-VMTS-01'],
-            [
-                'nama_standar' => 'Standar Perumusan dan Penetapan VMTS',
-                'deskripsi' => 'Pedoman perumusan dan evaluasi ketercapaian VMTS',
-            ]
         );
 
         JenisPembiayaan::firstOrCreate(['nama_pembiayaan' => 'Biaya Operasional Pendidikan']);

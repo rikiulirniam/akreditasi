@@ -66,6 +66,20 @@ class RubrikController extends Controller
             return $this->errorResponse('Rubrik tidak ditemukan', null, 404);
         }
 
+        $sudahDigunakan = $rubrik->selfAssessments()->exists();
+
+        if ($sudahDigunakan) {
+            return $this->errorResponse(
+                'Data tidak dapat dihapus karena telah digunakan dalam penilaian atau penugasan aktif.',
+                [
+                    'id' => [
+                        'Data sedang aktif digunakan pada transaksi penilaian/penugasan.',
+                    ],
+                ],
+                422
+            );
+        }
+
         $rubrik->delete();
 
         return $this->successResponse(null, 'Rubrik berhasil dihapus');

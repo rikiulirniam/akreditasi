@@ -676,8 +676,49 @@
                 }
               ]
             },
+                        {
+              "name": "0.14 GET Hierarki Lengkap Instrumen",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/master/instrumen/{{instrumen_id}}/hierarchy",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "master",
+                    "instrumen",
+                    "{{instrumen_id}}",
+                    "hierarchy"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "var json = pm.response.json();",
+                      "pm.test('Response success is true', function () { pm.expect(json.success).to.eql(true); });",
+                      "pm.test('Memiliki data hierarki instrumen', function () { pm.expect(json.data).to.have.property('kriteria'); });",
+                      "pm.test('Memiliki informasi lembaga', function () { pm.expect(json.data).to.have.property('lembaga'); });",
+                      "pm.test('Memiliki informasi versi instrumen', function () { pm.expect(json.data).to.have.property('versi_instrumen'); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
             {
-              "name": "0.14 DELETE Instrumen",
+              "name": "0.15 DELETE Instrumen",
               "request": {
                 "method": "DELETE",
                 "header": [

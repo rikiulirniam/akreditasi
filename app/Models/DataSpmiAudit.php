@@ -38,7 +38,6 @@ class DataSpmiAudit extends Model
         return $this->belongsTo(ProjectAkreditasi::class, 'id_project');
     }
 
-
     public function indikator(): BelongsTo
     {
         return $this->belongsTo(Indikator::class, 'id_indikator');

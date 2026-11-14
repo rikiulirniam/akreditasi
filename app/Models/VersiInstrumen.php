@@ -5,7 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class VersiInstrumen extends Model
 {
@@ -17,7 +19,6 @@ class VersiInstrumen extends Model
         'id_lembaga',
         'nomor_versi',
         'tanggal_berlaku',
-        'status_aktif',
     ];
 
     protected function casts(): array
@@ -25,7 +26,6 @@ class VersiInstrumen extends Model
         return [
             'id_lembaga' => 'integer',
             'tanggal_berlaku' => 'date',
-            'status_aktif' => 'boolean',
         ];
     }
 
@@ -38,11 +38,32 @@ class VersiInstrumen extends Model
     }
 
     /**
+     * Relasi ke Jenjang melalui tabel penghubung
+     */
+    public function jenjangs(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Jenjang::class,
+            'versi_instrumen_jenjang',
+            'id_versi_instrumen',
+            'id_jenjang'
+        )->withPivot('status_aktif')
+            ->withTimestamps();
+    }
+
+    /**
      * Relasi ke daftar Kriteria pada versi instrumen ini.
      */
-    public function kriteria(): HasMany
+    public function kriteria(): HasManyThrough
     {
-        return $this->hasMany(Kriteria::class, 'id_versi_instrumen');
+        return $this->hasManyThrough(
+            Kriteria::class,
+            Instrumen::class,
+            'id_versi_instrumen',
+            'id_instrumen',
+            'id',
+            'id'
+        );
     }
 
     /**

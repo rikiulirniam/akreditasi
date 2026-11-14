@@ -278,13 +278,6 @@ export interface Rubrik {
   indikator?: Indikator;
 }
 
-export interface StandarMutu {
-  id: number;
-  kode_standar: string;
-  nama_standar: string;
-  pernyataan_standar: string;
-}
-
 export interface JenisBukti {
   id: number;
   nama_jenis: string;
@@ -424,6 +417,7 @@ export interface DataSaranaProdi {
 | `POST` | `/master/instrumen` atau `/instrumen` | `{ id_versi_instrumen, id_jenjang, id_jenis_instrumen }` | Tambah instrumen baru (menghasilkan UUID) |
 | `GET` | `/master/instrumen/{id}` atau `/instrumen/{id}` | - | **Hierarki L1:** Detail instrumen (UUID) beserta seluruh kriteria (`kriterias`) di bawahnya |
 | `DELETE` | `/master/instrumen/{id}` atau `/instrumen/{id}` | - | Hapus instrumen |
+| `GET` | `/master/instrumen/{id}/hierarchy` atau `/instrumen/{id}/hierarchy` | - | Mengambil seluruh hierarki instrumen dari lembaga hingga indikator dalam satu request (tanpa rubrik) |
 | `GET` | `/master/kriteria` atau `/kriteria` | `?id_instrumen=` | Mengambil daftar kriteria (opsional filter UUID instrumen) |
 | `POST` | `/master/kriteria` atau `/kriteria` | `{ id_instrumen, kode_kriteria, nama_kriteria }` | Tambah kriteria baru (`id_instrumen` UUID) |
 | `GET` | `/master/kriteria/{id}` atau `/kriteria/{id}` | - | **Hierarki L2:** Detail kriteria beserta seluruh subkriteria (`subkriteria`) di bawahnya |
@@ -458,6 +452,73 @@ export interface DataSaranaProdi {
 | `DELETE` | `/master/jenis-pembiayaan/{id}` | - | Hapus jenis pembiayaan |
 
 ---
+
+### Endpoint Hierarki Lengkap Instrumen (Full Hierarchy)
+
+Endpoint ini digunakan untuk mengambil seluruh struktur hierarki instrumen akreditasi dalam satu request, mulai dari lembaga akreditasi hingga indikator.
+
+- **Method:** `GET`
+- **URL:** `/master/instrumen/{id}/hierarchy`
+- **Parameter:** `{id}` adalah UUID dari instrumen (`id_instrumen`).
+
+**Headers:**
+
+```http
+Accept: application/json
+Authorization: Bearer <access_token>
+```
+
+**Contoh respons berhasil (HTTP 200):**
+
+```json
+{
+  "success": true,
+  "message": "Hierarchy instrumen berhasil diambil",
+  "data": {
+    "id_instrumen": "uuid-instrumen",
+    "lembaga": {
+      "nama": "LAM-INFOKOM"
+    },
+    "versi_instrumen": {
+      "nomor_versi": "2.1"
+    },
+    "jenjang": {
+      "nama": "Sarjana"
+    },
+    "jenis_instrumen": {
+      "nama": "Akreditasi Program Studi"
+    },
+    "kriteria": [
+      {
+        "kode": "K-1",
+        "nama": "Visi dan Misi",
+        "subkriteria": [
+          {
+            "kode": "SK-1.1",
+            "nama": "Kejelasan Visi dan Misi",
+            "indikator": [
+              {
+                "kode": "IND-1.1.1",
+                "nama": "Kesesuaian visi dan misi"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Catatan:**
+- Seluruh kriteria, subkriteria, dan indikator di bawah instrumen dikembalikan dalam satu respons.
+- Field `nama` pada indikator berasal dari kolom `deskripsi_indikator`.
+- Data rubrik tidak disertakan dalam endpoint ini.
+- Jika instrumen tidak ditemukan, API mengembalikan HTTP 404.
+- Endpoint juga tersedia melalui URL `/instrumen/{id}/hierarchy`.
+
+---
+
 
 ### Alur Drill-Down Hierarki Master Instrumen Akreditasi
 
