@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'external' => [
+        'akademik_url' => env('AKADEMIK_API_URL', 'https://akademik.fayra.my.id/api'),
+        'tridharma_url' => env('TRIDHARMA_API_URL', 'https://tridharma.fayra.my.id/api'),
+    ],
+
 ];

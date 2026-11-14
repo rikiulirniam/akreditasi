@@ -23,6 +23,8 @@ class ProjectAkreditasi extends Model
         'nama_project',
         'tahun_target_submit',
         'status_project',
+        'tanggal_verifikasi_akreditasi',
+        'nomor_sk_akreditasi',
     ];
 
     protected function casts(): array
@@ -33,6 +35,7 @@ class ProjectAkreditasi extends Model
             'id_jenjang' => 'integer',
             'id_jenis_instrumen' => 'integer',
             'tahun_target_submit' => 'integer',
+            'tanggal_verifikasi_akreditasi' => 'date:Y-m-d',
         ];
     }
 

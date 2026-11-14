@@ -303,9 +303,34 @@ export interface ProjectAkreditasi {
   id_versi_instrumen: number;
   id_jenjang: number;
   id_jenis_instrumen: number;
-  tahun_akreditasi: string;
-  status: 'draft' | 'pengisian' | 'review' | 'selesai';
-  target_peringkat: string | null;
+  nama_project: string;
+  tahun_target_submit: number;
+  status_project: 'Draft' | 'On Progress' | 'Pending' | 'Cancel' | 'Selesai';
+  tanggal_verifikasi_akreditasi: string | null;
+  nomor_sk_akreditasi: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface UpdateStatusProjectRequest {
+  status_project: 'Draft' | 'On Progress' | 'Pending' | 'Cancel' | 'Selesai';
+  tanggal_verifikasi_akreditasi?: string | null;
+  nomor_sk_akreditasi?: string | null;
+}
+
+// Integrasi Eksternal (Kelompok 1 & Kelompok 2)
+export interface ExternalProdi {
+  id: number;
+  kode_prodi: string;
+  nama_prodi: string;
+  jenjang?: string;
+}
+
+export interface ExternalDosen {
+  nidn: string;
+  nama: string;
+  email: string;
+  bidang_minat: string;
 }
 
 export interface MappingTimAkreditasi {
@@ -499,23 +524,77 @@ Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integr
 ### B. Modul Akreditasi
 
 #### 1. Project Akreditasi (`/projects`)
-* **`GET /projects`** (`?id_prodi=&status=`): List project akreditasi prodi.
-* **`POST /projects`**: Membuat project akreditasi baru.
+* **`GET /projects`** (`?id_prodi=&id_jenjang=&status_project=`): List project akreditasi prodi (mendukung filter `id_prodi`, `id_jenjang`, dan `status_project`).
+* **`POST /projects`**: Membuat project akreditasi baru (Role: `ADMINISTRATOR`, `KAPRODI`).
   ```json
   {
     "id_prodi": 1,
     "id_versi_instrumen": 1,
     "id_jenjang": 1,
     "id_jenis_instrumen": 1,
-    "tahun_akreditasi": "2026/2027",
-    "status": "draft",
-    "target_peringkat": "Unggul"
+    "nama_project": "Akreditasi D4 TRK 2026",
+    "tahun_target_submit": 2026,
+    "status_project": "Draft",
+    "tanggal_verifikasi_akreditasi": null,
+    "nomor_sk_akreditasi": null
   }
   ```
-* **`GET /projects/{id}`**: Detail project lengkap dengan relasi prodi, versi, jenjang, lembar prodi, dll.
+* **`GET /projects/{id}`**: Detail project lengkap dengan relasi `versiInstrumen`, `jenjang`, `jenisInstrumen`, `mappingTim.indikator`, `lembarProdi.buktis`, dan `selfAssessments.rubrik`.
+* **`PUT /projects/{id}`** atau **`PATCH /projects/{id}`**: Update data project akreditasi (Role: `ADMINISTRATOR`, `KAPRODI`).
+  > [!NOTE]
+  > Aturan validasi: Jika `status_project` diubah menjadi `Selesai`, maka `tanggal_verifikasi_akreditasi` dan `nomor_sk_akreditasi` wajib disertakan.
+* **`PATCH /projects/{id}/status`**: **Pembaruan Siklus Hidup Status Project Akreditasi (Lifecycle Status Update)**.
+  Endpoint khusus untuk mengelola transisi siklus status project akreditasi (`Draft` -> `On Progress` -> `Pending` -> `Cancel` -> `Selesai`).
+  * **Role yang diizinkan:** `ADMINISTRATOR`, `KAPRODI`
+  * **Aturan Bisnis & Validasi:**
+    1. Nilai `status_project` wajib salah satu dari: `Draft`, `On Progress`, `Pending`, `Cancel`, `Selesai`.
+    2. **Tolak Status Selesai Tanpa SK/Verifikasi:** Sistem secara otomatis menolak (HTTP 422 Unprocessable Entity) jika status diubah ke `Selesai` tetapi `tanggal_verifikasi_akreditasi` atau `nomor_sk_akreditasi` belum terisi (baik di request payload maupun yang sudah tersimpan di database).
+    3. Jika status selain `Selesai`, kolom tanggal verifikasi dan nomor SK bersifat opsional/nullable.
+  * **Request Body (Contoh Menyelesaikan Project):**
+    ```json
+    {
+      "status_project": "Selesai",
+      "tanggal_verifikasi_akreditasi": "2026-11-13",
+      "nomor_sk_akreditasi": "SK/LAM-INFOKOM/2026/099"
+    }
+    ```
+  * **Respons Berhasil (HTTP 200):**
+    ```json
+    {
+      "success": true,
+      "message": "Status project akreditasi berhasil diperbarui",
+      "data": {
+        "id": 1,
+        "id_prodi": 1,
+        "id_versi_instrumen": 1,
+        "id_jenjang": 1,
+        "id_jenis_instrumen": 1,
+        "nama_project": "Akreditasi D4 TRK 2026",
+        "tahun_target_submit": 2026,
+        "status_project": "Selesai",
+        "tanggal_verifikasi_akreditasi": "2026-11-13",
+        "nomor_sk_akreditasi": "SK/LAM-INFOKOM/2026/099",
+        "created_at": "2026-11-14T00:00:00.000000Z",
+        "updated_at": "2026-11-14T05:00:00.000000Z"
+      },
+      "errors": null
+    }
+    ```
+  * **Respons Validasi Ditolak (HTTP 422) jika SK / Tanggal Verifikasi Belum Terisi:**
+    ```json
+    {
+      "success": false,
+      "message": "Status Selesai ditolak. Tanggal verifikasi akreditasi dan nomor SK akreditasi wajib diisi.",
+      "data": null,
+      "errors": {
+        "status_project": [
+          "Tanggal verifikasi akreditasi dan nomor SK akreditasi wajib terisi untuk menyelesaikan project."
+        ]
+      }
+    }
+    ```
+* **`DELETE /projects/{id}`**: Hapus project akreditasi (Role: `ADMINISTRATOR`, `KAPRODI`).
 * **`GET /projects/{id}/mapping-tim`**: Mengambil daftar penugasan tim per indikator untuk project tertentu.
-* **`PUT /projects/{id}`**: Update project akreditasi.
-* **`DELETE /projects/{id}`**: Hapus project akreditasi.
 * **`POST /projects/{id}/mapping-tim`**: Menugaskan dosen/PIC/PJ per indikator via project.
   ```json
   {
@@ -689,6 +768,106 @@ Modul ini mengelola 4 pilar bukti pelaksanaan SPMI (Siklus PPEPP) tingkat Progra
 
 ---
 
+### E. Modul Integrasi Eksternal (Kelompok 1 & Kelompok 2)
+
+Modul ini diimplementasikan menggunakan arsitektur *Service Adapter* (`App\Services\External\ProdiApiService` dan `App\Services\External\DosenApiService`) untuk menjembatani Sistem Akreditasi dengan server Kelompok 1 (Akademik) dan Kelompok 2 (Tri Dharma & SDM Dosen). Modul ini dilengkapi mekanisme *graceful fallback* otomatis agar proses bisnis akreditasi tetap dapat berjalan normal meskipun server eksternal sedang *offline*, *timeout*, atau tidak dapat dijangkau (*unreachable*).
+
+* **Autentikasi & Otorisasi:** Dilindungi `jwt.auth` dan middleware role `role:administrator,kaprodi,reviewer,dosen`.
+
+#### 1. Daftar Program Studi Resmi (`GET /external/prodi`)
+* **Endpoint:** `GET /external/prodi`
+* **Adapter Class:** `App\Services\External\ProdiApiService::getAllProdi()`
+* **Sumber Data Eksternal:** API Kelompok 1 (`https://akademik.fayra.my.id/api/prodi`) via `Illuminate\Support\Facades\Http`.
+* **Deskripsi:** Mengambil daftar seluruh program studi resmi. Jika server Kelompok 1 tidak dapat dijangkau (*unreachable* / timeout), sistem otomatis mengembalikan fallback data Program Studi TRK default.
+* **Headers:**
+  ```http
+  Accept: application/json
+  Authorization: Bearer <access_token>
+  ```
+* **Respons Berhasil (HTTP 200):**
+  ```json
+  {
+    "success": true,
+    "message": "Daftar program studi berhasil diambil.",
+    "data": [
+      {
+        "id": 1,
+        "kode_prodi": "TRK",
+        "nama_prodi": "Teknologi Rekayasa Komputer",
+        "jenjang": "D4"
+      }
+    ],
+    "errors": null
+  }
+  ```
+
+#### 2. Program Studi Default TRK (`GET /external/prodi/default`)
+* **Endpoint:** `GET /external/prodi/default`
+* **Adapter Class:** `App\Services\External\ProdiApiService::getDefaultProdi()`
+* **Deskripsi:** Helper praktis untuk frontend / sistem saat inisialisasi awal. Secara default selalu mengembalikan data resmi **Program Studi TRK (Teknologi Rekayasa Komputer)**. Helper ini memprioritaskan pencarian data TRK dari API Kelompok 1 secara otomatis saat instansiasi, dan menyajikan data fallback TRK bawaan jika API eksternal belum siap.
+* **Headers:**
+  ```http
+  Accept: application/json
+  Authorization: Bearer <access_token>
+  ```
+* **Respons Berhasil (HTTP 200):**
+  ```json
+  {
+    "success": true,
+    "message": "Program studi default (TRK) berhasil diambil.",
+    "data": {
+      "id": 1,
+      "kode_prodi": "TRK",
+      "nama_prodi": "Teknologi Rekayasa Komputer",
+      "jenjang": "D4"
+    },
+    "errors": null
+  }
+  ```
+
+#### 3. Daftar Dosen & Pengguna Internal (`GET /external/dosen`)
+* **Endpoint:** `GET /external/dosen`
+* **Adapter Class:** `App\Services\External\DosenApiService::getAllDosen()`
+* **Sumber Data Eksternal:** API Kelompok 2 (`https://tridharma.fayra.my.id/api/dosen`) via `Illuminate\Support\Facades\Http`.
+* **Deskripsi:** Mengambil daftar dosen resmi (NIDN, Nama, Email, Bidang Minat) dari Kelompok 2 untuk kebutuhan penugasan tim akreditasi (`/mapping-tim`).
+* **Mekanisme Fallback Otomatis:**
+  Jika server Kelompok 2 *unreachable*, *timeout*, atau mengalami *error* HTTP (5xx), adapter secara otomatis mengembalikan daftar dosen dummy/seeder fallback dengan atribut lengkap sehingga alur penugasan tim akreditasi tidak terganggu.
+* **Headers:**
+  ```http
+  Accept: application/json
+  Authorization: Bearer <access_token>
+  ```
+* **Respons Berhasil (HTTP 200):**
+  ```json
+  {
+    "success": true,
+    "message": "Daftar dosen berhasil diambil.",
+    "data": [
+      {
+        "nidn": "0012048801",
+        "nama": "Dr. Andi Wijaya, S.Kom., M.T.",
+        "email": "andi.wijaya@kampus.ac.id",
+        "bidang_minat": "Rekayasa Perangkat Lunak & Sistem Informasi"
+      },
+      {
+        "nidn": "0023089002",
+        "nama": "Siti Rahmawati, S.T., M.Kom.",
+        "email": "siti.rahmawati@kampus.ac.id",
+        "bidang_minat": "Jaringan Komputer & Keamanan Siber"
+      },
+      {
+        "nidn": "0015118503",
+        "nama": "Budi Santoso, S.Kom., M.Cs.",
+        "email": "budi.santoso@kampus.ac.id",
+        "bidang_minat": "Internet of Things (IoT) & Sistem Tertanam"
+      }
+    ],
+    "errors": null
+  }
+  ```
+
+---
+
 ## 5. Contoh Implementasi Fetch / Axios di Frontend
 
 ```javascript
@@ -700,6 +879,15 @@ const api = axios.create({
     Accept: 'application/json',
     'Content-Type': 'application/json'
   }
+});
+
+// Interceptor untuk inject JWT Token
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('access_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 // Contoh 1: Ambil Rekap Skor Akreditasi
@@ -716,5 +904,43 @@ export const uploadBukti = async (formData) => {
     }
   });
   return response.data.data;
+};
+
+// Contoh 3: Ambil Daftar Program Studi & Prodi Default TRK (Integrasi Kelompok 1)
+export const getExternalProdi = async () => {
+  const response = await api.get('/external/prodi');
+  return response.data.data; // Array of ExternalProdi
+};
+
+export const getDefaultTrkProdi = async () => {
+  const response = await api.get('/external/prodi/default');
+  return response.data.data; // Single ExternalProdi (TRK)
+};
+
+// Contoh 4: Ambil Daftar Dosen untuk Penugasan Tim (Integrasi Kelompok 2)
+export const getExternalDosen = async () => {
+  const response = await api.get('/external/dosen');
+  return response.data.data; // Array of ExternalDosen (NIDN, Nama, Email, Bidang Minat)
+};
+
+// Contoh 5: Pembaruan Siklus Status Project Akreditasi (Lifecycle Status)
+export const updateProjectStatus = async (projectId, status, verificationDate = null, skNumber = null) => {
+  try {
+    const payload = {
+      status_project: status,
+      tanggal_verifikasi_akreditasi: verificationDate,
+      nomor_sk_akreditasi: skNumber
+    };
+
+    const response = await api.patch(`/projects/${projectId}/status`, payload);
+    return response.data.data;
+  } catch (error) {
+    if (error.response && error.response.status === 422) {
+      // Menangani penolakan status Selesai jika tanggal verifikasi atau nomor SK belum diisi
+      console.error('Pembaruan status ditolak:', error.response.data.message);
+      throw error.response.data;
+    }
+    throw error;
+  }
 };
 ```
