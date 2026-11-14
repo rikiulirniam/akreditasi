@@ -77,6 +77,8 @@ class DatabaseSeeder extends Seeder
             ['deskripsi_rubrik' => 'Baik: VMTS jelas dan memiliki bukti sosialisasi berkala']
         );
 
+
+
         JenisPembiayaan::firstOrCreate(['nama_pembiayaan' => 'Biaya Operasional Pendidikan']);
         JenisPembiayaan::firstOrCreate(['nama_pembiayaan' => 'Biaya Penelitian dan Pengabdian']);
 
