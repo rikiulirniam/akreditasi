@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Akreditasi\MappingTimAkreditasiController;
 use App\Http\Controllers\Api\Akreditasi\ProjectAkreditasiController;
 use App\Http\Controllers\Api\Akreditasi\SelfAssessmentController;
+use App\Http\Controllers\Api\Dashboard\DashboardProgressController;
 use App\Http\Controllers\Api\Master\IndikatorController;
 use App\Http\Controllers\Api\Master\InstrumenController;
 use App\Http\Controllers\Api\Master\JenisPembiayaanController;
@@ -133,13 +134,18 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         Route::get('projects', [ProjectAkreditasiController::class, 'index']);
         Route::get('projects/{id}', [ProjectAkreditasiController::class, 'show']);
         Route::get('projects/{id}/mapping-tim', [ProjectAkreditasiController::class, 'getMappingTim']);
+        Route::get('projects/{id}/dashboard-progress', [DashboardProgressController::class, 'dashboardProgress']);
+        Route::get('projects/{id}/readiness', [DashboardProgressController::class, 'readiness']);
+        Route::get('projects/{id}/indicators/{indicatorId}/evidence', [DashboardProgressController::class, 'showEvidence']);
     });
 
     Route::middleware('role:administrator,kaprodi')->group(function () {
+        Route::post('projects/quick-create', [DashboardProgressController::class, 'quickCreate']);
         Route::post('projects', [ProjectAkreditasiController::class, 'store']);
         Route::put('projects/{id}', [ProjectAkreditasiController::class, 'update']);
         Route::patch('projects/{id}', [ProjectAkreditasiController::class, 'update']);
         Route::delete('projects/{id}', [ProjectAkreditasiController::class, 'destroy']);
+        Route::put('projects/{id}/indicators/{indicatorId}/evidence', [DashboardProgressController::class, 'storeEvidence']);
 
         Route::post('projects/{id}/mapping-tim', [ProjectAkreditasiController::class, 'storeMappingTim']);
         Route::post('mapping-tim', [MappingTimAkreditasiController::class, 'store']);
