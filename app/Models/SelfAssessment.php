@@ -30,7 +30,7 @@ class SelfAssessment extends Model
             'id_rubrik' => 'integer',
             'skor_terbobot' => 'decimal:2',
             'tanggal_penilaian' => 'datetime',
-            'catatan_reviewer' => 'text',
+            'catatan_reviewer' => 'string',
             'reviewer_id' => 'integer',
         ];
     }
