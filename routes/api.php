@@ -91,6 +91,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
             Route::get('versi-instrumen/{id}', [VersiInstrumenController::class, 'show']);
 
             Route::get('instrumen', [InstrumenController::class, 'index']);
+            Route::get('instrumen/{id}/hierarchy', [InstrumenController::class, 'getHierarchy']);
             Route::get('instrumen/{id}', [InstrumenController::class, 'show']);
 
             Route::get('jenjang', [JenjangController::class, 'index']);
@@ -115,7 +116,9 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         // Write operations: Khusus Administrator
         Route::middleware('role:administrator')->group(function () {
             Route::apiResource('lembaga-akreditasi', LembagaAkreditasiController::class)->except(['index', 'show']);
+            Route::patch('versi-instrumen/{id}/aktifkan', [VersiInstrumenController::class, 'aktifkan']);
             Route::apiResource('versi-instrumen', VersiInstrumenController::class)->except(['index', 'show']);
+            Route::apiResource('instrumen', InstrumenController::class)->except(['index', 'show']);
             Route::apiResource('instrumen', InstrumenController::class)->except(['index', 'show']);
             Route::apiResource('jenjang', JenjangController::class)->except(['index', 'show']);
             Route::apiResource('kriteria', KriteriaController::class)->except(['index', 'show']);
@@ -132,6 +135,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         Route::get('versi-instrumen/{id}', [VersiInstrumenController::class, 'show']);
 
         Route::get('instrumen', [InstrumenController::class, 'index']);
+        Route::get('instrumen/{id}/hierarchy', [InstrumenController::class, 'getHierarchy']);
         Route::get('instrumen/{id}', [InstrumenController::class, 'show']);
 
         Route::get('kriteria', [KriteriaController::class, 'index']);
