@@ -16,6 +16,8 @@ use App\Http\Controllers\Api\Sarpras\DataSaranaProdiController;
 use App\Http\Controllers\Api\Sarpras\DataSarprasProdiController;
 use App\Http\Controllers\Api\Spmi\EvidenceSpmiController;
 use App\Http\Controllers\Api\Spmi\SpmiAuditController;
+use App\Services\External\DosenApiService;
+use App\Services\External\ProdiApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +30,36 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('v1')->middleware('jwt.auth')->group(function () {
+
+    Route::prefix('external')->middleware('role:administrator,kaprodi,reviewer,dosen')->group(function () {
+
+        Route::get('prodi', function (ProdiApiService $prodiService) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Daftar program studi berhasil diambil.',
+                'data' => $prodiService->getAllProdi(),
+                'errors' => null,
+            ]);
+        });
+
+        Route::get('prodi/default', function (ProdiApiService $prodiService) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Program studi default (TRK) berhasil diambil.',
+                'data' => $prodiService->getDefaultProdi(),
+                'errors' => null,
+            ]);
+        });
+
+        Route::get('dosen', function (DosenApiService $dosenService) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Daftar dosen berhasil diambil.',
+                'data' => $dosenService->getAllDosen(),
+                'errors' => null,
+            ]);
+        });
+    });
 
     // Profil pengguna terautentikasi (semua role yang valid)
     Route::get('auth/me', function (Request $request) {
@@ -139,6 +171,8 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         Route::post('projects', [ProjectAkreditasiController::class, 'store']);
         Route::put('projects/{id}', [ProjectAkreditasiController::class, 'update']);
         Route::patch('projects/{id}', [ProjectAkreditasiController::class, 'update']);
+        // update status project akreditasi
+        Route::patch('projects/{id}/status', [ProjectAkreditasiController::class, 'updateStatus']);
         Route::delete('projects/{id}', [ProjectAkreditasiController::class, 'destroy']);
 
         Route::post('projects/{id}/mapping-tim', [ProjectAkreditasiController::class, 'storeMappingTim']);

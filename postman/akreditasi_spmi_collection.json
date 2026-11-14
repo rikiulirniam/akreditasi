@@ -1888,7 +1888,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id_prodi\": 101,\n  \"id_versi_instrumen\": 1,\n  \"id_jenjang\": 1,\n  \"id_jenis_instrumen\": 1,\n  \"nama_project\": \"Akreditasi S1 Teknik Informatika 2026\",\n  \"tahun_target_submit\": 2026,\n  \"status_project\": \"draft\"\n}"
+                  "raw": "{\n  \"id_prodi\": 1,\n  \"id_versi_instrumen\": 1,\n  \"id_jenjang\": 1,\n  \"id_jenis_instrumen\": 1,\n  \"nama_project\": \"Akreditasi D4 TRK 2026\",\n  \"tahun_target_submit\": 2026,\n  \"status_project\": \"Draft\"\n}"
                 }
               },
               "event": [
@@ -1967,7 +1967,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id_prodi\": 101,\n  \"id_versi_instrumen\": 1,\n  \"id_jenjang\": 1,\n  \"id_jenis_instrumen\": 1,\n  \"nama_project\": \"Akreditasi S1 Teknik Informatika 2026 (Updated)\",\n  \"tahun_target_submit\": 2026,\n  \"status_project\": \"pengisian\"\n}"
+                  "raw": "{\n  \"id_prodi\": 1,\n  \"id_versi_instrumen\": 1,\n  \"id_jenjang\": 1,\n  \"id_jenis_instrumen\": 1,\n  \"nama_project\": \"Akreditasi D4 TRK 2026 (Updated)\",\n  \"tahun_target_submit\": 2026,\n  \"status_project\": \"On Progress\"\n}"
                 }
               },
               "event": [
@@ -1983,7 +1983,52 @@
               ]
             },
             {
-              "name": "6.5 POST Mapping Tim via Project (Batch / Single)",
+              "name": "6.5 PATCH Update Status Project (Lifecycle)",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/projects/{{project_id}}/status",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "projects",
+                    "{{project_id}}",
+                    "status"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status_project\": \"Selesai\",\n  \"tanggal_verifikasi_akreditasi\": \"2026-11-13\",\n  \"nomor_sk_akreditasi\": \"SK/LAM-INFOKOM/2026/099\"\n}"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Status updated to Selesai', function () { pm.expect(pm.response.json().data.status_project).to.eql('Selesai'); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "6.6 POST Mapping Tim via Project (Batch / Single)",
               "request": {
                 "method": "POST",
                 "header": [
@@ -3077,10 +3122,121 @@
       ]
     },
     {
-      "name": "5. Clean Up / Hapus Data Uji",
+      "name": "5. Integrasi Eksternal (Prodi & Dosen)",
       "item": [
         {
-          "name": "12.1 DELETE Project Akreditasi",
+          "name": "12.1 GET Daftar Program Studi (Akademik)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/external/prodi",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "external",
+                "prodi"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "12.2 GET Program Studi Default (TRK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/external/prodi/default",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "external",
+                "prodi",
+                "default"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Default prodi is TRK', function () { pm.expect(pm.response.json().data.kode_prodi).to.eql('TRK'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "12.3 GET Daftar Dosen (Tri Dharma)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/external/dosen",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "external",
+                "dosen"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Clean Up / Hapus Data Uji",
+      "item": [
+        {
+          "name": "13.1 DELETE Project Akreditasi",
           "request": {
             "method": "DELETE",
             "header": [

@@ -147,4 +147,48 @@ class ProjectAkreditasiController extends Controller
 
         return app(MappingTimAkreditasiController::class)->index($request);
     }
+
+    /**
+     * Memperbarui siklus status project akreditasi.
+     */
+    public function updateStatus(Request $request, int $id): JsonResponse
+    {
+        $validated = $request->validate([
+            'status_project' => 'required|string|in:Draft,On Progress,Pending,Cancel,Selesai',
+            'tanggal_verifikasi_akreditasi' => 'nullable|date',
+            'nomor_sk_akreditasi' => 'nullable|string|max:255',
+        ]);
+
+        $project = ProjectAkreditasi::find($id);
+
+        if (! $project) {
+            return $this->errorResponse('Project akreditasi tidak ditemukan', null, 404);
+        }
+
+        $tanggalVerifikasi = array_key_exists('tanggal_verifikasi_akreditasi', $validated)
+            ? $validated['tanggal_verifikasi_akreditasi']
+            : $project->tanggal_verifikasi_akreditasi;
+
+        $nomorSk = array_key_exists('nomor_sk_akreditasi', $validated)
+            ? $validated['nomor_sk_akreditasi']
+            : $project->nomor_sk_akreditasi;
+
+        if ($validated['status_project'] === 'Selesai' && (empty($tanggalVerifikasi) || empty($nomorSk))) {
+            return $this->errorResponse(
+                'Status Selesai ditolak. Tanggal verifikasi akreditasi dan nomor SK akreditasi wajib diisi.',
+                [
+                    'status_project' => ['Tanggal verifikasi akreditasi dan nomor SK akreditasi wajib terisi untuk menyelesaikan project.'],
+                ],
+                422
+            );
+        }
+
+        $project->update([
+            'status_project' => $validated['status_project'],
+            'tanggal_verifikasi_akreditasi' => $tanggalVerifikasi,
+            'nomor_sk_akreditasi' => $nomorSk,
+        ]);
+
+        return $this->successResponse($project->fresh(), 'Status project akreditasi berhasil diperbarui');
+    }
 }
