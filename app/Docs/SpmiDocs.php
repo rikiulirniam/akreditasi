@@ -31,10 +31,9 @@ class SpmiDocs
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['id_project', 'id_standar', 'tanggal_pelaksanaan', 'tahun_audit'],
+                required: ['id_project', 'tanggal_pelaksanaan', 'tahun_audit'],
                 properties: [
                     new OA\Property(property: 'id_project', type: 'integer', example: 1),
-                    new OA\Property(property: 'id_standar', type: 'integer', example: 1),
                     new OA\Property(property: 'id_indikator', type: 'integer', example: 1, nullable: true),
                     new OA\Property(property: 'jenis_kegiatan', type: 'string', enum: ['PPEPP', 'AMI', 'RTM'], example: 'AMI', nullable: true),
                     new OA\Property(property: 'tanggal_pelaksanaan', type: 'string', format: 'date', example: '2026-10-15'),
@@ -74,7 +73,6 @@ class SpmiDocs
             content: new OA\JsonContent(
                 properties: [
                     new OA\Property(property: 'id_project', type: 'integer', example: 1, nullable: true),
-                    new OA\Property(property: 'id_standar', type: 'integer', example: 1, nullable: true),
                     new OA\Property(property: 'id_indikator', type: 'integer', example: 1, nullable: true),
                     new OA\Property(property: 'jenis_kegiatan', type: 'string', enum: ['PPEPP', 'AMI', 'RTM'], example: 'AMI', nullable: true),
                     new OA\Property(property: 'tanggal_pelaksanaan', type: 'string', format: 'date', example: '2026-10-15', nullable: true),

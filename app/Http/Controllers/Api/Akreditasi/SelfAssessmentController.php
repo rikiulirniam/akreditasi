@@ -4,8 +4,7 @@ namespace App\Http\Controllers\Api\Akreditasi;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Akreditasi\StoreSelfAssessmentRequest;
-use App\Models\Bobot;
-use App\Models\ProjectAkreditasi;
+use App\Models\Indikator;
 use App\Models\Rubrik;
 use App\Models\SelfAssessment;
 use App\Traits\ApiResponseTrait;
@@ -41,19 +40,10 @@ class SelfAssessmentController extends Controller
         $skorTerbobot = null;
 
         if (! empty($validated['id_rubrik'])) {
-            $project = ProjectAkreditasi::findOrFail($validated['id_project']);
             $rubrik = Rubrik::findOrFail($validated['id_rubrik']);
+            $indikator = Indikator::findOrFail($validated['id_indikator']);
 
-            $bobot = Bobot::where('id_indikator', $validated['id_indikator'])
-                ->where('id_jenis_instrumen', $project->id_jenis_instrumen)
-                ->where('id_jenjang', $project->id_jenjang)
-                ->first();
-
-            if (! $bobot) {
-                $bobot = Bobot::where('id_indikator', $validated['id_indikator'])->first();
-            }
-
-            $nilaiBobot = $bobot ? (float) $bobot->nilai_bobot : 1.0;
+            $nilaiBobot = (float) ($indikator->bobot ?? 1.0);
             $skorTerbobot = round((float) $rubrik->skor * $nilaiBobot, 2);
         }
 
