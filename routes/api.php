@@ -184,6 +184,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
     // Modul Evidence SPMI (One-to-One dengan Project Akreditasi)
     Route::middleware('role:administrator,kaprodi,reviewer,dosen')->group(function () {
         Route::get('evidence-spmi', [EvidenceSpmiController::class, 'show']);
+        Route::get('projects/{id}/evidence-overview', [EvidenceSpmiController::class, 'overview']);
     });
 
     Route::middleware('role:administrator,kaprodi')->group(function () {

@@ -636,7 +636,7 @@ Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integr
   }
   ```
 
-#### 2. Evidence SPMI Project Akreditasi (`/evidence-spmi`)
+#### 2. Evidence SPMI Project Akreditasi (`/evidence-spmi` & `/projects/{id}/evidence-overview`)
 Modul ini mengelola 4 pilar bukti pelaksanaan SPMI (Siklus PPEPP) tingkat Program Studi yang terikat secara relasional (One-to-One) dengan Project Akreditasi.
 * **`GET /evidence-spmi?project_id={id}`**: Mengambil data bukti SPMI 4 pilar untuk project akreditasi terkait. Jika belum pernah diisi, mengembalikan `data: null` dengan kode 200 OK.
 * **`POST /evidence-spmi`**: Menyimpan atau memperbarui data bukti SPMI (*updateOrCreate* berdasarkan `project_id`).
@@ -651,6 +651,73 @@ Modul ini mengelola 4 pilar bukti pelaksanaan SPMI (Siklus PPEPP) tingkat Progra
     "deskripsi_bukti_dampak": "Rekapitulasi ketercapaian Indikator Kinerja Utama (IKU) dan kepuasan stakeholder.",
     "link_dokumen_implementasi": "https://drive.google.com/drive/folders/implementasi-spmi-link",
     "deskripsi_dokumen_implementasi": "Manual Mutu, Standar SPMI, serta formulir implementasi penjaminan mutu program studi."
+  }
+  ```
+* **`GET /projects/{id}/evidence-overview`**: Mengambil rekapitulasi lengkap bukti SPMI 4 pilar, daftar indikator yang ditugaskan beserta PIC, serta ringkasan riwayat temuan audit SPMI (Open/Closed).
+  ```json
+  {
+    "success": true,
+    "message": "Rekapitulasi evidence overview berhasil diambil",
+    "data": {
+      "project": {
+        "id": 1,
+        "nama_project": "Akreditasi Program Studi TRK 2026",
+        "status_project": "On Progress",
+        "id_prodi": 1,
+        "tahun_target_submit": 2026
+      },
+      "evidence": {
+        "id": 1,
+        "pilar_1_evaluasi": {
+          "link": "https://drive.google.com/drive/folders/evaluasi-spmi-link",
+          "deskripsi": "Laporan Audit Mutu Internal (AMI)"
+        },
+        "pilar_2_pengendalian": {
+          "link": "https://drive.google.com/drive/folders/pengendalian-spmi-link",
+          "deskripsi": "Notula RTM"
+        },
+        "pilar_3_dampak": {
+          "link": "https://drive.google.com/drive/folders/dampak-spmi-link",
+          "deskripsi": "Capaian IKU"
+        },
+        "pilar_4_implementasi": {
+          "link": "https://drive.google.com/drive/folders/implementasi-spmi-link",
+          "deskripsi": "Manual Mutu & Standar SPMI"
+        },
+        "created_at": "2026-11-15T10:00:00.000000Z",
+        "updated_at": "2026-11-15T10:00:00.000000Z"
+      },
+      "assigned_indicators": [
+        {
+          "id_indikator": 1,
+          "id_user": 10,
+          "role": "PIC",
+          "indikator": {
+            "id": 1,
+            "kode_indikator": "IK1.1.1",
+            "deskripsi_indikator": "Kejelasan perumusan visi"
+          }
+        }
+      ],
+      "audit_summary": {
+        "total": 2,
+        "open": 1,
+        "closed": 1
+      },
+      "audits": [
+        {
+          "id": 1,
+          "id_indikator": 1,
+          "jenis_kegiatan": "AMI",
+          "tanggal_pelaksanaan": "2026-06-15",
+          "tahun_audit": 2026,
+          "temuan": "Dokumen SOP belum mutakhir",
+          "tindak_lanjut": "Update SOP",
+          "status_penyelesaian": "Open"
+        }
+      ]
+    },
+    "errors": null
   }
   ```
 
