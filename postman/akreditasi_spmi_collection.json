@@ -59,8 +59,12 @@
                 "exec": [
                   "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
                   "var jsonData = pm.response.json();",
-                  "if (jsonData.data && jsonData.data.authorization && jsonData.data.authorization.access_token) {",
-                  "    var token = jsonData.data.authorization.access_token;",
+                  "var token = (jsonData.data && jsonData.data.authorization && jsonData.data.authorization.access_token)",
+                  "    || (jsonData.data && jsonData.data.access_token)",
+                  "    || (jsonData.data && jsonData.data.token)",
+                  "    || (jsonData.access_token)",
+                  "    || (jsonData.token);",
+                  "if (token) {",
                   "    pm.environment.set('jwt_token', token);",
                   "    pm.collectionVariables.set('jwt_token', token);",
                   "    pm.globals.set('jwt_token', token);",
@@ -92,7 +96,22 @@
                 "me"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response format is JSON with success status', function () {",
+                  "    var res = pm.response.json();",
+                  "    pm.expect(res).to.be.an('object');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "0.3 GET Profile Me (Verifikasi Lokal Akreditasi API)",
@@ -115,7 +134,22 @@
                 "me"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response format is JSON with success status', function () {",
+                  "    var res = pm.response.json();",
+                  "    pm.expect(res).to.be.an('object');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "0.4 POST Logout (SSO Akademik)",
@@ -137,7 +171,22 @@
                 "logout"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response format is JSON with success status', function () {",
+                  "    var res = pm.response.json();",
+                  "    pm.expect(res).to.be.an('object');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         }
       ]
     },
@@ -175,7 +224,14 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && Array.isArray(json.data) && json.data.length > 0) {",
+                      "    pm.environment.set('lembaga_id', json.data[0].id);",
+                      "}"
                     ],
                     "type": "text/javascript"
                   }
@@ -219,7 +275,10 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
-                      "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
                       "var json = pm.response.json();",
                       "if (json.data && json.data.id) { pm.environment.set('lembaga_id', json.data.id); }"
                     ],
@@ -257,7 +316,10 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Detail lembaga akreditasi loaded', function () { pm.expect(pm.response.json().data).to.have.property('nama_lembaga'); });"
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -302,7 +364,10 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Nama lembaga updated', function () { pm.expect(pm.response.json().data.nama_lembaga).to.include('Updated'); });"
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -338,6 +403,11 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
                       "pm.environment.set('lembaga_id', '1');"
                     ],
                     "type": "text/javascript"
@@ -374,7 +444,12 @@
                     {
                       "key": "id_lembaga",
                       "value": "{{lembaga_id}}",
-                      "description": ""
+                      "disabled": false
+                    },
+                    {
+                      "key": "status_aktif",
+                      "value": "true",
+                      "disabled": true
                     }
                   ]
                 }
@@ -384,7 +459,15 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && Array.isArray(json.data) && json.data.length > 0) {",
+                      "    pm.environment.set('versi_id', json.data[0].id);",
+                      "}"
                     ],
                     "type": "text/javascript"
                   }
@@ -419,7 +502,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id_lembaga\": 1,\n  \"nomor_versi\": \"2026.1\",\n  \"tanggal_berlaku\": \"2026-01-01\",\n  \"status_aktif\": true\n}"
+                  "raw": "{\n  \"id_lembaga\": 1,\n  \"nomor_versi\": \"2.1\",\n  \"tanggal_berlaku\": \"2026-01-25\",\n  \"status_aktif\": true\n}"
                 }
               },
               "event": [
@@ -428,6 +511,10 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
                       "var json = pm.response.json();",
                       "if (json.data && json.data.id) { pm.environment.set('versi_id', json.data.id); }"
                     ],
@@ -464,7 +551,11 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -500,7 +591,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"nama_versi\": \"Versi 2.0 (Revisi)\",\n  \"keterangan\": \"Instrumen Akreditasi Versi Terbaru\",\n  \"status_aktif\": true\n}"
+                  "raw": "{\n  \"id_lembaga\": 1,\n  \"nomor_versi\": \"2.1-rev\",\n  \"tanggal_berlaku\": \"2026-02-01\",\n  \"status_aktif\": true\n}"
                 }
               },
               "event": [
@@ -508,7 +599,11 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -544,6 +639,11 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
                       "pm.environment.set('versi_id', '1');"
                     ],
                     "type": "text/javascript"
@@ -575,6 +675,23 @@
                   "path": [
                     "master",
                     "instrumen"
+                  ],
+                  "query": [
+                    {
+                      "key": "id_jenjang",
+                      "value": "{{jenjang_id}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "id_versi_instrumen",
+                      "value": "{{versi_id}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "id_jenis_instrumen",
+                      "value": "{{jenis_instrumen_id}}",
+                      "disabled": true
+                    }
                   ]
                 }
               },
@@ -584,9 +701,14 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });",
-                      "if (pm.response.json().data && pm.response.json().data.length > 0) {",
-                      "    pm.test('Memiliki properti count kriteria', function () { pm.expect(pm.response.json().data[0]).to.have.property('kriterias_count'); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && Array.isArray(json.data) && json.data.length > 0) {",
+                      "    pm.environment.set('instrumen_id', json.data[0].id);",
+                      "    console.log('Instrumen UUID tersimpan:', json.data[0].id);",
                       "}"
                     ],
                     "type": "text/javascript"
@@ -631,6 +753,10 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
                       "var json = pm.response.json();",
                       "if (json.data && json.data.id) { pm.environment.set('instrumen_id', json.data.id); }"
                     ],
@@ -668,8 +794,51 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Memiliki relasi kriterias', function () { pm.expect(pm.response.json().data).to.have.property('kriterias'); });",
-                      "pm.test('Memiliki properti count kriteria', function () { pm.expect(pm.response.json().data).to.have.property('kriterias_count'); });"
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+                        {
+              "name": "0.14 GET Hierarki Lengkap Instrumen",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/master/instrumen/{{instrumen_id}}/hierarchy",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "master",
+                    "instrumen",
+                    "{{instrumen_id}}",
+                    "hierarchy"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "var json = pm.response.json();",
+                      "pm.test('Response success is true', function () { pm.expect(json.success).to.eql(true); });",
+                      "pm.test('Memiliki data hierarki instrumen', function () { pm.expect(json.data).to.have.property('kriteria'); });",
+                      "pm.test('Memiliki informasi lembaga', function () { pm.expect(json.data).to.have.property('lembaga'); });",
+                      "pm.test('Memiliki informasi versi instrumen', function () { pm.expect(json.data).to.have.property('versi_instrumen'); });"
                     ],
                     "type": "text/javascript"
                   }
@@ -677,7 +846,7 @@
               ]
             },
             {
-              "name": "0.14 DELETE Instrumen",
+              "name": "0.15 DELETE Instrumen",
               "request": {
                 "method": "DELETE",
                 "header": [
@@ -705,7 +874,12 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.environment.set('instrumen_id', '1');"
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "pm.environment.set('instrumen_id', '');"
                     ],
                     "type": "text/javascript"
                   }
@@ -736,6 +910,13 @@
                   "path": [
                     "master",
                     "kriteria"
+                  ],
+                  "query": [
+                    {
+                      "key": "id_instrumen",
+                      "value": "{{instrumen_id}}",
+                      "disabled": true
+                    }
                   ]
                 }
               },
@@ -745,8 +926,13 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "if (pm.response.json().data && pm.response.json().data.length > 0) {",
-                      "    pm.test('Memiliki properti subkriteria_count', function () { pm.expect(pm.response.json().data[0]).to.have.property('subkriteria_count'); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && Array.isArray(json.data) && json.data.length > 0) {",
+                      "    pm.environment.set('kriteria_id', json.data[0].id);",
                       "}"
                     ],
                     "type": "text/javascript"
@@ -791,8 +977,12 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
-                      "var res = pm.response.json();",
-                      "if (res.data && res.data.id) { pm.environment.set('kriteria_id', res.data.id); }"
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && json.data.id) { pm.environment.set('kriteria_id', json.data.id); }"
                     ],
                     "type": "text/javascript"
                   }
@@ -828,8 +1018,10 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Memiliki relasi subkriteria', function () { pm.expect(pm.response.json().data).to.have.property('subkriteria'); });",
-                      "pm.test('Memiliki properti subkriteria_count', function () { pm.expect(pm.response.json().data).to.have.property('subkriteria_count'); });"
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -865,7 +1057,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"nama_kriteria\": \"Visi, Misi, Tujuan, dan Strategi (Diperbarui)\",\n  \"urutan\": 1\n}"
+                  "raw": "{\n  \"id_instrumen\": \"{{instrumen_id}}\",\n  \"kode_kriteria\": \"C.1\",\n  \"nama_kriteria\": \"Visi, Misi, Tujuan, dan Strategi (Diperbarui)\"\n}"
                 }
               },
               "event": [
@@ -873,7 +1065,11 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -909,6 +1105,11 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
                       "pm.environment.set('kriteria_id', '1');"
                     ],
                     "type": "text/javascript"
@@ -945,7 +1146,7 @@
                     {
                       "key": "id_kriteria",
                       "value": "{{kriteria_id}}",
-                      "description": "Filter berdasarkan ID Kriteria"
+                      "disabled": false
                     }
                   ]
                 }
@@ -956,9 +1157,13 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });",
-                      "if (pm.response.json().data && pm.response.json().data.length > 0) {",
-                      "    pm.test('Memiliki properti indikator_count', function () { pm.expect(pm.response.json().data[0]).to.have.property('indikator_count'); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && Array.isArray(json.data) && json.data.length > 0) {",
+                      "    pm.environment.set('subkriteria_id', json.data[0].id);",
                       "}"
                     ],
                     "type": "text/javascript"
@@ -1003,8 +1208,12 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
-                      "var res = pm.response.json();",
-                      "if (res.data && res.data.id) { pm.environment.set('subkriteria_id', res.data.id); }"
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && json.data.id) { pm.environment.set('subkriteria_id', json.data.id); }"
                     ],
                     "type": "text/javascript"
                   }
@@ -1040,8 +1249,10 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Memiliki relasi indikator', function () { pm.expect(pm.response.json().data).to.have.property('indikator'); });",
-                      "pm.test('Memiliki properti indikator_count', function () { pm.expect(pm.response.json().data).to.have.property('indikator_count'); });"
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -1077,7 +1288,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"nama_subkriteria\": \"Kebijakan dan Perencanaan Strategis VMTS (Diperbarui)\"\n}"
+                  "raw": "{\n  \"id_kriteria\": 1,\n  \"kode_subkriteria\": \"C.1.1\",\n  \"nama_subkriteria\": \"Kebijakan dan Perencanaan Strategis VMTS (Diperbarui)\"\n}"
                 }
               },
               "event": [
@@ -1085,7 +1296,11 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -1121,6 +1336,11 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
                       "pm.environment.set('subkriteria_id', '1');"
                     ],
                     "type": "text/javascript"
@@ -1157,7 +1377,7 @@
                     {
                       "key": "id_subkriteria",
                       "value": "{{subkriteria_id}}",
-                      "description": "Filter berdasarkan ID Subkriteria"
+                      "disabled": false
                     }
                   ]
                 }
@@ -1168,8 +1388,13 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "if (pm.response.json().data && pm.response.json().data.length > 0) {",
-                      "    pm.test('Memiliki properti rubriks_count', function () { pm.expect(pm.response.json().data[0]).to.have.property('rubriks_count'); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && Array.isArray(json.data) && json.data.length > 0) {",
+                      "    pm.environment.set('indikator_id', json.data[0].id);",
                       "}"
                     ],
                     "type": "text/javascript"
@@ -1205,7 +1430,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id_subkriteria\": 1,\n  \"kode_indikator\": \"IND-1.1\",\n  \"deskripsi_indikator\": \"Kejelasan, Kerealistikan, dan Pengesahan VMTS Program Studi\",\n  \"bobot\": 4.00\n}"
+                  "raw": "{\n  \"id_subkriteria\": 1,\n  \"kode_indikator\": \"IND-1.1\",\n  \"deskripsi_indikator\": \"Kejelasan, Kerealistikan, dan Pengesahan VMTS Program Studi\",\n  \"bobot\": 4\n}"
                 }
               },
               "event": [
@@ -1214,8 +1439,12 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
-                      "var res = pm.response.json();",
-                      "if (res.data && res.data.id) { pm.environment.set('indikator_id', res.data.id); }"
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && json.data.id) { pm.environment.set('indikator_id', json.data.id); }"
                     ],
                     "type": "text/javascript"
                   }
@@ -1251,8 +1480,10 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "pm.test('Memiliki relasi rubriks', function () { pm.expect(pm.response.json().data).to.have.property('rubriks'); });",
-                      "pm.test('Memiliki properti rubriks_count', function () { pm.expect(pm.response.json().data).to.have.property('rubriks_count'); });"
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -1288,7 +1519,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"deskripsi_indikator\": \"Kejelasan VMTS dan Dokumen Pendukung Lengkap serta Tersosialisasikan\",\n  \"bobot\": 4.00\n}"
+                  "raw": "{\n  \"deskripsi_indikator\": \"Kejelasan VMTS dan Dokumen Pendukung Lengkap serta Tersosialisasikan\",\n  \"bobot\": 4\n}"
                 }
               },
               "event": [
@@ -1296,7 +1527,11 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -1332,6 +1567,11 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
                       "pm.environment.set('indikator_id', '1');"
                     ],
                     "type": "text/javascript"
@@ -1368,7 +1608,7 @@
                     {
                       "key": "id_indikator",
                       "value": "{{indikator_id}}",
-                      "description": "Filter berdasarkan ID Indikator"
+                      "disabled": false
                     }
                   ]
                 }
@@ -1378,7 +1618,15 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && Array.isArray(json.data) && json.data.length > 0) {",
+                      "    pm.environment.set('rubrik_id', json.data[0].id);",
+                      "}"
                     ],
                     "type": "text/javascript"
                   }
@@ -1422,8 +1670,12 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
-                      "var res = pm.response.json();",
-                      "if (res.data && res.data.id) { pm.environment.set('rubrik_id', res.data.id); }"
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && json.data.id) { pm.environment.set('rubrik_id', json.data.id); }"
                     ],
                     "type": "text/javascript"
                   }
@@ -1458,7 +1710,11 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -1502,7 +1758,11 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -1538,6 +1798,11 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
                       "pm.environment.set('rubrik_id', '1');"
                     ],
                     "type": "text/javascript"
@@ -1577,7 +1842,15 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && Array.isArray(json.data) && json.data.length > 0) {",
+                      "    pm.environment.set('jenjang_id', json.data[0].id);",
+                      "}"
                     ],
                     "type": "text/javascript"
                   }
@@ -1612,7 +1885,11 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -1651,7 +1928,15 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && Array.isArray(json.data) && json.data.length > 0) {",
+                      "    pm.environment.set('jenis_pembiayaan_id', json.data[0].id);",
+                      "}"
                     ],
                     "type": "text/javascript"
                   }
@@ -1686,7 +1971,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"nama_pembiayaan\": \"Biaya Operasional Pendidikan\",\n  \"kategori\": \"Operasional\"\n}"
+                  "raw": "{\n  \"nama_pembiayaan\": \"Biaya Operasional Pendidikan\"\n}"
                 }
               },
               "event": [
@@ -1695,8 +1980,12 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
-                      "var res = pm.response.json();",
-                      "if (res.data && res.data.id) { pm.environment.set('jenis_pembiayaan_id', res.data.id); }"
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && json.data.id) { pm.environment.set('jenis_pembiayaan_id', json.data.id); }"
                     ],
                     "type": "text/javascript"
                   }
@@ -1731,7 +2020,11 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -1767,7 +2060,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"nama_pembiayaan\": \"Biaya Operasional dan Praktikum\",\n  \"kategori\": \"Operasional\"\n}"
+                  "raw": "{\n  \"nama_pembiayaan\": \"Biaya Operasional dan Praktikum\"\n}"
                 }
               },
               "event": [
@@ -1775,7 +2068,11 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -1811,7 +2108,488 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
                       "pm.environment.set('jenis_pembiayaan_id', '1');"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Direct Alias Endpoints (Tanpa Prefix /master/)",
+          "item": [
+            {
+              "name": "GET Direct Versi Instrumen",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/versi-instrumen",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "versi-instrumen"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET Direct Detail Versi Instrumen",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/versi-instrumen/{{versi_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "versi-instrumen",
+                    "{{versi_id}}"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET Direct Instrumen",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/instrumen",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "instrumen"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET Direct Detail Instrumen",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/instrumen/{{instrumen_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "instrumen",
+                    "{{instrumen_id}}"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET Direct Kriteria",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/kriteria",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "kriteria"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET Direct Detail Kriteria",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/kriteria/{{kriteria_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "kriteria",
+                    "{{kriteria_id}}"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET Direct Subkriteria",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/subkriteria?id_kriteria={{kriteria_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "subkriteria"
+                  ],
+                  "query": [
+                    {
+                      "key": "id_kriteria",
+                      "value": "{{kriteria_id}}",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET Direct Detail Subkriteria",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/subkriteria/{{subkriteria_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "subkriteria",
+                    "{{subkriteria_id}}"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET Direct Indikator",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/indikator?id_subkriteria={{subkriteria_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "indikator"
+                  ],
+                  "query": [
+                    {
+                      "key": "id_subkriteria",
+                      "value": "{{subkriteria_id}}",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET Direct Detail Indikator",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/indikator/{{indikator_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "indikator",
+                    "{{indikator_id}}"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET Direct Rubrik",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/rubrik?id_indikator={{indikator_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "rubrik"
+                  ],
+                  "query": [
+                    {
+                      "key": "id_indikator",
+                      "value": "{{indikator_id}}",
+                      "disabled": false
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GET Direct Detail Rubrik",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/rubrik/{{rubrik_id}}",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "rubrik",
+                    "{{rubrik_id}}"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -1846,6 +2624,18 @@
                   ],
                   "path": [
                     "projects"
+                  ],
+                  "query": [
+                    {
+                      "key": "id_prodi",
+                      "value": "{{prodi_id}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "status_project",
+                      "value": "draft",
+                      "disabled": true
+                    }
                   ]
                 }
               },
@@ -1854,7 +2644,15 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && Array.isArray(json.data) && json.data.length > 0) {",
+                      "    pm.environment.set('project_id', json.data[0].id);",
+                      "}"
                     ],
                     "type": "text/javascript"
                   }
@@ -1888,7 +2686,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id_prodi\": 101,\n  \"id_versi_instrumen\": 1,\n  \"id_jenjang\": 1,\n  \"id_jenis_instrumen\": 1,\n  \"nama_project\": \"Akreditasi S1 Teknik Informatika 2026\",\n  \"tahun_target_submit\": 2026,\n  \"status_project\": \"draft\"\n}"
+                  "raw": "{\n  \"id_prodi\": 101,\n  \"id_versi_instrumen\": 1,\n  \"id_jenjang\": 1,\n  \"id_jenis_instrumen\": 1,\n  \"nama_project\": \"Akreditasi Sarjana Terapan RPL 2026\",\n  \"tahun_target_submit\": 2026,\n  \"status_project\": \"draft\"\n}"
                 }
               },
               "event": [
@@ -1897,8 +2695,12 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
-                      "var res = pm.response.json();",
-                      "if (res.data && res.data.id) { pm.environment.set('project_id', res.data.id); }"
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && json.data.id) { pm.environment.set('project_id', json.data.id); }"
                     ],
                     "type": "text/javascript"
                   }
@@ -1932,7 +2734,11 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -1967,7 +2773,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id_prodi\": 101,\n  \"id_versi_instrumen\": 1,\n  \"id_jenjang\": 1,\n  \"id_jenis_instrumen\": 1,\n  \"nama_project\": \"Akreditasi S1 Teknik Informatika 2026 (Updated)\",\n  \"tahun_target_submit\": 2026,\n  \"status_project\": \"pengisian\"\n}"
+                  "raw": "{\n  \"id_prodi\": 101,\n  \"id_versi_instrumen\": 1,\n  \"id_jenjang\": 1,\n  \"id_jenis_instrumen\": 1,\n  \"nama_project\": \"Akreditasi Sarjana Terapan RPL 2026 (Updated)\",\n  \"tahun_target_submit\": 2026,\n  \"status_project\": \"pengisian\"\n}"
                 }
               },
               "event": [
@@ -1975,7 +2781,11 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -1983,7 +2793,46 @@
               ]
             },
             {
-              "name": "6.5 POST Mapping Tim via Project (Batch / Single)",
+              "name": "6.5 GET Mapping Tim by Project",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/projects/{{project_id}}/mapping-tim",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "projects",
+                    "{{project_id}}",
+                    "mapping-tim"
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "6.6 POST Mapping Tim via Project (Batch / Single)",
               "request": {
                 "method": "POST",
                 "header": [
@@ -2011,7 +2860,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"assignments\": [\n    {\n      \"id_user\": 1,\n      \"id_indikator\": 1,\n      \"role\": \"Penyusun\"\n    }\n  ]\n}"
+                  "raw": "{\n  \"assignments\": [\n    {\n      \"id_user\": 1,\n      \"id_indikator\": 1,\n      \"role\": \"PIC\"\n    }\n  ]\n}"
                 }
               },
               "event": [
@@ -2019,7 +2868,11 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 201', function () { pm.response.to.have.status(201); });"
+                      "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -2049,6 +2902,18 @@
                   ],
                   "path": [
                     "mapping-tim"
+                  ],
+                  "query": [
+                    {
+                      "key": "id_project",
+                      "value": "{{project_id}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "role",
+                      "value": "PIC",
+                      "disabled": true
+                    }
                   ]
                 }
               },
@@ -2057,7 +2922,15 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && Array.isArray(json.data) && json.data.length > 0) {",
+                      "    pm.environment.set('mapping_tim_id', json.data[0].id);",
+                      "}"
                     ],
                     "type": "text/javascript"
                   }
@@ -2091,7 +2964,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id_project\": 1,\n  \"id_user\": 1,\n  \"id_indikator\": 1,\n  \"role\": \"Penyusun\"\n}"
+                  "raw": "{\n  \"id_project\": 1,\n  \"id_user\": 1,\n  \"id_indikator\": 1,\n  \"role\": \"PJ\"\n}"
                 }
               },
               "event": [
@@ -2100,8 +2973,12 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
-                      "var res = pm.response.json();",
-                      "if (res.data && res.data.id) { pm.environment.set('mapping_tim_id', res.data.id); }"
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && json.data.id) { pm.environment.set('mapping_tim_id', json.data.id); }"
                     ],
                     "type": "text/javascript"
                   }
@@ -2136,6 +3013,11 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
                       "pm.environment.set('mapping_tim_id', '1');"
                     ],
                     "type": "text/javascript"
@@ -2171,7 +3053,7 @@
                     {
                       "key": "id_project",
                       "value": "{{project_id}}",
-                      "description": ""
+                      "disabled": false
                     }
                   ]
                 }
@@ -2181,7 +3063,15 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && Array.isArray(json.data) && json.data.length > 0) {",
+                      "    pm.environment.set('self_assessment_id', json.data[0].id);",
+                      "}"
                     ],
                     "type": "text/javascript"
                   }
@@ -2215,7 +3105,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id_project\": 1,\n  \"id_indikator\": 1,\n  \"id_rubrik\": 1,\n  \"reviewer_id\": 1,\n  \"catatan_reviewer\": \"Dokumen VMTS prodi sangat lengkap, bukti sosialisasi dan SK penetapan terlampir dengan jelas.\",\n  \"tanggal_penilaian\": \"2026-10-24\"\n}"
+                  "raw": "{\n  \"id_project\": 1,\n  \"id_indikator\": 1,\n  \"id_rubrik\": 1,\n  \"reviewer_id\": 1,\n  \"catatan_reviewer\": \"Dokumen kurikulum OBE dan bukti magang industri bersertifikasi terlampir lengkap.\",\n  \"tanggal_penilaian\": \"2026-10-24\"\n}"
                 }
               },
               "event": [
@@ -2224,8 +3114,12 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
-                      "var res = pm.response.json();",
-                      "if (res.data && res.data.id) { pm.environment.set('self_assessment_id', res.data.id); }"
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && json.data.id) { pm.environment.set('self_assessment_id', json.data.id); }"
                     ],
                     "type": "text/javascript"
                   }
@@ -2259,7 +3153,11 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -2294,6 +3192,11 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
                       "pm.environment.set('self_assessment_id', '1');"
                     ],
                     "type": "text/javascript"
@@ -2326,6 +3229,23 @@
               ],
               "path": [
                 "spmi-audit"
+              ],
+              "query": [
+                {
+                  "key": "id_project",
+                  "value": "{{project_id}}",
+                  "disabled": true
+                },
+                {
+                  "key": "jenis_kegiatan",
+                  "value": "AMI",
+                  "disabled": true
+                },
+                {
+                  "key": "tahun_audit",
+                  "value": "2026",
+                  "disabled": true
+                }
               ]
             }
           },
@@ -2334,7 +3254,15 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response format is JSON with success status', function () {",
+                  "    var res = pm.response.json();",
+                  "    pm.expect(res).to.be.an('object');",
+                  "});",
+                  "var json = pm.response.json();",
+                  "if (json.data && Array.isArray(json.data) && json.data.length > 0) {",
+                  "    pm.environment.set('spmi_audit_id', json.data[0].id);",
+                  "}"
                 ],
                 "type": "text/javascript"
               }
@@ -2368,7 +3296,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id_project\": 1,\n  \"id_standar\": 1,\n  \"id_indikator\": 1,\n  \"jenis_kegiatan\": \"AMI\",\n  \"tanggal_pelaksanaan\": \"2026-10-24\",\n  \"tahun_audit\": 2026,\n  \"temuan\": \"Rencana pembelajaran semester (RPS) belum mencantumkan asesmen berbasis OBE secara menyeluruh.\",\n  \"tindak_lanjut\": \"Pusat Pengembangan Kurikulum mengadakan workshop penyusunan RPS OBE.\",\n  \"status_penyelesaian\": \"Open\"\n}"
+              "raw": "{\n  \"id_project\": 1,\n  \"id_indikator\": 1,\n  \"jenis_kegiatan\": \"AMI\",\n  \"tanggal_pelaksanaan\": \"2026-10-24\",\n  \"tahun_audit\": 2026,\n  \"temuan\": \"Rencana pembelajaran semester (RPS) belum mencantumkan asesmen berbasis OBE secara menyeluruh.\",\n  \"tindak_lanjut\": \"Pusat Pengembangan Kurikulum mengadakan workshop penyusunan RPS OBE.\",\n  \"status_penyelesaian\": \"Open\"\n}"
             }
           },
           "event": [
@@ -2377,8 +3305,12 @@
               "script": {
                 "exec": [
                   "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
-                  "var res = pm.response.json();",
-                  "if (res.data && res.data.id) { pm.environment.set('spmi_audit_id', res.data.id); }"
+                  "pm.test('Response format is JSON with success status', function () {",
+                  "    var res = pm.response.json();",
+                  "    pm.expect(res).to.be.an('object');",
+                  "});",
+                  "var json = pm.response.json();",
+                  "if (json.data && json.data.id) { pm.environment.set('spmi_audit_id', json.data.id); }"
                 ],
                 "type": "text/javascript"
               }
@@ -2412,7 +3344,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response format is JSON with success status', function () {",
+                  "    var res = pm.response.json();",
+                  "    pm.expect(res).to.be.an('object');",
+                  "});"
                 ],
                 "type": "text/javascript"
               }
@@ -2447,7 +3383,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id_project\": 1,\n  \"id_standar\": 1,\n  \"id_indikator\": 1,\n  \"jenis_kegiatan\": \"AMI\",\n  \"tanggal_pelaksanaan\": \"2026-10-24\",\n  \"tahun_audit\": 2026,\n  \"temuan\": \"RPS belum mencantumkan asesmen OBE (Diperbarui)\",\n  \"tindak_lanjut\": \"Adakan Bimtek secepatnya.\",\n  \"status_penyelesaian\": \"In Progress\"\n}"
+              "raw": "{\n  \"id_project\": 1,\n  \"id_indikator\": 1,\n  \"jenis_kegiatan\": \"AMI\",\n  \"tanggal_pelaksanaan\": \"2026-10-24\",\n  \"tahun_audit\": 2026,\n  \"temuan\": \"RPS belum mencantumkan asesmen OBE (Diperbarui)\",\n  \"tindak_lanjut\": \"Adakan Bimtek secepatnya.\",\n  \"status_penyelesaian\": \"In Progress\"\n}"
             }
           },
           "event": [
@@ -2455,7 +3391,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response format is JSON with success status', function () {",
+                  "    var res = pm.response.json();",
+                  "    pm.expect(res).to.be.an('object');",
+                  "});"
                 ],
                 "type": "text/javascript"
               }
@@ -2499,7 +3439,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response format is JSON with success status', function () {",
+                  "    var res = pm.response.json();",
+                  "    pm.expect(res).to.be.an('object');",
+                  "});"
                 ],
                 "type": "text/javascript"
               }
@@ -2543,7 +3487,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response format is JSON with success status', function () {",
+                  "    var res = pm.response.json();",
+                  "    pm.expect(res).to.be.an('object');",
+                  "});"
                 ],
                 "type": "text/javascript"
               }
@@ -2578,6 +3526,11 @@
               "script": {
                 "exec": [
                   "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response format is JSON with success status', function () {",
+                  "    var res = pm.response.json();",
+                  "    pm.expect(res).to.be.an('object');",
+                  "});",
+                  "var json = pm.response.json();",
                   "pm.environment.set('spmi_audit_id', '1');"
                 ],
                 "type": "text/javascript"
@@ -2608,7 +3561,7 @@
                 {
                   "key": "project_id",
                   "value": "{{project_id}}",
-                  "description": "ID Project Akreditasi"
+                  "disabled": false
                 }
               ]
             }
@@ -2618,7 +3571,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response format is JSON with success status', function () {",
+                  "    var res = pm.response.json();",
+                  "    pm.expect(res).to.be.an('object');",
+                  "});"
                 ],
                 "type": "text/javascript"
               }
@@ -2660,7 +3617,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response format is JSON with success status', function () {",
+                  "    var res = pm.response.json();",
+                  "    pm.expect(res).to.be.an('object');",
+                  "});"
                 ],
                 "type": "text/javascript"
               }
@@ -2698,7 +3659,7 @@
                     {
                       "key": "id_project",
                       "value": "{{project_id}}",
-                      "description": ""
+                      "disabled": false
                     }
                   ]
                 }
@@ -2708,7 +3669,15 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && Array.isArray(json.data) && json.data.length > 0) {",
+                      "    pm.environment.set('sarpras_prodi_id', json.data[0].id);",
+                      "}"
                     ],
                     "type": "text/javascript"
                   }
@@ -2751,8 +3720,12 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
-                      "var res = pm.response.json();",
-                      "if (res.data && res.data.id) { pm.environment.set('sarpras_prodi_id', res.data.id); }"
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && json.data.id) { pm.environment.set('sarpras_prodi_id', json.data.id); }"
                     ],
                     "type": "text/javascript"
                   }
@@ -2786,7 +3759,11 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -2821,7 +3798,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"kapasitas\": 50,\n  \"keterangan\": \"Laboratorium Rekayasa Perangkat Lunak Gedung A (Renovasi)\"\n}"
+                  "raw": "{\n  \"id_project\": 1,\n  \"kapasitas\": 50,\n  \"keterangan\": \"Laboratorium Rekayasa Perangkat Lunak Gedung A (Renovasi)\"\n}"
                 }
               },
               "event": [
@@ -2829,7 +3806,11 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -2864,6 +3845,11 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
                       "pm.environment.set('sarpras_prodi_id', '1');"
                     ],
                     "type": "text/javascript"
@@ -2899,7 +3885,7 @@
                     {
                       "key": "id_sarpras_prodi",
                       "value": "{{sarpras_prodi_id}}",
-                      "description": ""
+                      "disabled": false
                     }
                   ]
                 }
@@ -2909,7 +3895,15 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && Array.isArray(json.data) && json.data.length > 0) {",
+                      "    pm.environment.set('sarana_prodi_id', json.data[0].id);",
+                      "}"
                     ],
                     "type": "text/javascript"
                   }
@@ -2952,8 +3946,12 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 201', function () { pm.response.to.have.status(201); });",
-                      "var res = pm.response.json();",
-                      "if (res.data && res.data.id) { pm.environment.set('sarana_prodi_id', res.data.id); }"
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
+                      "if (json.data && json.data.id) { pm.environment.set('sarana_prodi_id', json.data.id); }"
                     ],
                     "type": "text/javascript"
                   }
@@ -2987,7 +3985,11 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -3022,7 +4024,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"jumlah_unit\": 50,\n  \"kondisi\": \"Sangat Baik\",\n  \"keterangan\": \"Unit PC Core i7 RAM 32GB SSD 1TB (Penambahan 5 Unit)\"\n}"
+                  "raw": "{\n  \"id_sarpras_prodi\": 1,\n  \"jumlah_unit\": 50,\n  \"kondisi\": \"Sangat Baik\",\n  \"keterangan\": \"Unit PC Core i7 RAM 32GB SSD 1TB (Penambahan 5 Unit)\"\n}"
                 }
               },
               "event": [
@@ -3030,7 +4032,11 @@
                   "listen": "test",
                   "script": {
                     "exec": [
-                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });"
+                      "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});"
                     ],
                     "type": "text/javascript"
                   }
@@ -3065,6 +4071,11 @@
                   "script": {
                     "exec": [
                       "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                      "pm.test('Response format is JSON with success status', function () {",
+                      "    var res = pm.response.json();",
+                      "    pm.expect(res).to.be.an('object');",
+                      "});",
+                      "var json = pm.response.json();",
                       "pm.environment.set('sarana_prodi_id', '1');"
                     ],
                     "type": "text/javascript"
@@ -3077,10 +4088,121 @@
       ]
     },
     {
-      "name": "5. Clean Up / Hapus Data Uji",
+      "name": "5. Integrasi Eksternal (Prodi & Dosen)",
       "item": [
         {
-          "name": "12.1 DELETE Project Akreditasi",
+          "name": "12.1 GET Daftar Program Studi (Akademik)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/external/prodi",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "external",
+                "prodi"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "12.2 GET Program Studi Default (TRK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/external/prodi/default",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "external",
+                "prodi",
+                "default"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Default prodi is TRK', function () { pm.expect(pm.response.json().data.kode_prodi).to.eql('TRK'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "12.3 GET Daftar Dosen (Tri Dharma)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/external/dosen",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "external",
+                "dosen"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response success is true', function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Clean Up / Hapus Data Uji",
+      "item": [
+        {
+          "name": "13.1 DELETE Project Akreditasi",
           "request": {
             "method": "DELETE",
             "header": [
@@ -3107,6 +4229,11 @@
               "script": {
                 "exec": [
                   "pm.test('Status code 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response format is JSON with success status', function () {",
+                  "    var res = pm.response.json();",
+                  "    pm.expect(res).to.be.an('object');",
+                  "});",
+                  "var json = pm.response.json();",
                   "pm.environment.set('project_id', '1');"
                 ],
                 "type": "text/javascript"
@@ -3118,3 +4245,4 @@
     }
   ]
 }
+

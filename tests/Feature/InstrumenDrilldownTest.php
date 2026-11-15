@@ -38,7 +38,7 @@ class InstrumenDrilldownTest extends TestCase
     public function test_get_instrumen_index_returns_instruments_with_jenis_and_jenjang_without_kriterias(): void
     {
         $lembaga = LembagaAkreditasi::create(['nama_lembaga' => 'LAM-INFOKOM']);
-        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'status_aktif' => true, 'tanggal_berlaku' => '2026-01-25']);
+        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'tanggal_berlaku' => '2026-01-25']);
         $jenjang = Jenjang::create(['nama_jenjang' => 'Diploma Tiga', 'kode_jenjang' => 'D3']);
         $jenis = JenisInstrumen::create(['nama_jenis' => 'Akreditasi Pertama']);
 
@@ -80,7 +80,7 @@ class InstrumenDrilldownTest extends TestCase
     public function test_get_instrumen_show_returns_all_kriteria_under_that_instrument(): void
     {
         $lembaga = LembagaAkreditasi::create(['nama_lembaga' => 'LAM-INFOKOM']);
-        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'status_aktif' => true, 'tanggal_berlaku' => '2026-01-25']);
+        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'tanggal_berlaku' => '2026-01-25']);
         $jenjang = Jenjang::create(['nama_jenjang' => 'Sarjana Terapan', 'kode_jenjang' => 'D4']);
         $jenis = JenisInstrumen::create(['nama_jenis' => 'Reakreditasi Unggul']);
 
@@ -125,7 +125,7 @@ class InstrumenDrilldownTest extends TestCase
     public function test_get_kriteria_index_and_show_returns_subkriteria_count(): void
     {
         $lembaga = LembagaAkreditasi::create(['nama_lembaga' => 'LAM-INFOKOM']);
-        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'status_aktif' => true, 'tanggal_berlaku' => '2026-01-25']);
+        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'tanggal_berlaku' => '2026-01-25']);
         $jenjang = Jenjang::create(['nama_jenjang' => 'Diploma Tiga', 'kode_jenjang' => 'D3']);
         $jenis = JenisInstrumen::create(['nama_jenis' => 'Akreditasi Pertama']);
 
@@ -176,7 +176,7 @@ class InstrumenDrilldownTest extends TestCase
     public function test_get_subkriteria_index_and_show_returns_indikator_count(): void
     {
         $lembaga = LembagaAkreditasi::create(['nama_lembaga' => 'LAM-INFOKOM']);
-        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'status_aktif' => true, 'tanggal_berlaku' => '2026-01-25']);
+        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'tanggal_berlaku' => '2026-01-25']);
         $jenjang = Jenjang::create(['nama_jenjang' => 'Diploma Tiga', 'kode_jenjang' => 'D3']);
         $jenis = JenisInstrumen::create(['nama_jenis' => 'Akreditasi Pertama']);
 
@@ -233,7 +233,7 @@ class InstrumenDrilldownTest extends TestCase
     public function test_get_indikator_index_and_show_returns_rubriks_count(): void
     {
         $lembaga = LembagaAkreditasi::create(['nama_lembaga' => 'LAM-INFOKOM']);
-        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'status_aktif' => true, 'tanggal_berlaku' => '2026-01-25']);
+        $versi = VersiInstrumen::create(['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id, 'tanggal_berlaku' => '2026-01-25']);
         $jenjang = Jenjang::create(['nama_jenjang' => 'Diploma Tiga', 'kode_jenjang' => 'D3']);
         $jenis = JenisInstrumen::create(['nama_jenis' => 'Akreditasi Pertama']);
 
@@ -286,5 +286,72 @@ class InstrumenDrilldownTest extends TestCase
             ->assertJsonPath('data.rubrik_count', 1)
             ->assertJsonCount(1, 'data.rubriks')
             ->assertJsonPath('data.rubriks.0.skor', 4);
+    }
+
+    public function test_get_instrumen_hierarchy_returns_complete_structure_without_rubrik(): void
+    {
+        $lembaga = LembagaAkreditasi::create([
+            'nama_lembaga' => 'LAM-INFOKOM',
+        ]);
+
+        $versi = VersiInstrumen::create([
+            'nomor_versi' => '2.1',
+            'id_lembaga' => $lembaga->id,
+            'tanggal_berlaku' => '2026-01-25',
+        ]);
+
+        $jenjang = Jenjang::create([
+            'nama_jenjang' => 'Sarjana',
+            'kode_jenjang' => 'S1',
+        ]);
+
+        $jenis = JenisInstrumen::create([
+            'nama_jenis' => 'Akreditasi Program Studi',
+        ]);
+
+        $instrumen = Instrumen::create([
+            'id_versi_instrumen' => $versi->id,
+            'id_jenjang' => $jenjang->id,
+            'id_jenis_instrumen' => $jenis->id,
+        ]);
+
+        $kriteria = Kriteria::create([
+            'id_instrumen' => $instrumen->id,
+            'kode_kriteria' => 'K-1',
+            'nama_kriteria' => 'Visi dan Misi',
+        ]);
+
+        $subkriteria = Subkriteria::create([
+            'id_kriteria' => $kriteria->id,
+            'kode_subkriteria' => 'SK-1.1',
+            'nama_subkriteria' => 'Kejelasan Visi dan Misi',
+        ]);
+
+        Indikator::create([
+            'id_subkriteria' => $subkriteria->id,
+            'kode_indikator' => 'IND-1.1.1',
+            'deskripsi_indikator' => 'Kesesuaian visi dan misi',
+            'bobot' => 3,
+        ]);
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->token)
+            ->getJson('/api/v1/master/instrumen/'.$instrumen->id.'/hierarchy');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.id_instrumen', $instrumen->id)
+            ->assertJsonPath('data.lembaga.nama', 'LAM-INFOKOM')
+            ->assertJsonPath('data.versi_instrumen.nomor_versi', '2.1')
+            ->assertJsonPath('data.jenjang.nama', 'Sarjana')
+            ->assertJsonPath('data.jenis_instrumen.nama', 'Akreditasi Program Studi')
+            ->assertJsonPath('data.kriteria.0.kode', 'K-1')
+            ->assertJsonPath('data.kriteria.0.subkriteria.0.kode', 'SK-1.1')
+            ->assertJsonPath('data.kriteria.0.subkriteria.0.indikator.0.kode', 'IND-1.1.1')
+            ->assertJsonPath('data.kriteria.0.subkriteria.0.indikator.0.nama', 'Kesesuaian visi dan misi');
+
+        $this->assertArrayNotHasKey(
+            'rubrik',
+            $response->json('data.kriteria.0.subkriteria.0.indikator.0')
+        );
     }
 }

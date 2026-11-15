@@ -42,19 +42,14 @@ class LamInfokomSeeder extends Seeder
         );
 
         // =========================================================================
-        // 2. VERSI INSTRUMEN (2.1 - Diberlakukan 25 Januari 2026, Status Aktif)
+        // 2. VERSI INSTRUMEN (2.1 - Diberlakukan 25 Januari 2026)
         // =========================================================================
         $versi = VersiInstrumen::firstOrCreate(
             ['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id],
             [
                 'tanggal_berlaku' => '2026-01-25',
-                'status_aktif' => true,
             ]
         );
-
-        if (! $versi->status_aktif) {
-            $versi->update(['status_aktif' => true, 'tanggal_berlaku' => '2026-01-25']);
-        }
 
         // =========================================================================
         // 3. JENIS INSTRUMEN
@@ -72,6 +67,11 @@ class LamInfokomSeeder extends Seeder
         // =========================================================================
         $jenjangSarjanaTerapan = Jenjang::firstOrCreate(['nama_jenjang' => 'Sarjana Terapan']);
         $jenjangDiploma = Jenjang::firstOrCreate(['nama_jenjang' => 'Program Diploma']);
+
+        $versi->jenjangs()->syncWithoutDetaching([
+            $jenjangSarjanaTerapan->id => ['status_aktif' => true],
+            $jenjangDiploma->id => ['status_aktif' => true],
+        ]);
 
         Jenjang::firstOrCreate(['nama_jenjang' => 'Sarjana']);
         Jenjang::firstOrCreate(['nama_jenjang' => 'Magister Terapan']);

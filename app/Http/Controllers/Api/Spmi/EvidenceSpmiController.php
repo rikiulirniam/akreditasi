@@ -20,7 +20,7 @@ class EvidenceSpmiController extends Controller
      */
     public function show(Request $request, ?int $id = null): JsonResponse
     {
-        $projectId = $request->query('project_id') ?? $id;
+        $projectId = $request->query('project_id') ?? $request->query('id_project') ?? $id;
 
         if (! $projectId) {
             return $this->errorResponse('Parameter project_id wajib disertakan.', [

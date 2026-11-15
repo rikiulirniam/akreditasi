@@ -62,10 +62,10 @@ class EvidenceSpmiTest extends TestCase
         $versi = VersiInstrumen::create([
             'nomor_versi' => '2.1',
             'id_lembaga' => $lembaga->id,
-            'status_aktif' => true,
             'tanggal_berlaku' => '2026-01-25',
         ]);
         $jenjang = Jenjang::create(['nama_jenjang' => 'Diploma Tiga', 'kode_jenjang' => 'D3']);
+        $versi->jenjangs()->attach($jenjang->id, ['status_aktif' => true]);
         $jenis = JenisInstrumen::create(['nama_jenis' => 'Akreditasi Pertama']);
 
         $this->project = ProjectAkreditasi::create([

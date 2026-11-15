@@ -7,6 +7,13 @@ use Illuminate\Contracts\Validation\ValidationRule;
 
 class StoreEvidenceSpmiRequest extends BaseApiRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('id_project') && ! $this->has('project_id')) {
+            $this->merge(['project_id' => $this->id_project]);
+        }
+    }
+
     /**
      * Aturan validasi untuk menyimpan atau memperbarui data evidence SPMI.
      *

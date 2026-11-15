@@ -32,12 +32,14 @@ class DatabaseSeeder extends Seeder
             ['nomor_versi' => 'v2024.1', 'id_lembaga' => $lembaga->id],
             [
                 'tanggal_berlaku' => '2024-01-01',
-                'status_aktif' => true,
             ]
         );
 
         // 2. Jenjang & Jenis Instrumen
         $jenjang = Jenjang::firstOrCreate(['nama_jenjang' => 'S1']);
+        $versi->jenjangs()->syncWithoutDetaching([
+            $jenjang->id => ['status_aktif' => true],
+        ]);
         $jenisInstrumen = JenisInstrumen::firstOrCreate(['nama_jenis' => 'Akreditasi Program Studi (APS)']);
 
         // 3. Central Bridge: Instrumen (UUID) - Disesuaikan dengan migrasi
@@ -76,8 +78,6 @@ class DatabaseSeeder extends Seeder
             ['id_indikator' => $indikator->id, 'skor' => 3],
             ['deskripsi_rubrik' => 'Baik: VMTS jelas dan memiliki bukti sosialisasi berkala']
         );
-
-
 
         JenisPembiayaan::firstOrCreate(['nama_pembiayaan' => 'Biaya Operasional Pendidikan']);
         JenisPembiayaan::firstOrCreate(['nama_pembiayaan' => 'Biaya Penelitian dan Pengabdian']);
