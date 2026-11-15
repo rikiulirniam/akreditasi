@@ -49,7 +49,6 @@ class VersiInstrumenTest extends TestCase
         $versi = VersiInstrumen::create([
             'nomor_versi' => 'v2026.1',
             'id_lembaga' => $lembaga->id,
-            'status_aktif' => true,
             'tanggal_berlaku' => '2026-01-01',
         ]);
         $jenjang = Jenjang::create(['nama_jenjang' => 'Sarjana Terapan', 'kode_jenjang' => 'D4']);
@@ -106,7 +105,6 @@ class VersiInstrumenTest extends TestCase
         $versi = VersiInstrumen::create([
             'nomor_versi' => 'v9.0',
             'id_lembaga' => $lembaga->id,
-            'status_aktif' => true,
             'tanggal_berlaku' => '2026-01-01',
         ]);
         $jenjang = Jenjang::create(['nama_jenjang' => 'Magister Terapan', 'kode_jenjang' => 'S2']);
@@ -150,7 +148,6 @@ class VersiInstrumenTest extends TestCase
                 'id_lembaga' => $lembaga->id,
                 'nomor_versi' => 'v2026.2',
                 'tanggal_berlaku' => '2026-03-01',
-                'status_aktif' => true,
             ]);
 
         $createResponse->assertStatus(201)

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Akreditasi\MappingTimAkreditasiController;
 use App\Http\Controllers\Api\Akreditasi\ProjectAkreditasiController;
 use App\Http\Controllers\Api\Akreditasi\SelfAssessmentController;
+use App\Http\Controllers\Api\Dashboard\DashboardProgressController;
 use App\Http\Controllers\Api\Master\IndikatorController;
 use App\Http\Controllers\Api\Master\InstrumenController;
 use App\Http\Controllers\Api\Master\JenisPembiayaanController;
@@ -16,6 +17,8 @@ use App\Http\Controllers\Api\Sarpras\DataSaranaProdiController;
 use App\Http\Controllers\Api\Sarpras\DataSarprasProdiController;
 use App\Http\Controllers\Api\Spmi\EvidenceSpmiController;
 use App\Http\Controllers\Api\Spmi\SpmiAuditController;
+use App\Services\External\DosenApiService;
+use App\Services\External\ProdiApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +31,36 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('v1')->middleware('jwt.auth')->group(function () {
+
+    Route::prefix('external')->middleware('role:administrator,kaprodi,reviewer,dosen')->group(function () {
+
+        Route::get('prodi', function (ProdiApiService $prodiService) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Daftar program studi berhasil diambil.',
+                'data' => $prodiService->getAllProdi(),
+                'errors' => null,
+            ]);
+        });
+
+        Route::get('prodi/default', function (ProdiApiService $prodiService) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Program studi default (TRK) berhasil diambil.',
+                'data' => $prodiService->getDefaultProdi(),
+                'errors' => null,
+            ]);
+        });
+
+        Route::get('dosen', function (DosenApiService $dosenService) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Daftar dosen berhasil diambil.',
+                'data' => $dosenService->getAllDosen(),
+                'errors' => null,
+            ]);
+        });
+    });
 
     // Profil pengguna terautentikasi (semua role yang valid)
     Route::get('auth/me', function (Request $request) {
@@ -58,6 +91,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
             Route::get('versi-instrumen/{id}', [VersiInstrumenController::class, 'show']);
 
             Route::get('instrumen', [InstrumenController::class, 'index']);
+            Route::get('instrumen/{id}/hierarchy', [InstrumenController::class, 'getHierarchy']);
             Route::get('instrumen/{id}', [InstrumenController::class, 'show']);
 
             Route::get('jenjang', [JenjangController::class, 'index']);
@@ -82,7 +116,9 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         // Write operations: Khusus Administrator
         Route::middleware('role:administrator')->group(function () {
             Route::apiResource('lembaga-akreditasi', LembagaAkreditasiController::class)->except(['index', 'show']);
+            Route::patch('versi-instrumen/{id}/aktifkan', [VersiInstrumenController::class, 'aktifkan']);
             Route::apiResource('versi-instrumen', VersiInstrumenController::class)->except(['index', 'show']);
+            Route::apiResource('instrumen', InstrumenController::class)->except(['index', 'show']);
             Route::apiResource('instrumen', InstrumenController::class)->except(['index', 'show']);
             Route::apiResource('jenjang', JenjangController::class)->except(['index', 'show']);
             Route::apiResource('kriteria', KriteriaController::class)->except(['index', 'show']);
@@ -99,6 +135,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         Route::get('versi-instrumen/{id}', [VersiInstrumenController::class, 'show']);
 
         Route::get('instrumen', [InstrumenController::class, 'index']);
+        Route::get('instrumen/{id}/hierarchy', [InstrumenController::class, 'getHierarchy']);
         Route::get('instrumen/{id}', [InstrumenController::class, 'show']);
 
         Route::get('kriteria', [KriteriaController::class, 'index']);
@@ -134,13 +171,20 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         Route::get('projects/{id}', [ProjectAkreditasiController::class, 'show']);
         Route::get('projects/{id}/mapping-tim', [ProjectAkreditasiController::class, 'getMappingTim']);
         Route::get('projects/{id}/review-summary', [SelfAssessmentController::class, 'reviewSummary']);
+        Route::get('projects/{id}/dashboard-progress', [DashboardProgressController::class, 'dashboardProgress']);
+        Route::get('projects/{id}/readiness', [DashboardProgressController::class, 'readiness']);
+        Route::get('projects/{id}/indicators/{indicatorId}/evidence', [DashboardProgressController::class, 'showEvidence']);
     });
 
     Route::middleware('role:administrator,kaprodi')->group(function () {
+        Route::post('projects/quick-create', [DashboardProgressController::class, 'quickCreate']);
         Route::post('projects', [ProjectAkreditasiController::class, 'store']);
         Route::put('projects/{id}', [ProjectAkreditasiController::class, 'update']);
         Route::patch('projects/{id}', [ProjectAkreditasiController::class, 'update']);
+        // update status project akreditasi
+        Route::patch('projects/{id}/status', [ProjectAkreditasiController::class, 'updateStatus']);
         Route::delete('projects/{id}', [ProjectAkreditasiController::class, 'destroy']);
+        Route::put('projects/{id}/indicators/{indicatorId}/evidence', [DashboardProgressController::class, 'storeEvidence']);
 
         Route::post('projects/{id}/mapping-tim', [ProjectAkreditasiController::class, 'storeMappingTim']);
         Route::post('mapping-tim', [MappingTimAkreditasiController::class, 'store']);
@@ -190,6 +234,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
     // Modul Evidence SPMI (One-to-One dengan Project Akreditasi)
     Route::middleware('role:administrator,kaprodi,reviewer,dosen')->group(function () {
         Route::get('evidence-spmi', [EvidenceSpmiController::class, 'show']);
+        Route::get('projects/{id}/evidence-overview', [EvidenceSpmiController::class, 'overview']);
     });
 
     Route::middleware('role:administrator,kaprodi')->group(function () {

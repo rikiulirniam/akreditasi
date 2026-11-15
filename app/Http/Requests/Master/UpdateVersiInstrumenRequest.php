@@ -12,7 +12,6 @@ class UpdateVersiInstrumenRequest extends BaseApiRequest
             'id_lembaga' => 'sometimes|required|integer|exists:lembaga_akreditasi,id',
             'nomor_versi' => 'sometimes|required|string|max:50',
             'tanggal_berlaku' => 'sometimes|required|date',
-            'status_aktif' => 'sometimes|boolean',
         ];
     }
 }

@@ -47,9 +47,8 @@ class SelfAssessmentController extends Controller
         $skorTerbobot = null;
 
         if (! empty($validated['id_rubrik'])) {
-            $project = ProjectAkreditasi::findOrFail($validated['id_project']);
-            $indikator = Indikator::findOrFail($validated['id_indikator']);
             $rubrik = Rubrik::findOrFail($validated['id_rubrik']);
+            $indikator = Indikator::findOrFail($validated['id_indikator']);
 
             $skorTerbobot = $this->scoringService->calculateItemScore($indikator->bobot, $rubrik->skor);
         }
