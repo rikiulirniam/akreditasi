@@ -149,6 +149,10 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
     Route::get('mapping-tim', [MappingTimAkreditasiController::class, 'index'])
         ->middleware('role:administrator,kaprodi,reviewer,dosen');
 
+    // Endpoint khusus Dosen: daftar butir indikator yang ditugaskan ke dosen login
+    Route::get('dosen/my-assignments', [MappingTimAkreditasiController::class, 'getMyAssignments'])
+        ->middleware('role:dosen,kaprodi,administrator');
+
     // Self Assessment / Penilaian Mandiri Reviewer
     Route::middleware('role:administrator,reviewer,kaprodi')->group(function () {
         Route::get('self-assessment', [SelfAssessmentController::class, 'index']);

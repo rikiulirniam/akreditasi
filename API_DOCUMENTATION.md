@@ -556,7 +556,36 @@ Hierarki drill-down dirancang bertingkat untuk efisiensi payload data dan integr
   ```
 * **`DELETE /mapping-tim/{id}`**: Menghapus penugasan tim berdasarkan ID.
 
-#### 3. Lembar Kerja Prodi (`/lembar-prodi`)
+#### 3. Penugasan Dosen Pribadi (`/dosen/my-assignments`)
+* **`GET /dosen/my-assignments`**: Mengambil daftar butir indikator yang ditugaskan kepada Dosen yang sedang login (role `PJ` atau `PIC`) beserta status kelengkapan buktinya (`has_bukti`).
+  * **Role Akses**: `dosen`, `kaprodi`, `administrator`
+  * **Contoh Response**:
+    ```json
+    {
+      "success": true,
+      "message": "Daftar penugasan dosen berhasil diambil.",
+      "data": [
+        {
+          "id_mapping": 1,
+          "role": "PJ",
+          "id_project": 1,
+          "nama_project": "Akreditasi TRK 2026",
+          "status_project": "On Progress",
+          "id_indikator": 10,
+          "kode_indikator": "C.1.1",
+          "deskripsi": "Kesesuaian kurikulum dengan visi keilmuan prodi.",
+          "bobot": 4.00,
+          "has_bukti": true
+        }
+      ],
+      "meta": {
+        "total": 1,
+        "id_user": 88
+      }
+    }
+    ```
+
+#### 4. Lembar Kerja Prodi (`/lembar-prodi`)
 * **`GET /lembar-prodi`** (`?id_project=1&id_indikator=1`): Mengambil narasi penjelasan prodi untuk indikator tertentu.
 * **`POST /lembar-prodi`** (atau `PUT /lembar-prodi`): Simpan / Update narasi prodi.
   ```json
