@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Api\Akreditasi;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Akreditasi\StoreSelfAssessmentRequest;
+use App\Http\Requests\Akreditasi\UpdatePenjelasanProdiRequest;
 use App\Models\Indikator;
+use App\Models\ProjectAkreditasi;
 use App\Models\Rubrik;
 use App\Models\SelfAssessment;
+use App\Services\Akreditasi\ScoringCalculationService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,6 +18,10 @@ use Illuminate\Support\Carbon;
 class SelfAssessmentController extends Controller
 {
     use ApiResponseTrait;
+
+    public function __construct(
+        protected ScoringCalculationService $scoringService
+    ) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -43,8 +50,7 @@ class SelfAssessmentController extends Controller
             $rubrik = Rubrik::findOrFail($validated['id_rubrik']);
             $indikator = Indikator::findOrFail($validated['id_indikator']);
 
-            $nilaiBobot = (float) ($indikator->bobot ?? 1.0);
-            $skorTerbobot = round((float) $rubrik->skor * $nilaiBobot, 2);
+            $skorTerbobot = $this->scoringService->calculateItemScore($indikator->bobot, $rubrik->skor);
         }
 
         $assessment = SelfAssessment::updateOrCreate(
@@ -92,5 +98,33 @@ class SelfAssessmentController extends Controller
         $assessment->delete();
 
         return $this->successResponse(null, 'Data penilaian mandiri berhasil dihapus');
+    }
+
+    /**
+     * Menambahkan atau memperbarui tanggapan/penjelasan klarifikasi dari pihak prodi atas catatan reviewer.
+     */
+    public function penjelasanProdi(UpdatePenjelasanProdiRequest $request, int $id): JsonResponse
+    {
+        $assessment = SelfAssessment::with(['project', 'indikator', 'rubrik'])->find($id);
+
+        if (! $assessment) {
+            return $this->errorResponse('Data penilaian mandiri tidak ditemukan', null, 404);
+        }
+
+        $assessment->update([
+            'tanggapan_kaprodi' => $request->validated('tanggapan_kaprodi'),
+        ]);
+
+        return $this->successResponse($assessment, 'Penjelasan / tanggapan prodi berhasil disimpan');
+    }
+
+    /**
+     * Rekapitulasi review summary penilaian project akreditasi.
+     */
+    public function reviewSummary(int $id): JsonResponse
+    {
+        $summary = $this->scoringService->calculateProjectReviewSummary($id);
+
+        return $this->successResponse($summary, 'Rekapitulasi review penilaian project berhasil diambil');
     }
 }

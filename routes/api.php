@@ -170,6 +170,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         Route::get('projects', [ProjectAkreditasiController::class, 'index']);
         Route::get('projects/{id}', [ProjectAkreditasiController::class, 'show']);
         Route::get('projects/{id}/mapping-tim', [ProjectAkreditasiController::class, 'getMappingTim']);
+        Route::get('projects/{id}/review-summary', [SelfAssessmentController::class, 'reviewSummary']);
         Route::get('projects/{id}/dashboard-progress', [DashboardProgressController::class, 'dashboardProgress']);
         Route::get('projects/{id}/readiness', [DashboardProgressController::class, 'readiness']);
         Route::get('projects/{id}/indicators/{indicatorId}/evidence', [DashboardProgressController::class, 'showEvidence']);
@@ -202,6 +203,11 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
     Route::middleware('role:administrator,reviewer')->group(function () {
         Route::post('self-assessment', [SelfAssessmentController::class, 'storeOrUpdate']);
         Route::delete('self-assessment/{id}', [SelfAssessmentController::class, 'destroy']);
+    });
+
+    Route::middleware('role:administrator,kaprodi')->group(function () {
+        Route::put('self-assessment/{id}/penjelasan-prodi', [SelfAssessmentController::class, 'penjelasanProdi']);
+        Route::patch('self-assessment/{id}/penjelasan-prodi', [SelfAssessmentController::class, 'penjelasanProdi']);
     });
 
     /*
