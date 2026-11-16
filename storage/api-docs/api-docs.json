@@ -4239,6 +4239,49 @@
                     }
                 }
             }
+        },
+        "/projects/{id}/evidence-overview": {
+            "get": {
+                "tags": [
+                    "SPMI - Evidence Mutu"
+                ],
+                "summary": "Rekapitulasi evidence overview sebuah project akreditasi",
+                "description": "Mengambil rekapitulasi data dokumen mutu 4 pilar, daftar indikator yang ditugaskan beserta dosen PIC, serta ringkasan riwayat temuan audit SPMI (Open/Closed).",
+                "operationId": "b14542f4ded1d2d645b5fc1cc52e22c9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Project Akreditasi",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rekapitulasi evidence overview berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Project akreditasi tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
