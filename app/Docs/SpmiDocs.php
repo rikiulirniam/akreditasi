@@ -143,6 +143,19 @@ class SpmiDocs
             new OA\Response(response: 422, description: 'Parameter project_id tidak disertakan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
         ]
     )]
+    #[OA\Get(
+        path: '/projects/{id}/evidence-overview',
+        summary: 'Rekapitulasi evidence overview sebuah project akreditasi',
+        description: 'Mengambil rekapitulasi data dokumen mutu 4 pilar, daftar indikator yang ditugaskan beserta dosen PIC, serta ringkasan riwayat temuan audit SPMI (Open/Closed).',
+        tags: ['SPMI - Evidence Mutu'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Rekapitulasi evidence overview berhasil diambil', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 404, description: 'Project akreditasi tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
     #[OA\Post(
         path: '/evidence-spmi',
         summary: 'Menyimpan atau memperbarui data evidence SPMI project',
