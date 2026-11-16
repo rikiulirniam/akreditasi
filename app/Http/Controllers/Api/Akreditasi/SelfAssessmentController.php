@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Akreditasi\StoreSelfAssessmentRequest;
 use App\Http\Requests\Akreditasi\UpdatePenjelasanProdiRequest;
 use App\Models\Indikator;
-use App\Models\ProjectAkreditasi;
 use App\Models\Rubrik;
 use App\Models\SelfAssessment;
 use App\Services\Akreditasi\ScoringCalculationService;
