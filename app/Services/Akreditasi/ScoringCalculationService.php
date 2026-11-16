@@ -7,6 +7,7 @@ use App\Models\Instrumen;
 use App\Models\Kriteria;
 use App\Models\ProjectAkreditasi;
 use App\Models\SelfAssessment;
+use Illuminate\Support\Collection;
 
 class ScoringCalculationService
 {
@@ -282,9 +283,8 @@ class ScoringCalculationService
      * Mengumpulkan koleksi model Kriteria yang relevan untuk project.
      * Menggunakan hierarki instrumen dengan fallback ke kriteria pada self-assessment.
      *
-     * @param  ProjectAkreditasi  $project
-     * @param  \Illuminate\Support\Collection<int, SelfAssessment>  $assessments
-     * @return \Illuminate\Support\Collection<int, Kriteria>
+     * @param  Collection<int, SelfAssessment>  $assessments
+     * @return Collection<int, Kriteria>
      */
     protected function resolveKriteriasForProject(ProjectAkreditasi $project, $assessments)
     {
@@ -333,8 +333,7 @@ class ScoringCalculationService
     /**
      * Mengekstrak seluruh Indikator dari relasi Subkriteria pada Kriteria.
      *
-     * @param  Kriteria  $kriteria
-     * @return \Illuminate\Support\Collection<int, Indikator>
+     * @return Collection<int, Indikator>
      */
     protected function extractIndikatorsFromKriteria(Kriteria $kriteria)
     {
