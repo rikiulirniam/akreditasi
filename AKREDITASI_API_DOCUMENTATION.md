@@ -542,6 +542,75 @@ Model ini menyimpan rekapitulasi bukti mutu institusi untuk project akreditasi (
   }
   ```
 
+#### 5.3 Rekapitulasi Evidence Overview per Project
+* **URL:** `GET {{base_url}}/projects/{id}/evidence-overview`
+* **Respons Sukses (HTTP 200):**
+  ```json
+  {
+    "success": true,
+    "message": "Rekapitulasi evidence overview berhasil diambil",
+    "data": {
+      "project": {
+        "id": 4,
+        "nama_project": "Akreditasi Program Studi TRK 2026",
+        "status_project": "On Progress",
+        "id_prodi": 1,
+        "tahun_target_submit": 2026
+      },
+      "evidence": {
+        "id": 1,
+        "pilar_1_evaluasi": {
+          "link": "https://drive.google.com/drive/folders/evaluasi-spmi-link",
+          "deskripsi": "Laporan Audit Mutu Internal (AMI)"
+        },
+        "pilar_2_pengendalian": {
+          "link": "https://drive.google.com/drive/folders/pengendalian-spmi-link",
+          "deskripsi": "Notula RTM"
+        },
+        "pilar_3_dampak": {
+          "link": "https://drive.google.com/drive/folders/dampak-spmi-link",
+          "deskripsi": "Capaian IKU"
+        },
+        "pilar_4_implementasi": {
+          "link": "https://drive.google.com/drive/folders/implementasi-spmi-link",
+          "deskripsi": "Manual Mutu & Standar SPMI"
+        },
+        "created_at": "2026-11-15T10:00:00.000000Z",
+        "updated_at": "2026-11-15T10:00:00.000000Z"
+      },
+      "assigned_indicators": [
+        {
+          "id_indikator": 1,
+          "id_user": 10,
+          "role": "PIC",
+          "indikator": {
+            "id": 1,
+            "kode_indikator": "IK1.1.1",
+            "deskripsi_indikator": "Kejelasan perumusan visi"
+          }
+        }
+      ],
+      "audit_summary": {
+        "total": 2,
+        "open": 1,
+        "closed": 1
+      },
+      "audits": [
+        {
+          "id": 1,
+          "id_indikator": 1,
+          "jenis_kegiatan": "AMI",
+          "tanggal_pelaksanaan": "2026-06-15",
+          "tahun_audit": 2026,
+          "temuan": "Dokumen SOP belum mutakhir",
+          "tindak_lanjut": "Update SOP",
+          "status_penyelesaian": "Open"
+        }
+      ]
+    }
+  }
+  ```
+
 ---
 
 ### MODUL 6: PENILAIAN MANDIRI (SELF ASSESSMENT / REVIEWER)
@@ -935,4 +1004,3 @@ Untuk mempermudah dan mempercepat pengerjaan antarmuka pengguna, berikut adalah 
 ### 8.6 Penanganan Error & Notifikasi Proteksi Hapus
 * Jika user mencoba menghapus Versi Instrumen atau Kriteria yang masih dipakai oleh project, backend mengembalikan status `HTTP 422` dengan pesan edukatif.
 * Pastikan frontend menangkap pesan `error.response.data.message` dan menampilkannya dalam SweetAlert/Toast notifikasi agar pengguna memahami alasan kegagalan tersebut.
-

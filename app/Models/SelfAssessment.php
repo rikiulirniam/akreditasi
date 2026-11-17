@@ -20,6 +20,7 @@ class SelfAssessment extends Model
         'catatan_reviewer',
         'tanggal_penilaian',
         'reviewer_id',
+        'tanggapan_kaprodi',
     ];
 
     protected function casts(): array
