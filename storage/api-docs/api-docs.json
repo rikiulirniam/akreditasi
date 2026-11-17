@@ -885,7 +885,7 @@
                     "Autentikasi - SSO Akademik"
                 ],
                 "summary": "Login SSO Akademik (Layanan Autentikasi Terpusat)",
-                "description": "Melakukan login akun pengguna ke server SSO Akademik (`https://akademik.fayra.my.id`).\n\n**Perhatian Keamanan:**\n* Email dan password tidak di-prefill secara otomatis di Swagger UI demi keamanan sistem.\n* Pengguna wajib mengetikkan alamat email dan password akun SSO terdaftar secara manual terlebih dahulu sebelum menekan Execute.\n* Output token Bearer JWT digunakan untuk mengakses seluruh endpoint API Akreditasi & SPMI.",
+                "description": "Melakukan login akun pengguna ke server SSO Akademik (`https://akademik.fayra.my.id`).\n\n**Kredensial Login Administrator:**\n* Email: `administrator@polines.ac.id`\n* Password: `password`\n\nKlik **Try it out** lalu **Execute** untuk langsung melakukan login dan memperoleh token JWT access_token.",
                 "operationId": "c34dec07634d0bdcec1c5ce5b64d6c98",
                 "requestBody": {
                     "required": true,
@@ -898,16 +898,16 @@
                                 ],
                                 "properties": {
                                     "email": {
-                                        "description": "Email pengguna terdaftar (wajib diketikkan secara manual)",
+                                        "description": "Email pengguna terdaftar",
                                         "type": "string",
                                         "format": "email",
-                                        "example": ""
+                                        "example": "administrator@polines.ac.id"
                                     },
                                     "password": {
-                                        "description": "Kata sandi pengguna (wajib diketikkan secara manual)",
+                                        "description": "Kata sandi pengguna",
                                         "type": "string",
                                         "format": "password",
-                                        "example": ""
+                                        "example": "password"
                                     }
                                 },
                                 "type": "object"

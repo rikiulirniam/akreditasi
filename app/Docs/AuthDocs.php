@@ -12,7 +12,7 @@ class AuthDocs
     #[OA\Post(
         path: '/api/auth/login',
         summary: 'Login SSO Akademik (Layanan Autentikasi Terpusat)',
-        description: "Melakukan login akun pengguna ke server SSO Akademik (`https://akademik.fayra.my.id`).\n\n**Perhatian Keamanan:**\n* Email dan password tidak di-prefill secara otomatis di Swagger UI demi keamanan sistem.\n* Pengguna wajib mengetikkan alamat email dan password akun SSO terdaftar secara manual terlebih dahulu sebelum menekan Execute.\n* Output token Bearer JWT digunakan untuk mengakses seluruh endpoint API Akreditasi & SPMI.",
+        description: "Melakukan login akun pengguna ke server SSO Akademik (`https://akademik.fayra.my.id`).\n\n**Kredensial Login Administrator:**\n* Email: `administrator@polines.ac.id`\n* Password: `password`\n\nKlik **Try it out** lalu **Execute** untuk langsung melakukan login dan memperoleh token JWT access_token.",
         tags: ['Autentikasi - SSO Akademik'],
         servers: [
             new OA\Server(url: 'https://akademik.fayra.my.id', description: 'Server SSO Akademik'),
@@ -22,8 +22,8 @@ class AuthDocs
             content: new OA\JsonContent(
                 required: ['email', 'password'],
                 properties: [
-                    new OA\Property(property: 'email', type: 'string', format: 'email', example: '', description: 'Email pengguna terdaftar (wajib diketikkan secara manual)'),
-                    new OA\Property(property: 'password', type: 'string', format: 'password', example: '', description: 'Kata sandi pengguna (wajib diketikkan secara manual)'),
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'administrator@polines.ac.id', description: 'Email pengguna terdaftar'),
+                    new OA\Property(property: 'password', type: 'string', format: 'password', example: 'password', description: 'Kata sandi pengguna'),
                 ]
             )
         ),
