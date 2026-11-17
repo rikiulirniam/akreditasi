@@ -69,12 +69,11 @@ class PlottingTimAuthorizationTest extends TestCase
             'updated_at' => now(),
         ]);
 
-        // Versi Instrumen (kolom: id_lembaga, nomor_versi, tanggal_berlaku, status_aktif)
+        // Versi Instrumen (kolom: id_lembaga, nomor_versi, tanggal_berlaku)
         $versi = \DB::table('versi_instrumen')->insertGetId([
             'id_lembaga' => $lembaga,
             'nomor_versi' => '2.1',
             'tanggal_berlaku' => '2024-01-01',
-            'status_aktif' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -82,6 +81,14 @@ class PlottingTimAuthorizationTest extends TestCase
         // Jenjang (kolom: nama_jenjang)
         $jenjang = \DB::table('jenjang')->insertGetId([
             'nama_jenjang' => 'Sarjana Terapan',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        \DB::table('versi_instrumen_jenjang')->insert([
+            'id_versi_instrumen' => $versi,
+            'id_jenjang' => $jenjang,
+            'status_aktif' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
