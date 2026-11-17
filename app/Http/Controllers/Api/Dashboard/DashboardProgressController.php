@@ -182,17 +182,24 @@ class DashboardProgressController extends Controller
             'id_prodi' => ['required', 'integer'],
         ]);
 
-        $version = VersiInstrumen::query()
-            ->where('nomor_versi', '2.1')
-            ->where('status_aktif', true)
-            ->orderByDesc('tanggal_berlaku')
-            ->first();
         $jenjang = Jenjang::query()
             ->where('nama_jenjang', 'Sarjana Terapan')
             ->first();
         $jenisInstrumen = JenisInstrumen::query()
             ->where('nama_jenis', 'Instrumen APS untuk Status Terakreditasi Unggul')
             ->first();
+
+        $version = null;
+        if ($jenjang) {
+            $version = VersiInstrumen::query()
+                ->where('nomor_versi', '2.1')
+                ->whereHas('jenjangs', function ($j) use ($jenjang) {
+                    $j->where('jenjang.id', $jenjang->id)
+                        ->where('versi_instrumen_jenjang.status_aktif', true);
+                })
+                ->orderByDesc('tanggal_berlaku')
+                ->first();
+        }
 
         if (! $version || ! $jenjang || ! $jenisInstrumen) {
             return $this->errorResponse(

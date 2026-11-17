@@ -31,10 +31,9 @@ class SpmiDocs
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['id_project', 'id_standar', 'tanggal_pelaksanaan', 'tahun_audit'],
+                required: ['id_project', 'tanggal_pelaksanaan', 'tahun_audit'],
                 properties: [
                     new OA\Property(property: 'id_project', type: 'integer', example: 1),
-                    new OA\Property(property: 'id_standar', type: 'integer', example: 1),
                     new OA\Property(property: 'id_indikator', type: 'integer', example: 1, nullable: true),
                     new OA\Property(property: 'jenis_kegiatan', type: 'string', enum: ['PPEPP', 'AMI', 'RTM'], example: 'AMI', nullable: true),
                     new OA\Property(property: 'tanggal_pelaksanaan', type: 'string', format: 'date', example: '2026-10-15'),
@@ -74,7 +73,6 @@ class SpmiDocs
             content: new OA\JsonContent(
                 properties: [
                     new OA\Property(property: 'id_project', type: 'integer', example: 1, nullable: true),
-                    new OA\Property(property: 'id_standar', type: 'integer', example: 1, nullable: true),
                     new OA\Property(property: 'id_indikator', type: 'integer', example: 1, nullable: true),
                     new OA\Property(property: 'jenis_kegiatan', type: 'string', enum: ['PPEPP', 'AMI', 'RTM'], example: 'AMI', nullable: true),
                     new OA\Property(property: 'tanggal_pelaksanaan', type: 'string', format: 'date', example: '2026-10-15', nullable: true),
@@ -143,6 +141,19 @@ class SpmiDocs
         responses: [
             new OA\Response(response: 200, description: 'Data evidence SPMI berhasil diambil', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
             new OA\Response(response: 422, description: 'Parameter project_id tidak disertakan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/projects/{id}/evidence-overview',
+        summary: 'Rekapitulasi evidence overview sebuah project akreditasi',
+        description: 'Mengambil rekapitulasi data dokumen mutu 4 pilar, daftar indikator yang ditugaskan beserta dosen PIC, serta ringkasan riwayat temuan audit SPMI (Open/Closed).',
+        tags: ['SPMI - Evidence Mutu'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Rekapitulasi evidence overview berhasil diambil', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 404, description: 'Project akreditasi tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
     #[OA\Post(

@@ -16,15 +16,27 @@ class StoreMappingTimRequest extends BaseApiRequest
     public function rules(): array
     {
         return [
+            // --- Mode single assignment ---
             'id_project' => 'required|integer|exists:project_akreditasi,id',
-            'id_user' => 'required_without:assignments',
+            'id_user' => 'required_without:assignments|integer',
             'id_indikator' => 'required_without:assignments|integer|exists:indikator,id',
-            'role' => 'nullable|string|max:50',
+            'role' => 'required_without:assignments|string|in:PJ,PIC',
 
-            'assignments' => 'sometimes|array',
-            'assignments.*.id_user' => 'required_with:assignments',
-            'assignments.*.id_indikator' => 'required_with:assignments|integer|exists:indikator,id',
-            'assignments.*.role' => 'nullable|string|max:50',
+            // --- Mode batch assignment ---
+            'assignments' => 'sometimes|array|min:1',
+            'assignments.*.id_user' => 'required|integer',
+            'assignments.*.id_indikator' => 'required|integer|exists:indikator,id',
+            'assignments.*.role' => 'required|string|in:PJ,PIC',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'role.in' => 'Role harus bernilai PJ (Penanggung Jawab) atau PIC (Pelaksana Teknis).',
+            'assignments.*.role.in' => 'Setiap role pada assignments harus PJ atau PIC.',
+            'assignments.*.role.required' => 'Field role wajib diisi pada setiap item assignments.',
+            'assignments.min' => 'Minimal harus ada 1 item dalam assignments.',
         ];
     }
 }

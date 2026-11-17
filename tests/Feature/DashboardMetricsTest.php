@@ -48,9 +48,9 @@ class DashboardMetricsTest extends TestCase
             'id_lembaga' => $institution->id,
             'nomor_versi' => '2.1',
             'tanggal_berlaku' => '2026-01-25',
-            'status_aktif' => true,
         ]);
         $jenjang = Jenjang::create(['nama_jenjang' => 'Sarjana Terapan']);
+        $version->jenjangs()->attach($jenjang->id, ['status_aktif' => true]);
         $jenisInstrumen = JenisInstrumen::create([
             'nama_jenis' => 'Instrumen APS untuk Status Terakreditasi Unggul',
         ]);
@@ -204,8 +204,10 @@ class DashboardMetricsTest extends TestCase
 
     public function test_quick_create_fails_when_required_active_master_data_is_missing(): void
     {
-        VersiInstrumen::whereKey($this->project->id_versi_instrumen)
-            ->update(['status_aktif' => false]);
+        $this->project->versiInstrumen->jenjangs()->updateExistingPivot(
+            $this->project->id_jenjang,
+            ['status_aktif' => false]
+        );
 
         $this->withToken($this->token)
             ->postJson('/api/v1/projects/quick-create', ['id_prodi' => 202])
