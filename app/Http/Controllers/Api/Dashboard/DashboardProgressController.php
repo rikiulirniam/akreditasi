@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Models\Indikator;
 use App\Models\Instrumen;
-use App\Models\JenisInstrumen;
 use App\Models\Jenjang;
 use App\Models\MappingTimAkreditasi;
 use App\Models\ProjectAkreditasi;
