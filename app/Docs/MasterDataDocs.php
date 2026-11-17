@@ -170,6 +170,30 @@ class MasterDataDocs
             new OA\Response(response: 404, description: 'Versi instrumen tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
+    #[OA\Patch(
+        path: '/master/versi-instrumen/{id}/aktifkan',
+        summary: 'Mengaktifkan versi instrumen untuk jenjang tertentu',
+        description: 'Menjadikan versi instrumen aktif pada jenjang yang ditentukan secara atomik menonaktifkan versi lain pada jenjang yang sama.',
+        tags: ['Master Data - Versi Instrumen'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['id_jenjang'],
+                properties: [
+                    new OA\Property(property: 'id_jenjang', type: 'integer', example: 1, description: 'ID Jenjang yang ingin diaktifkan versinya'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Versi instrumen berhasil diaktifkan untuk jenjang tersebut', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 422, description: 'Versi instrumen belum terhubung dengan jenjang tersebut', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
+            new OA\Response(response: 404, description: 'Versi instrumen tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
     public function versiInstrumenDocs() {}
 
     // ==========================================
@@ -231,6 +255,30 @@ class MasterDataDocs
         ],
         responses: [
             new OA\Response(response: 200, description: 'Instrumen berhasil dihapus', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 404, description: 'Instrumen tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/master/instrumen/{id}/hierarchy',
+        summary: 'Mendapatkan struktur hierarki lengkap instrumen akreditasi',
+        description: 'Menampilkan hierarki mendalam dari Instrumen -> Kriteria -> Subkriteria -> Indikator -> Rubrik Penilaian untuk instrumen akreditasi (UUID).',
+        tags: ['Master Data - Instrumen'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'), description: 'UUID Instrumen'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Struktur hierarki instrumen berhasil diambil',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Hierarki instrumen berhasil diambil'),
+                        new OA\Property(property: 'data', type: 'object'),
+                    ]
+                )
+            ),
             new OA\Response(response: 404, description: 'Instrumen tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
