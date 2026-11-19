@@ -98,6 +98,140 @@ class AkreditasiDocs
             new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
+    #[OA\Post(
+        path: '/projects/quick-create',
+        summary: 'Pembuatan Cepat Project TRK (1-Klik)',
+        description: 'Membuat project akreditasi baru secara instan untuk TRK (Teknologi Rekayasa Komputer) menggunakan versi 2.1 aktif, jenjang Sarjana Terapan, dan instrumen APS Unggul.',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['id_prodi'],
+                properties: [
+                    new OA\Property(property: 'id_prodi', type: 'integer', example: 101, description: 'ID Program Studi TRK'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: 'Project TRK berhasil dibuat', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 422, description: 'Master data aktif belum lengkap', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
+        ]
+    )]
+    #[OA\Patch(
+        path: '/projects/{id}/status',
+        summary: 'Memperbarui status lifecycle project akreditasi',
+        description: 'Memperbarui status project menjadi On Progress, Pending, Cancel, atau Selesai. Jika Selesai, tanggal_verifikasi_akreditasi dan nomor_sk_akreditasi wajib diisi.',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['status_project'],
+                properties: [
+                    new OA\Property(property: 'status_project', type: 'string', enum: ['Draft', 'On Progress', 'Pending', 'Cancel', 'Selesai'], example: 'On Progress'),
+                    new OA\Property(property: 'tanggal_verifikasi_akreditasi', type: 'string', format: 'date', example: '2026-12-14', nullable: true),
+                    new OA\Property(property: 'nomor_sk_akreditasi', type: 'string', example: 'SK-BANPT-2026-001', nullable: true),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Status project berhasil diperbarui', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
+            new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/projects/{id}/dashboard-progress',
+        summary: 'Metrik progres keterisian bukti 9 Kriteria',
+        description: 'Menghitung persentase progres keterisian bukti dukung untuk masing-masing dari 9 Kriteria dan total persentase project.',
+        tags: ['Dashboard & Readiness'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Metrik progres dashboard berhasil dihitung',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Metrik progres dashboard berhasil dihitung'),
+                        new OA\Property(property: 'data', type: 'object'),
+                    ]
+                )
+            ),
+            new OA\Response(response: 404, description: 'Project tidak ditemukan'),
+        ]
+    )]
+    #[OA\Get(
+        path: '/projects/{id}/readiness',
+        summary: 'Pengecekan kesiapan submit akreditasi',
+        description: 'Memvalidasi kelengkapan seluruh butir indikator (PIC, bukti link evidence, dan penilaian reviewer) sebelum submit.',
+        tags: ['Dashboard & Readiness'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Pengecekan kesiapan submit berhasil dilakukan',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Pengecekan kesiapan submit berhasil dilakukan'),
+                        new OA\Property(property: 'data', type: 'object'),
+                    ]
+                )
+            ),
+            new OA\Response(response: 404, description: 'Project tidak ditemukan'),
+        ]
+    )]
+    #[OA\Get(
+        path: '/projects/{id}/indicators/{indicatorId}/evidence',
+        summary: 'Melihat link bukti dukung butir indikator',
+        description: 'Mengambil link evidence Google Drive/dokumen untuk butir indikator tertentu.',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project'),
+            new OA\Parameter(name: 'indicatorId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Indikator'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Bukti indikator berhasil diambil'),
+            new OA\Response(response: 404, description: 'Project atau indikator tidak ditemukan'),
+        ]
+    )]
+    #[OA\Put(
+        path: '/projects/{id}/indicators/{indicatorId}/evidence',
+        summary: 'Mengunggah / memperbarui link bukti dukung butir indikator',
+        description: 'Menyimpan link evidence Google Drive/dokumen untuk butir indikator project.',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project'),
+            new OA\Parameter(name: 'indicatorId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Indikator'),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['link_evidence'],
+                properties: [
+                    new OA\Property(property: 'link_evidence', type: 'string', example: 'https://drive.google.com/drive/folders/evidence-kriteria-1'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Bukti indikator berhasil disimpan'),
+            new OA\Response(response: 422, description: 'Validasi gagal'),
+            new OA\Response(response: 404, description: 'Project atau indikator tidak ditemukan'),
+        ]
+    )]
     #[OA\Get(
         path: '/projects/{id}/mapping-tim',
         summary: 'Mendapatkan daftar penugasan tim akreditasi untuk project tertentu',
@@ -227,6 +361,30 @@ class AkreditasiDocs
                 ]
             )),
             new OA\Response(response: 404, description: 'Penugasan tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/dosen/my-assignments',
+        summary: 'Daftar butir indikator tugas dosen login (PIC & PJ)',
+        description: 'Menampilkan daftar butir indikator yang ditugaskan kepada dosen yang sedang login (sebagai PIC atau PJ), dilengkapi status keterisian bukti dan hak akses edit.',
+        tags: ['Dosen - Penugasan PIC'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id_project', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Project'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Daftar penugasan berhasil diambil',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Daftar penugasan berhasil diambil'),
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(type: 'object')),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
         ]
     )]
     public function mappingTimDocs() {}

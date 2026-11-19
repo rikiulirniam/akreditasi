@@ -320,6 +320,369 @@
                 }
             }
         },
+        "/projects/quick-create": {
+            "post": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Pembuatan Cepat Project TRK (1-Klik)",
+                "description": "Membuat project akreditasi baru secara instan untuk TRK (Teknologi Rekayasa Komputer) menggunakan versi 2.1 aktif, jenjang Sarjana Terapan, dan instrumen APS Unggul.",
+                "operationId": "8eb2fdc5e9b08d4d074aaccdb70e2d07",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_prodi"
+                                ],
+                                "properties": {
+                                    "id_prodi": {
+                                        "description": "ID Program Studi TRK",
+                                        "type": "integer",
+                                        "example": 101
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Project TRK berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Master data aktif belum lengkap",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/projects/{id}/status": {
+            "patch": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Memperbarui status lifecycle project akreditasi",
+                "description": "Memperbarui status project menjadi On Progress, Pending, Cancel, atau Selesai. Jika Selesai, tanggal_verifikasi_akreditasi dan nomor_sk_akreditasi wajib diisi.",
+                "operationId": "b3312d56386d014aab1c08cf6296cfea",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status_project"
+                                ],
+                                "properties": {
+                                    "status_project": {
+                                        "type": "string",
+                                        "example": "On Progress",
+                                        "enum": [
+                                            "Draft",
+                                            "On Progress",
+                                            "Pending",
+                                            "Cancel",
+                                            "Selesai"
+                                        ]
+                                    },
+                                    "tanggal_verifikasi_akreditasi": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-12-14",
+                                        "nullable": true
+                                    },
+                                    "nomor_sk_akreditasi": {
+                                        "type": "string",
+                                        "example": "SK-BANPT-2026-001",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status project berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Project tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/projects/{id}/dashboard-progress": {
+            "get": {
+                "tags": [
+                    "Dashboard & Readiness"
+                ],
+                "summary": "Metrik progres keterisian bukti 9 Kriteria",
+                "description": "Menghitung persentase progres keterisian bukti dukung untuk masing-masing dari 9 Kriteria dan total persentase project.",
+                "operationId": "e6cdd354128e69846aaf6881a6385ff8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Metrik progres dashboard berhasil dihitung",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Metrik progres dashboard berhasil dihitung"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Project tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/projects/{id}/readiness": {
+            "get": {
+                "tags": [
+                    "Dashboard & Readiness"
+                ],
+                "summary": "Pengecekan kesiapan submit akreditasi",
+                "description": "Memvalidasi kelengkapan seluruh butir indikator (PIC, bukti link evidence, dan penilaian reviewer) sebelum submit.",
+                "operationId": "d75bfa5faae5e3d8938263b2001028e0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pengecekan kesiapan submit berhasil dilakukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pengecekan kesiapan submit berhasil dilakukan"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Project tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/projects/{id}/indicators/{indicatorId}/evidence": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Melihat link bukti dukung butir indikator",
+                "description": "Mengambil link evidence Google Drive/dokumen untuk butir indikator tertentu.",
+                "operationId": "f0ac0d0e9374f1ffdf34e8994a7fbbb5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Project",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "indicatorId",
+                        "in": "path",
+                        "description": "ID Indikator",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bukti indikator berhasil diambil"
+                    },
+                    "404": {
+                        "description": "Project atau indikator tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Mengunggah / memperbarui link bukti dukung butir indikator",
+                "description": "Menyimpan link evidence Google Drive/dokumen untuk butir indikator project.",
+                "operationId": "185d37cfb3a6f47c7566defcd0b45e66",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Project",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "indicatorId",
+                        "in": "path",
+                        "description": "ID Indikator",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "link_evidence"
+                                ],
+                                "properties": {
+                                    "link_evidence": {
+                                        "type": "string",
+                                        "example": "https://drive.google.com/drive/folders/evidence-kriteria-1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Bukti indikator berhasil disimpan"
+                    },
+                    "422": {
+                        "description": "Validasi gagal"
+                    },
+                    "404": {
+                        "description": "Project atau indikator tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/projects/{id}/mapping-tim": {
             "get": {
                 "tags": [
@@ -681,6 +1044,63 @@
                 }
             }
         },
+        "/dosen/my-assignments": {
+            "get": {
+                "tags": [
+                    "Dosen - Penugasan PIC"
+                ],
+                "summary": "Daftar butir indikator tugas dosen login (PIC & PJ)",
+                "description": "Menampilkan daftar butir indikator yang ditugaskan kepada dosen yang sedang login (sebagai PIC atau PJ), dilengkapi status keterisian bukti dan hak akses edit.",
+                "operationId": "e0ce1b3ad19fd3c153d47b9af1a3c11f",
+                "parameters": [
+                    {
+                        "name": "id_project",
+                        "in": "query",
+                        "description": "Filter berdasarkan ID Project",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar penugasan berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Daftar penugasan berhasil diambil"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/self-assessment": {
             "get": {
                 "tags": [
@@ -885,7 +1305,7 @@
                     "Autentikasi - SSO Akademik"
                 ],
                 "summary": "Login SSO Akademik (Layanan Autentikasi Terpusat)",
-                "description": "Melakukan login akun pengguna ke server SSO Akademik (`https://akademik.fayra.my.id`).\n\n**Perhatian Keamanan:**\n* Email dan password tidak di-prefill secara otomatis di Swagger UI demi keamanan sistem.\n* Pengguna wajib mengetikkan alamat email dan password akun SSO terdaftar secara manual terlebih dahulu sebelum menekan Execute.\n* Output token Bearer JWT digunakan untuk mengakses seluruh endpoint API Akreditasi & SPMI.",
+                "description": "Melakukan login akun pengguna ke server SSO Akademik (`https://akademik.fayra.my.id`).\n\n**Kredensial Login Administrator:**\n* Email: `administrator@polines.ac.id`\n* Password: `password`\n\nKlik **Try it out** lalu **Execute** untuk langsung melakukan login dan memperoleh token JWT access_token.",
                 "operationId": "c34dec07634d0bdcec1c5ce5b64d6c98",
                 "requestBody": {
                     "required": true,
@@ -898,16 +1318,16 @@
                                 ],
                                 "properties": {
                                     "email": {
-                                        "description": "Email pengguna terdaftar (wajib diketikkan secara manual)",
+                                        "description": "Email pengguna terdaftar",
                                         "type": "string",
                                         "format": "email",
-                                        "example": ""
+                                        "example": "administrator@polines.ac.id"
                                     },
                                     "password": {
-                                        "description": "Kata sandi pengguna (wajib diketikkan secara manual)",
+                                        "description": "Kata sandi pengguna",
                                         "type": "string",
                                         "format": "password",
-                                        "example": ""
+                                        "example": "password"
                                     }
                                 },
                                 "type": "object"
@@ -1193,6 +1613,153 @@
                     },
                     "401": {
                         "description": "Token tidak valid atau kedaluwarsa."
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/external/prodi": {
+            "get": {
+                "tags": [
+                    "Integrasi Eksternal"
+                ],
+                "summary": "Mendapatkan daftar program studi dari Kelompok 1",
+                "description": "Mengambil data seluruh program studi aktif dari sistem Akademik (Kelompok 1) via API service.",
+                "operationId": "1390ce631d78b196d868613301e2bd34",
+                "responses": {
+                    "200": {
+                        "description": "Daftar program studi berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Daftar program studi berhasil diambil."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "errors": {
+                                            "type": "null",
+                                            "example": null
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/external/prodi/default": {
+            "get": {
+                "tags": [
+                    "Integrasi Eksternal"
+                ],
+                "summary": "Mendapatkan program studi default (TRK) dari Kelompok 1",
+                "description": "Mengambil data program studi default TRK (Teknologi Rekayasa Komputer) dari Kelompok 1.",
+                "operationId": "02d870998f31cd1fbaf3bba220f6cdad",
+                "responses": {
+                    "200": {
+                        "description": "Program studi default (TRK) berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Program studi default (TRK) berhasil diambil."
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "errors": {
+                                            "type": "null",
+                                            "example": null
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/external/dosen": {
+            "get": {
+                "tags": [
+                    "Integrasi Eksternal"
+                ],
+                "summary": "Mendapatkan daftar dosen dari Kelompok 2",
+                "description": "Mengambil data seluruh dosen aktif dari sistem Tridharma (Kelompok 2) untuk kebutuhan penugasan tim (PJ & PIC).",
+                "operationId": "76ebbeaaeb5ef8f0b6dfc53aa758d571",
+                "responses": {
+                    "200": {
+                        "description": "Daftar dosen berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Daftar dosen berhasil diambil."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "errors": {
+                                            "type": "null",
+                                            "example": null
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
                     }
                 },
                 "security": [
@@ -1690,6 +2257,83 @@
                 }
             }
         },
+        "/master/versi-instrumen/{id}/aktifkan": {
+            "patch": {
+                "tags": [
+                    "Master Data - Versi Instrumen"
+                ],
+                "summary": "Mengaktifkan versi instrumen untuk jenjang tertentu",
+                "description": "Menjadikan versi instrumen aktif pada jenjang yang ditentukan secara atomik menonaktifkan versi lain pada jenjang yang sama.",
+                "operationId": "a109980c1f5475a3ab6afbbe7ce95ecb",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_jenjang"
+                                ],
+                                "properties": {
+                                    "id_jenjang": {
+                                        "description": "ID Jenjang yang ingin diaktifkan versinya",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Versi instrumen berhasil diaktifkan untuk jenjang tersebut",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Versi instrumen belum terhubung dengan jenjang tersebut",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Versi instrumen tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/master/instrumen": {
             "get": {
                 "tags": [
@@ -1881,6 +2525,68 @@
                         }
                     }
                 }
+            }
+        },
+        "/master/instrumen/{id}/hierarchy": {
+            "get": {
+                "tags": [
+                    "Master Data - Instrumen"
+                ],
+                "summary": "Mendapatkan struktur hierarki lengkap instrumen akreditasi",
+                "description": "Menampilkan hierarki mendalam dari Instrumen -> Kriteria -> Subkriteria -> Indikator -> Rubrik Penilaian untuk instrumen akreditasi (UUID).",
+                "operationId": "8b0385d1c7be220c2536525736e0cb67",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "UUID Instrumen",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Struktur hierarki instrumen berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Hierarki instrumen berhasil diambil"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Instrumen tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
             }
         },
         "/master/kriteria": {
@@ -4454,6 +5160,18 @@
         {
             "name": "Sarpras - Sarana & Prasarana",
             "description": "Manajemen Data Sarana dan Prasarana Program Studi"
+        },
+        {
+            "name": "Integrasi Eksternal",
+            "description": "Integrasi Data Program Studi (Kelompok 1) dan Dosen (Kelompok 2)"
+        },
+        {
+            "name": "Dashboard & Readiness",
+            "description": "Monitoring Keterisian Progres 9 Kriteria & Pengecekan Kesiapan Submit"
+        },
+        {
+            "name": "Dosen - Penugasan PIC",
+            "description": "Akses Khusus Dosen untuk Butir Indikator Tugasnya"
         }
     ]
 }

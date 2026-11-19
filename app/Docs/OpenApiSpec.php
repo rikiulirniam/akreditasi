@@ -27,4 +27,7 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: 'SPMI - Audit Mutu Internal', description: 'Audit SPMI dan Tindak Lanjut Temuan')]
 #[OA\Tag(name: 'SPMI - Evidence Mutu', description: 'Manajemen Evidence SPMI (4 Pilar Bukti) per Project Akreditasi')]
 #[OA\Tag(name: 'Sarpras - Sarana & Prasarana', description: 'Manajemen Data Sarana dan Prasarana Program Studi')]
+#[OA\Tag(name: 'Integrasi Eksternal', description: 'Integrasi Data Program Studi (Kelompok 1) dan Dosen (Kelompok 2)')]
+#[OA\Tag(name: 'Dashboard & Readiness', description: 'Monitoring Keterisian Progres 9 Kriteria & Pengecekan Kesiapan Submit')]
+#[OA\Tag(name: 'Dosen - Penugasan PIC', description: 'Akses Khusus Dosen untuk Butir Indikator Tugasnya')]
 class OpenApiSpec {}
