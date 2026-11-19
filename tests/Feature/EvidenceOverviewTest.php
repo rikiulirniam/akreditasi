@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\DataSpmiAudit;
 use App\Models\EvidenceSpmi;
 use App\Models\Indikator;
 use App\Models\Instrumen;
@@ -142,12 +141,12 @@ class EvidenceOverviewTest extends TestCase
             ->assertJsonPath('data.project.id', $this->project->id)
             ->assertJsonPath('data.project.nama_project', 'Akreditasi D3 TI 2026')
             ->assertJsonPath('data.evidence', null)
-            ->assertJsonPath('data.audit_summary.total', 0)
-            ->assertJsonPath('data.audit_summary.open', 0)
-            ->assertJsonPath('data.audit_summary.closed', 0);
+            ->assertJsonPath('data.kelengkapan_pilar.total_pilar', 4)
+            ->assertJsonPath('data.kelengkapan_pilar.terisi', 0)
+            ->assertJsonPath('data.kelengkapan_pilar.belum_terisi', 4);
     }
 
-    public function test_overview_returns_full_data_with_evidence_and_audits(): void
+    public function test_overview_returns_full_data_with_evidence_and_assigned_indicators(): void
     {
         // Buat evidence 4 pilar
         EvidenceSpmi::create([
@@ -168,29 +167,6 @@ class EvidenceOverviewTest extends TestCase
             'id_user' => 10,
             'id_indikator' => $this->indikator->id,
             'role' => 'PIC',
-        ]);
-
-        // Buat temuan audit SPMI
-        DataSpmiAudit::create([
-            'id_project' => $this->project->id,
-            'id_indikator' => $this->indikator->id,
-            'jenis_kegiatan' => 'AMI',
-            'tanggal_pelaksanaan' => '2026-06-15',
-            'tahun_audit' => 2026,
-            'temuan' => 'Dokumen SOP belum mutakhir',
-            'tindak_lanjut' => 'Update SOP',
-            'status_penyelesaian' => 'Open',
-        ]);
-
-        DataSpmiAudit::create([
-            'id_project' => $this->project->id,
-            'id_indikator' => $this->indikator->id,
-            'jenis_kegiatan' => 'RTM',
-            'tanggal_pelaksanaan' => '2026-07-20',
-            'tahun_audit' => 2026,
-            'temuan' => 'Tindak lanjut RTM sudah selesai',
-            'tindak_lanjut' => 'Sudah dilaksanakan',
-            'status_penyelesaian' => 'Closed',
         ]);
 
         $response = $this->withHeader('Authorization', 'Bearer '.$this->reviewerToken)
@@ -217,18 +193,44 @@ class EvidenceOverviewTest extends TestCase
         $this->assertEquals('https://drive.google.com/dampak', $data['evidence']['pilar_3_dampak']['link']);
         $this->assertEquals('https://drive.google.com/implementasi', $data['evidence']['pilar_4_implementasi']['link']);
 
+        // Verifikasi kelengkapan pilar
+        $this->assertEquals(4, $data['evidence']['pilar_terisi']);
+        $this->assertEquals(4, $data['kelengkapan_pilar']['total_pilar']);
+        $this->assertEquals(4, $data['kelengkapan_pilar']['terisi']);
+        $this->assertEquals(0, $data['kelengkapan_pilar']['belum_terisi']);
+
         // Verifikasi indikator yang ditugaskan
         $this->assertCount(1, $data['assigned_indicators']);
         $this->assertEquals($this->indikator->id, $data['assigned_indicators'][0]['id_indikator']);
         $this->assertEquals(10, $data['assigned_indicators'][0]['id_user']);
 
-        // Verifikasi rekapitulasi audit
-        $this->assertEquals(2, $data['audit_summary']['total']);
-        $this->assertEquals(1, $data['audit_summary']['open']);
-        $this->assertEquals(1, $data['audit_summary']['closed']);
+        // Pastikan response TIDAK mengandung field audit (disederhanakan)
+        $this->assertArrayNotHasKey('audit_summary', $data);
+        $this->assertArrayNotHasKey('audits', $data);
+    }
 
-        // Verifikasi detail audit
-        $this->assertCount(2, $data['audits']);
+    public function test_overview_shows_partial_pilar_kelengkapan(): void
+    {
+        // Buat evidence hanya 2 pilar terisi
+        EvidenceSpmi::create([
+            'project_id' => $this->project->id,
+            'link_bukti_evaluasi' => 'https://drive.google.com/evaluasi',
+            'deskripsi_bukti_evaluasi' => 'Laporan AMI',
+            'link_bukti_dampak' => 'https://drive.google.com/dampak',
+            'deskripsi_bukti_dampak' => 'Capaian IKU',
+            // pilar pengendalian & implementasi belum diisi
+        ]);
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->kaprodiToken)
+            ->getJson('/api/v1/projects/'.$this->project->id.'/evidence-overview');
+
+        $response->assertStatus(200);
+
+        $data = $response->json('data');
+
+        $this->assertEquals(2, $data['evidence']['pilar_terisi']);
+        $this->assertEquals(2, $data['kelengkapan_pilar']['terisi']);
+        $this->assertEquals(2, $data['kelengkapan_pilar']['belum_terisi']);
     }
 
     public function test_overview_accessible_by_all_authenticated_roles(): void

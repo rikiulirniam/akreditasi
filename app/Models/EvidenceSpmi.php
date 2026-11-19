@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,6 +26,22 @@ class EvidenceSpmi extends Model
     ];
 
     /**
+     * Kolom pilar evidence (link + deskripsi).
+     *
+     * @var array<int, string>
+     */
+    public const PILAR_COLUMNS = [
+        'link_bukti_evaluasi',
+        'deskripsi_bukti_evaluasi',
+        'link_bukti_pengendalian',
+        'deskripsi_bukti_pengendalian',
+        'link_bukti_dampak',
+        'deskripsi_bukti_dampak',
+        'link_dokumen_implementasi',
+        'deskripsi_dokumen_implementasi',
+    ];
+
+    /**
      * Cast attributes.
      *
      * @return array<string, string>
@@ -35,6 +52,43 @@ class EvidenceSpmi extends Model
             'project_id' => 'integer',
         ];
     }
+
+    // ------------------------------------------------------------------
+    // Local Scopes
+    // ------------------------------------------------------------------
+
+    /**
+     * Scope: filter evidence berdasarkan project_id.
+     */
+    public function scopeForProject(Builder $query, int $projectId): Builder
+    {
+        return $query->where('project_id', $projectId);
+    }
+
+    // ------------------------------------------------------------------
+    // Computed helpers
+    // ------------------------------------------------------------------
+
+    /**
+     * Hitung jumlah pilar yang sudah terisi (memiliki link).
+     */
+    public function countFilledPilars(): int
+    {
+        $linkColumns = [
+            'link_bukti_evaluasi',
+            'link_bukti_pengendalian',
+            'link_bukti_dampak',
+            'link_dokumen_implementasi',
+        ];
+
+        return collect($linkColumns)
+            ->filter(fn (string $col): bool => ! empty($this->getAttribute($col)))
+            ->count();
+    }
+
+    // ------------------------------------------------------------------
+    // Relationships
+    // ------------------------------------------------------------------
 
     /**
      * Relasi ke model ProjectAkreditasi.
