@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -127,5 +128,33 @@ class ProjectAkreditasi extends Model
     public function evidenceSpmi(): HasOne
     {
         return $this->hasOne(EvidenceSpmi::class, 'project_id');
+    }
+
+    /**
+     * Relasi project ke narasi yang disimpan per subkriteria.
+     */
+    public function narasiSubkriteria(): HasMany
+    {
+        return $this->hasMany(NarasiSubkriteria::class, 'id_project');
+    }
+
+    /**
+     * Scope untuk memuat relasi profil project secara ringkas.
+     */
+    public function scopeWithOverviewProfile(Builder $query): Builder
+    {
+        return $query->with([
+            'versiInstrumen',
+            'jenjang',
+            'jenisInstrumen',
+        ]);
+    }
+
+    /**
+     * Scope untuk memastikan project memiliki instrumen yang sesuai.
+     */
+    public function scopeMatchingInstrument(Builder $query): Builder
+    {
+        return $query->whereHas('versiInstrumen')->whereHas('jenjang')->whereHas('jenisInstrumen');
     }
 }

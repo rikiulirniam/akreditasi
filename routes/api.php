@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Akreditasi\MappingTimAkreditasiController;
 use App\Http\Controllers\Api\Akreditasi\ProjectAkreditasiController;
 use App\Http\Controllers\Api\Akreditasi\SelfAssessmentController;
+use App\Http\Controllers\Api\CompositeProjectController;
 use App\Http\Controllers\Api\Dashboard\DashboardProgressController;
 use App\Http\Controllers\Api\Master\IndikatorController;
 use App\Http\Controllers\Api\Master\InstrumenController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Api\Master\LembagaAkreditasiController;
 use App\Http\Controllers\Api\Master\RubrikController;
 use App\Http\Controllers\Api\Master\SubkriteriaController;
 use App\Http\Controllers\Api\Master\VersiInstrumenController;
+use App\Http\Controllers\Api\NarasiSubkriteriaController;
 use App\Http\Controllers\Api\Sarpras\DataSaranaProdiController;
 use App\Http\Controllers\Api\Sarpras\DataSarprasProdiController;
 use App\Http\Controllers\Api\Spmi\EvidenceSpmiController;
@@ -173,6 +175,8 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         Route::get('projects/{id}/review-summary', [SelfAssessmentController::class, 'reviewSummary']);
         Route::get('projects/{id}/dashboard-progress', [DashboardProgressController::class, 'dashboardProgress']);
         Route::get('projects/{id}/readiness', [DashboardProgressController::class, 'readiness']);
+        Route::get('projects/{id}/composite-overview', [CompositeProjectController::class, 'overview']);
+        Route::get('projects/{id}/subkriteria/{subkriteriaId}/narasi-template', [NarasiSubkriteriaController::class, 'showTemplate']);
         Route::get('projects/{id}/indicators/{indicatorId}/evidence', [DashboardProgressController::class, 'showEvidence']);
     });
 
@@ -190,6 +194,9 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         Route::post('mapping-tim', [MappingTimAkreditasiController::class, 'store']);
         Route::delete('mapping-tim/{id}', [MappingTimAkreditasiController::class, 'destroy']);
     });
+
+    Route::put('projects/{id}/subkriteria/{subkriteriaId}/narasi', [NarasiSubkriteriaController::class, 'store'])
+        ->middleware('role:administrator,kaprodi,dosen');
 
     Route::get('mapping-tim', [MappingTimAkreditasiController::class, 'index'])
         ->middleware('role:administrator,kaprodi,reviewer,dosen');
