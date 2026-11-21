@@ -233,6 +233,35 @@ class AkreditasiDocs
         ]
     )]
     #[OA\Get(
+        path: '/projects/{id}/placeholder-modules',
+        summary: 'Mendapatkan metadata modul kriteria placeholder (Tata Pamong, Keuangan & Sarpras)',
+        description: 'Mengembalikan daftar kriteria read-only non-handle yang tidak dikelola oleh mitra agar struktur 9 kriteria LAM-INFOKOM tetap lengkap di frontend.',
+        tags: ['Akreditasi - Project'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Metadata modul placeholder berhasil dimuat', content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'success', type: 'boolean', example: true),
+                    new OA\Property(property: 'message', type: 'string', example: 'Data modul placeholder berhasil diambil.'),
+                    new OA\Property(property: 'data', type: 'array', items: new OA\Items(
+                        properties: [
+                            new OA\Property(property: 'kode_kriteria', type: 'string', example: 'C.2'),
+                            new OA\Property(property: 'nama_kriteria', type: 'string', example: 'Tata Pamong, Tata Kelola, dan Kerjasama'),
+                            new OA\Property(property: 'is_placeholder', type: 'boolean', example: true),
+                            new OA\Property(property: 'mode', type: 'string', example: 'read_only'),
+                            new OA\Property(property: 'status', type: 'string', example: 'Aktif (Placeholder LAM-INFOKOM)'),
+                            new OA\Property(property: 'keterangan', type: 'string', example: 'Modul Tata Pamong tidak memerlukan transaksi penginputan langsung.'),
+                        ]
+                    )),
+                    new OA\Property(property: 'meta', type: 'object'),
+                ]
+            )),
+            new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
+    #[OA\Get(
         path: '/projects/{id}/mapping-tim',
         summary: 'Mendapatkan daftar penugasan tim akreditasi untuk project tertentu',
         description: 'Menampilkan list penugasan tim per indikator untuk ID project yang ditentukan pada path URL.',

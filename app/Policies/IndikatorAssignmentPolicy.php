@@ -59,10 +59,7 @@ class IndikatorAssignmentPolicy
         // DOSEN → hanya boleh jika terdaftar sebagai PJ atau PIC
         // pada tabel mapping_tim_akreditasi untuk indikator yang bersangkutan
         if ($role === 'DOSEN') {
-            return MappingTimAkreditasi::where('id_user', $userId)
-                ->where('id_indikator', $indikatorId)
-                ->whereIn('role', ['PJ', 'PIC'])
-                ->exists();
+            return MappingTimAkreditasi::isUserAssigned((int) $userId, $indikatorId);
         }
 
         // Role lain (reviewer, operator, dll) → tolak

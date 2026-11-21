@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Akreditasi;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Akreditasi\StoreMappingTimRequest;
 use App\Models\MappingTimAkreditasi;
+use App\Models\ProjectAkreditasi;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,27 +21,30 @@ use Illuminate\Support\Facades\DB;
 class MappingTimAkreditasiController extends Controller
 {
     /**
-     * Ambil semua penugasan tim, bisa difilter by project atau role.
+     * Ambil semua penugasan tim, bisa difilter by project, role, atau user/dosen.
+     * Menggunakan local scopes Model untuk Clean Code MVC.
      *
      * GET /api/v1/mapping-tim?id_project=1&role=PJ
      */
     public function index(Request $request): JsonResponse
     {
-        $query = MappingTimAkreditasi::with([
-            'project:id,nama_project',   // hanya ambil kolom yang diperlukan
-            'indikator:id,nama_indikator,kode_indikator',
-        ]);
+        $query = MappingTimAkreditasi::withDetails();
 
-        // Filter by project
+        // Filter by project (menggunakan scopeForProject)
         if ($request->filled('id_project')) {
-            $query->where('id_project', $request->input('id_project'));
+            $query->forProject((int) $request->input('id_project'));
         } elseif ($request->filled('project_id')) {
-            $query->where('id_project', $request->input('project_id'));
+            $query->forProject((int) $request->input('project_id'));
         }
 
-        // Filter by role (PJ / PIC)
+        // Filter by role (menggunakan scopeForRole)
         if ($request->filled('role')) {
-            $query->where('role', strtoupper($request->input('role')));
+            $query->forRole((string) $request->input('role'));
+        }
+
+        // Filter by user / dosen (menggunakan scopeForDosen)
+        if ($request->filled('id_user')) {
+            $query->forDosen((int) $request->input('id_user'));
         }
 
         $data = $query->get();
@@ -126,56 +130,54 @@ class MappingTimAkreditasiController extends Controller
     /**
      * Ambil semua indikator yang ditugaskan ke dosen yang sedang login (PJ atau PIC),
      * beserta status kelengkapan bukti dukungnya.
+     * Menggunakan local scopes Model dan optimasi single query untuk self_assessment (mencegah N+1).
      *
      * GET /api/v1/dosen/my-assignments
-     *
-     * Response per item:
-     *   - id_mapping       : ID baris mapping
-     *   - role             : PJ / PIC
-     *   - id_indikator     : ID indikator
-     *   - kode_indikator   : kode butir (misal: A.1.1)
-     *   - deskripsi        : deskripsi indikator
-     *   - bobot            : bobot penilaian
-     *   - id_project       : ID project akreditasi
-     *   - nama_project     : nama project
-     *   - has_bukti        : true jika reviewer sudah mengisi self assessment (rubrik dipilih)
      */
     public function getMyAssignments(Request $request): JsonResponse
     {
         $user = $request->user();
-        $userId = $user->id;
+        $userId = (int) ($user->id ?? $user->getAuthIdentifier());
 
-        // Ambil semua penugasan milik dosen ini,
-        // load relasi indikator (kode, deskripsi, bobot) dan project (nama)
-        $assignments = MappingTimAkreditasi::with([
-            'indikator:id,id_subkriteria,kode_indikator,deskripsi_indikator,bobot',
-            'project:id,nama_project,status_project',
-        ])
-            ->where('id_user', $userId)
-            ->whereIn('role', ['PJ', 'PIC'])
-            ->get()
-            ->map(function ($mapping) {
-                // Cek apakah indikator ini sudah dinilai reviewer (self_assessment terisi)
-                // "has_bukti" = sudah ada self assessment dengan rubrik dipilih
-                $hasBukti = DB::table('self_assessment')
-                    ->where('id_project', $mapping->id_project)
-                    ->where('id_indikator', $mapping->id_indikator)
-                    ->whereNotNull('id_rubrik')
-                    ->exists();
+        // Gunakan scope Model: withDetails, forDosen, dan assignedRoles
+        $mappings = MappingTimAkreditasi::withDetails()
+            ->forDosen($userId)
+            ->assignedRoles()
+            ->get();
 
-                return [
-                    'id_mapping' => $mapping->id,
-                    'role' => $mapping->role,
-                    'id_project' => $mapping->id_project,
-                    'nama_project' => $mapping->project?->nama_project,
-                    'status_project' => $mapping->project?->status_project,
-                    'id_indikator' => $mapping->id_indikator,
-                    'kode_indikator' => $mapping->indikator?->kode_indikator,
-                    'deskripsi' => $mapping->indikator?->deskripsi_indikator,
-                    'bobot' => $mapping->indikator?->bobot,
-                    'has_bukti' => $hasBukti,
-                ];
-            });
+        // Optimasi: Tarik seluruh self_assessment yang sudah dinilai dalam 1 query (Bebas N+1)
+        $projectIds = $mappings->pluck('id_project')->unique()->filter()->values()->all();
+        $indikatorIds = $mappings->pluck('id_indikator')->unique()->filter()->values()->all();
+
+        $assessedMap = [];
+        if (! empty($projectIds) && ! empty($indikatorIds)) {
+            $assessedMap = DB::table('self_assessment')
+                ->whereIn('id_project', $projectIds)
+                ->whereIn('id_indikator', $indikatorIds)
+                ->whereNotNull('id_rubrik')
+                ->select('id_project', 'id_indikator')
+                ->get()
+                ->mapWithKeys(fn ($row) => ["{$row->id_project}_{$row->id_indikator}" => true])
+                ->all();
+        }
+
+        $assignments = $mappings->map(function ($mapping) use ($assessedMap) {
+            $key = "{$mapping->id_project}_{$mapping->id_indikator}";
+            $hasBukti = isset($assessedMap[$key]);
+
+            return [
+                'id_mapping' => $mapping->id,
+                'role' => $mapping->role,
+                'id_project' => $mapping->id_project,
+                'nama_project' => $mapping->project?->nama_project,
+                'status_project' => $mapping->project?->status_project,
+                'id_indikator' => $mapping->id_indikator,
+                'kode_indikator' => $mapping->indikator?->kode_indikator,
+                'deskripsi' => $mapping->indikator?->deskripsi_indikator,
+                'bobot' => $mapping->indikator?->bobot,
+                'has_bukti' => $hasBukti,
+            ];
+        });
 
         return response()->json([
             'success' => true,
@@ -183,7 +185,56 @@ class MappingTimAkreditasiController extends Controller
             'data' => $assignments,
             'meta' => [
                 'total' => $assignments->count(),
-                'id_user' => $userId,
+                'id_user' => (string) $userId,
+            ],
+        ], 200);
+    }
+
+    /**
+     * Mengembalikan metadata kriteria/modul read-only (placeholder) yang tidak ditangani mitra
+     * (Tata Pamong, Keuangan & Sarpras) agar struktur 9 kriteria LAM-INFOKOM tetap lengkap di UI.
+     *
+     * GET /api/v1/projects/{id}/placeholder-modules
+     */
+    public function getPlaceholderModules(int $id): JsonResponse
+    {
+        $project = ProjectAkreditasi::find($id);
+
+        if (! $project) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Project akreditasi tidak ditemukan.',
+                'data' => null,
+            ], 404);
+        }
+
+        $placeholders = [
+            [
+                'kode_kriteria' => 'C.2',
+                'nama_kriteria' => 'Tata Pamong, Tata Kelola, dan Kerjasama',
+                'is_placeholder' => true,
+                'mode' => 'read_only',
+                'status' => 'Aktif (Placeholder LAM-INFOKOM)',
+                'keterangan' => 'Modul Tata Pamong, Tata Kelola, dan Kerjasama disajikan sebagai komponen display data statis/read-only untuk kelengkapan 9 kriteria LAM-INFOKOM.',
+            ],
+            [
+                'kode_kriteria' => 'C.5',
+                'nama_kriteria' => 'Keuangan, Sarana, dan Prasarana',
+                'is_placeholder' => true,
+                'mode' => 'read_only',
+                'status' => 'Aktif (Placeholder LAM-INFOKOM)',
+                'keterangan' => 'Modul Keuangan, Sarana, dan Prasarana disajikan sebagai komponen display data statis/read-only tanpa transaksi form input borang.',
+            ],
+        ];
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data modul placeholder berhasil diambil.',
+            'data' => $placeholders,
+            'meta' => [
+                'id_project' => $id,
+                'nama_project' => $project->nama_project,
+                'total' => count($placeholders),
             ],
         ], 200);
     }

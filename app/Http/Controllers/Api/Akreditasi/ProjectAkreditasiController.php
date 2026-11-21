@@ -149,6 +149,14 @@ class ProjectAkreditasiController extends Controller
     }
 
     /**
+     * Mengambil metadata modul kriteria placeholder (Tata Pamong, Keuangan & Sarpras).
+     */
+    public function getPlaceholderModules(int $id): JsonResponse
+    {
+        return app(MappingTimAkreditasiController::class)->getPlaceholderModules($id);
+    }
+
+    /**
      * Memperbarui siklus status project akreditasi.
      */
     public function updateStatus(Request $request, int $id): JsonResponse

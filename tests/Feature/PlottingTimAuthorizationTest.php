@@ -536,4 +536,201 @@ class PlottingTimAuthorizationTest extends TestCase
         $this->assertFalse(Gate::forUser($dosenLain)->allows('uploadEvidence', $indikator));
         $this->assertFalse(Gate::forUser($dosenLain)->allows('editData', $indikator));
     }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // TEST 15: Peleburan Reviewer ke Kaprodi — Kaprodi bisa POST self-assessment
+    // ════════════════════════════════════════════════════════════════════════
+
+    public function test_kaprodi_dapat_menyimpan_self_assessment(): void
+    {
+        $data = $this->seedMasterData();
+        $kaprodiToken = $this->tokenFor('kaprodi', 2);
+
+        $payload = [
+            'id_project' => $data['project'],
+            'id_indikator' => $data['indikator1'],
+            'catatan_reviewer' => 'Penilaian review oleh Kaprodi konsolidasi.',
+        ];
+
+        $response = $this->withToken($kaprodiToken)
+            ->postJson('/api/v1/self-assessment', $payload);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('success', true);
+
+        $this->assertDatabaseHas('self_assessment', [
+            'id_project' => $data['project'],
+            'id_indikator' => $data['indikator1'],
+            'catatan_reviewer' => 'Penilaian review oleh Kaprodi konsolidasi.',
+        ]);
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // TEST 16: Peleburan Reviewer ke Kaprodi — Kaprodi bisa DELETE self-assessment
+    // ════════════════════════════════════════════════════════════════════════
+
+    public function test_kaprodi_dapat_menghapus_self_assessment(): void
+    {
+        $data = $this->seedMasterData();
+        $kaprodiToken = $this->tokenFor('kaprodi', 2);
+
+        $assessmentId = \DB::table('self_assessment')->insertGetId([
+            'id_project' => $data['project'],
+            'id_indikator' => $data['indikator1'],
+            'catatan_reviewer' => 'Catatan draft awal',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $response = $this->withToken($kaprodiToken)
+            ->deleteJson("/api/v1/self-assessment/{$assessmentId}");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('success', true);
+
+        $this->assertDatabaseMissing('self_assessment', [
+            'id' => $assessmentId,
+        ]);
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // TEST 17: Kaprodi menugaskan dirinya sendiri sebagai PIC dan muncul di my-assignments
+    // ════════════════════════════════════════════════════════════════════════
+
+    public function test_kaprodi_bisa_menugaskan_dirinya_sendiri_dan_muncul_di_my_assignments(): void
+    {
+        $data = $this->seedMasterData();
+        $kaprodiId = 77;
+        $kaprodiToken = $this->tokenFor('kaprodi', $kaprodiId);
+
+        // Kaprodi assign dirinya sendiri sebagai PIC pada indikator1
+        $payload = [
+            'assignments' => [
+                ['id_user' => $kaprodiId, 'id_indikator' => $data['indikator1'], 'role' => 'PIC'],
+            ],
+        ];
+
+        $resAssign = $this->withToken($kaprodiToken)
+            ->postJson("/api/v1/projects/{$data['project']}/mapping-tim", $payload);
+
+        $resAssign->assertStatus(201);
+
+        // Buka endpoint my-assignments dengan token Kaprodi
+        $response = $this->withToken($kaprodiToken)->getJson('/api/v1/dosen/my-assignments');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id_indikator', $data['indikator1'])
+            ->assertJsonPath('data.0.role', 'PIC');
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // TEST 18: Endpoint GET /api/v1/projects/{id}/placeholder-modules
+    // ════════════════════════════════════════════════════════════════════════
+
+    public function test_placeholder_modules_mengembalikan_kriteria_c2_dan_c5(): void
+    {
+        $data = $this->seedMasterData();
+        $token = $this->tokenFor('kaprodi');
+
+        $response = $this->withToken($token)
+            ->getJson("/api/v1/projects/{$data['project']}/placeholder-modules");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonCount(2, 'data');
+
+        $kriteriaCodes = collect($response->json('data'))->pluck('kode_kriteria')->all();
+        $this->assertContains('C.2', $kriteriaCodes);
+        $this->assertContains('C.5', $kriteriaCodes);
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // TEST 19: Placeholder modules 404 jika project tidak ditemukan
+    // ════════════════════════════════════════════════════════════════════════
+
+    public function test_placeholder_modules_404_jika_project_tidak_ada(): void
+    {
+        $token = $this->tokenFor('kaprodi');
+
+        $response = $this->withToken($token)
+            ->getJson('/api/v1/projects/99999/placeholder-modules');
+
+        $response->assertStatus(404)
+            ->assertJsonPath('success', false);
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // TEST 20: Local Scopes MappingTimAkreditasi berfungsi sesuai Clean Code
+    // ════════════════════════════════════════════════════════════════════════
+
+    public function test_model_scopes_mapping_tim_akreditasi_berfungsi(): void
+    {
+        $data = $this->seedMasterData();
+
+        MappingTimAkreditasi::create([
+            'id_project' => $data['project'],
+            'id_user' => 123,
+            'id_indikator' => $data['indikator1'],
+            'role' => 'PJ',
+        ]);
+
+        MappingTimAkreditasi::create([
+            'id_project' => $data['project'],
+            'id_user' => 456,
+            'id_indikator' => $data['indikator2'],
+            'role' => 'PIC',
+        ]);
+
+        // Uji scopeForDosen
+        $this->assertEquals(1, MappingTimAkreditasi::forDosen(123)->count());
+
+        // Uji scopeForRole
+        $this->assertEquals(1, MappingTimAkreditasi::forRole('PJ')->count());
+        $this->assertEquals(1, MappingTimAkreditasi::forRole('PIC')->count());
+
+        // Uji scopeForProject
+        $this->assertEquals(2, MappingTimAkreditasi::forProject($data['project'])->count());
+
+        // Uji isUserAssigned static helper
+        $this->assertTrue(MappingTimAkreditasi::isUserAssigned(123, $data['indikator1']));
+        $this->assertFalse(MappingTimAkreditasi::isUserAssigned(999, $data['indikator1']));
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // TEST 21: Batch assignments menerima role lowercase dan dinormalisasi
+    // ════════════════════════════════════════════════════════════════════════
+
+    public function test_batch_assignment_menerima_role_lowercase(): void
+    {
+        $data = $this->seedMasterData();
+        $token = $this->tokenFor('kaprodi');
+
+        $payload = [
+            'assignments' => [
+                ['id_user' => 50, 'id_indikator' => $data['indikator1'], 'role' => 'pj'],
+                ['id_user' => 51, 'id_indikator' => $data['indikator2'], 'role' => 'pic'],
+            ],
+        ];
+
+        $response = $this->withToken($token)
+            ->postJson("/api/v1/projects/{$data['project']}/mapping-tim", $payload);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('success', true);
+
+        $this->assertDatabaseHas('mapping_tim_akreditasi', [
+            'id_project' => $data['project'],
+            'id_indikator' => $data['indikator1'],
+            'id_user' => 50,
+            'role' => 'PJ',
+        ]);
+        $this->assertDatabaseHas('mapping_tim_akreditasi', [
+            'id_project' => $data['project'],
+            'id_indikator' => $data['indikator2'],
+            'id_user' => 51,
+            'role' => 'PIC',
+        ]);
+    }
 }
