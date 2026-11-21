@@ -525,6 +525,118 @@ class AkreditasiDocs
             new OA\Response(response: 404, description: 'Data tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
+    #[OA\Get(
+        path: '/projects/{id}/composite-overview',
+        summary: 'Overview komposit project (Profil, Progres 9 Kriteria, Evidence, & Skor)',
+        description: 'Endpoint agregasi yang menggabungkan profil project, progress kelengkapan 9 kriteria, ringkasan evidence, dan skor penilaian dalam 1 request untuk efisiensi loading frontend.',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Overview komposit project berhasil dimuat',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Data berhasil diambil'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'profil_project', type: 'object'),
+                                new OA\Property(property: 'progress', type: 'object'),
+                                new OA\Property(property: 'scoring', type: 'object'),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(response: 404, description: 'Project akreditasi tidak ditemukan'),
+        ]
+    )]
+    #[OA\Get(
+        path: '/projects/{id}/subkriteria/{subkriteriaId}/narasi-template',
+        summary: 'Mendapatkan template narasi subkriteria dengan angka agregasi aktual',
+        description: 'Menghasilkan template narasi deskriptif untuk subkriteria tertentu (misal Kriteria C.4 SDM Dosen) yang disuntik dengan angka riil dari API Kelompok 2 (misal jumlah dosen, rasio, kualifikasi S3). Frontend menampilkan narasi ini sebagai draft yang dapat diedit.',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
+            new OA\Parameter(name: 'subkriteriaId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Subkriteria'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Template narasi subkriteria berhasil dibuat'),
+            new OA\Response(response: 404, description: 'Project atau Subkriteria tidak ditemukan'),
+        ]
+    )]
+    #[OA\Put(
+        path: '/projects/{id}/subkriteria/{subkriteriaId}/narasi',
+        summary: 'Menyimpan teks narasi subkriteria hasil editan (Kaprodi / PIC)',
+        description: 'Menyimpan teks narasi yang telah disesuaikan/diedit oleh Kaprodi atau PIC butir subkriteria terkait.',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
+            new OA\Parameter(name: 'subkriteriaId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Subkriteria'),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['narasi'],
+                properties: [
+                    new OA\Property(property: 'narasi', type: 'string', example: 'Program Studi Teknologi Rekayasa Komputer memiliki 12 orang dosen tetap yang berkualifikasi...'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Narasi subkriteria berhasil disimpan'),
+            new OA\Response(response: 403, description: 'Tidak memiliki hak akses menyimpan narasi pada butir ini'),
+            new OA\Response(response: 404, description: 'Project atau Subkriteria tidak ditemukan'),
+            new OA\Response(response: 422, description: 'Validasi gagal'),
+        ]
+    )]
+    #[OA\Get(
+        path: '/projects/{id}/review-summary',
+        summary: 'Mendapatkan rekapitulasi penilaian review project akreditasi',
+        description: 'Menampilkan ringkasan total nilai terbobot, skor akhir, dan rincian butir yang sudah dinilai oleh reviewer/kaprodi.',
+        tags: ['Akreditasi - Self Assessment'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Rekapitulasi review penilaian project berhasil diambil'),
+            new OA\Response(response: 404, description: 'Project tidak ditemukan'),
+        ]
+    )]
+    #[OA\Put(
+        path: '/self-assessment/{id}/penjelasan-prodi',
+        summary: 'Menambahkan tanggapan / klarifikasi prodi atas catatan reviewer (Khusus Kaprodi)',
+        description: 'Kaprodi memberikan tanggapan atau penjelasan klarifikasi atas temuan/catatan reviewer pada butir self assessment.',
+        tags: ['Akreditasi - Self Assessment'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Self Assessment'),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['tanggapan_kaprodi'],
+                properties: [
+                    new OA\Property(property: 'tanggapan_kaprodi', type: 'string', example: 'Dokumen revisi RPS dan bukti keterlibatan industri telah diunggah pada tautan pendukung.'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Penjelasan / tanggapan prodi berhasil disimpan'),
+            new OA\Response(response: 403, description: 'Akses ditolak (hanya role Kaprodi yang berwenang)'),
+            new OA\Response(response: 404, description: 'Data penilaian mandiri tidak ditemukan'),
+            new OA\Response(response: 422, description: 'Validasi gagal'),
+        ]
+    )]
     #[OA\Post(
         path: '/self-assessment',
         summary: 'Mengisi atau memperbarui penilaian mandiri (Self Assessment)',

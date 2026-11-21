@@ -85,10 +85,10 @@ class ProjectAkreditasi extends Model
     /**
      * Relasi ke Lembar Kerja Prodi.
      */
-    public function lembarProdi(): HasMany
-    {
-        return $this->hasMany(LembarProdi::class, 'id_project');
-    }
+    // public function lembarProdi(): HasMany
+    // {
+    //     return $this->hasMany(LembarKerjaProdi::class, 'id_project');
+    // }
 
     /**
      * Relasi ke Self Assessment / Penilaian Mandiri.
@@ -142,6 +142,15 @@ class ProjectAkreditasi extends Model
      * Scope untuk memuat relasi profil project secara ringkas.
      */
     public function scopeWithOverviewProfile(Builder $query): Builder
+    {
+        return $query->with([
+            'versiInstrumen',
+            'jenjang',
+            'jenisInstrumen',
+        ]);
+    }
+
+    /**
      * Scope untuk eager loading relasi master dasar.
      */
     public function scopeWithRelations(Builder $query): Builder
@@ -158,6 +167,9 @@ class ProjectAkreditasi extends Model
             'versiInstrumen',
             'jenjang',
             'jenisInstrumen',
+            'mappingTim.indikator',
+            'lembarProdi.buktis',
+            'selfAssessments.rubrik',
         ]);
     }
 
@@ -167,10 +179,6 @@ class ProjectAkreditasi extends Model
     public function scopeMatchingInstrument(Builder $query): Builder
     {
         return $query->whereHas('versiInstrumen')->whereHas('jenjang')->whereHas('jenisInstrumen');
-            'mappingTim.indikator',
-            'lembarProdi.buktis',
-            'selfAssessments.rubrik',
-        ]);
     }
 
     /**
