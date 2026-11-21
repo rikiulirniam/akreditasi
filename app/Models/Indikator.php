@@ -25,6 +25,8 @@ class Indikator extends Model
     protected $appends = [
         'rubriks_count',
         'rubrik_count',
+        'target_sumber_data',
+        'kategori_sumber',
     ];
 
     public function getRubriksCountAttribute(): int
@@ -50,12 +52,100 @@ class Indikator extends Model
         return $this->rubriks_count;
     }
 
+    /**
+     * Pemetaan sumber data riil (API Kelompok 2 vs Bukti SPMI) untuk eliminasi kompleksitas lembar manual.
+     */
+    public function getTargetSumberDataAttribute(): string
+    {
+        $kode = (string) ($this->kode_indikator ?? '');
+
+        // Indikator terkait dosen, kurikulum, mahasiswa ditarik dari API Kelompok 2
+        if (str_contains($kode, 'C.2.2') || str_contains($kode, 'B.1') || str_contains($kode, 'C.2.1') || str_contains($kode, 'C.5.2')) {
+            return 'API Kelompok 2 (Data Master Dosen & Prodi)';
+        }
+
+        // Indikator terkait SPMI, AMI, RTM, Sarpras, Keuangan dari SPMI Internal
+        return 'Bukti Upload SPMI / Audit Mutu Internal';
+    }
+
+    /**
+     * Kategori sumber data: EXTERNAL_API atau SPMI_EVIDENCE.
+     */
+    public function getKategoriSumberAttribute(): string
+    {
+        $kode = (string) ($this->kode_indikator ?? '');
+
+        if (str_contains($kode, 'C.2.2') || str_contains($kode, 'B.1') || str_contains($kode, 'C.2.1') || str_contains($kode, 'C.5.2')) {
+            return 'EXTERNAL_API';
+        }
+
+        return 'SPMI_EVIDENCE';
+    }
+
     protected function casts(): array
     {
         return [
             'id_subkriteria' => 'integer',
             'bobot' => 'decimal:2',
         ];
+    }
+
+    /**
+     * Scope hierarki lengkap indikator (hanya kolom data esensial, tanpa opsi rubrik berulang).
+     */
+    public function scopeCompleteHierarchy(Builder $query): Builder
+    {
+        return $query->select([
+            'id',
+            'id_subkriteria',
+            'kode_indikator',
+            'deskripsi_indikator',
+            'bobot',
+        ])->orderBy('kode_indikator');
+    }
+
+    /**
+     * Scope untuk eager load subkriteria, kriteria, dan hitungan rubrik.
+     */
+    public function scopeWithDetails(Builder $query): Builder
+    {
+        return $query->with(['subkriteria.kriteria'])
+            ->withCount('rubriks');
+    }
+
+    /**
+     * Scope untuk filter berdasarkan ID subkriteria.
+     */
+    public function scopeFilterBySubkriteria(Builder $query, ?int $idSubkriteria = null): Builder
+    {
+        if ($idSubkriteria !== null) {
+            $query->where('id_subkriteria', $idSubkriteria);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Scope untuk detail indikator dengan opsi rubrik terurut.
+     */
+    public function scopeWithDetailedRubriks(Builder $query): Builder
+    {
+        return $query->with([
+            'subkriteria.kriteria',
+            'rubriks' => function ($q): void {
+                $q->orderBy('skor');
+            },
+        ])->withCount('rubriks');
+    }
+
+    /**
+     * Proteksi soft guard: cek apakah indikator sedang dipakai dalam transaksi aktif.
+     */
+    public function isUsedInActiveTransactions(): bool
+    {
+        return $this->selfAssessments()->exists()
+            || $this->mappingTim()->exists()
+            || $this->dataSpmiAudit()->exists();
     }
 
     /**
@@ -98,14 +188,6 @@ class Indikator extends Model
         return $this->belongsToMany(ProjectAkreditasi::class, 'mapping_tim_akreditasi', 'id_indikator', 'id_project')
             ->withPivot('id', 'id_user')
             ->withTimestamps();
-    }
-
-    /**
-     * Relasi ke Lembar Kerja Prodi untuk indikator ini.
-     */
-    public function lembarProdi(): HasMany
-    {
-        return $this->hasMany(LembarProdi::class, 'id_indikator');
     }
 
     /**

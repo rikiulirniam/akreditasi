@@ -16,14 +16,12 @@ class SubkriteriaController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = Subkriteria::with('kriteria')
-            ->withCount('indikator');
+        $idKriteria = $request->filled('id_kriteria') ? (int) $request->query('id_kriteria') : null;
 
-        if ($request->filled('id_kriteria')) {
-            $query->where('id_kriteria', $request->query('id_kriteria'));
-        }
-
-        $subkriteria = $query->orderBy('kode_subkriteria')->get();
+        $subkriteria = Subkriteria::withDetails()
+            ->filterByKriteria($idKriteria)
+            ->orderBy('kode_subkriteria')
+            ->get();
 
         return $this->successResponse($subkriteria, 'Data subkriteria berhasil diambil');
     }
@@ -38,12 +36,7 @@ class SubkriteriaController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $subkriteria = Subkriteria::with([
-            'kriteria',
-            'indikator' => function ($q) {
-                $q->withCount('rubriks')->orderBy('kode_indikator');
-            },
-        ])->withCount('indikator')->find($id);
+        $subkriteria = Subkriteria::withDetailedIndikator()->find($id);
 
         if (! $subkriteria) {
             return $this->errorResponse('Subkriteria tidak ditemukan', null, 404);

@@ -78,8 +78,12 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | 1. Modul Master Data
+    | 1. Modul Master Data & Static Instrument
     |--------------------------------------------------------------------------
+    | Hasil Audit Rute & Clean Data:
+    | - Endpoint form input manual Lembar Evaluasi Diri Prodi dan rubrik bertingkat
+    |   dinamis telah ditiadakan agar konsisten dengan data riil API & SPMI.
+    | - Instrumen dikunci statis pada LAM-INFOKOM 2.1 TRK: GET instrumen/active-static
     | Read (GET): Semua role (administrator, kaprodi, reviewer, dosen)
     | Write/Modify (POST, PUT, DELETE): Khusus administrator
     */
@@ -92,6 +96,8 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
             Route::get('versi-instrumen', [VersiInstrumenController::class, 'index']);
             Route::get('versi-instrumen/{id}', [VersiInstrumenController::class, 'show']);
 
+            // Struktur instrumen aktif statis LAM-INFOKOM 2.1 TRK
+            Route::get('instrumen/active-static', [InstrumenController::class, 'getActiveStatic']);
             Route::get('instrumen', [InstrumenController::class, 'index']);
             Route::get('instrumen/{id}/hierarchy', [InstrumenController::class, 'getHierarchy']);
             Route::get('instrumen/{id}', [InstrumenController::class, 'show']);
@@ -121,7 +127,6 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
             Route::patch('versi-instrumen/{id}/aktifkan', [VersiInstrumenController::class, 'aktifkan']);
             Route::apiResource('versi-instrumen', VersiInstrumenController::class)->except(['index', 'show']);
             Route::apiResource('instrumen', InstrumenController::class)->except(['index', 'show']);
-            Route::apiResource('instrumen', InstrumenController::class)->except(['index', 'show']);
             Route::apiResource('jenjang', JenjangController::class)->except(['index', 'show']);
             Route::apiResource('kriteria', KriteriaController::class)->except(['index', 'show']);
             Route::apiResource('subkriteria', SubkriteriaController::class)->except(['index', 'show']);
@@ -136,6 +141,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         Route::get('versi-instrumen', [VersiInstrumenController::class, 'index']);
         Route::get('versi-instrumen/{id}', [VersiInstrumenController::class, 'show']);
 
+        Route::get('instrumen/active-static', [InstrumenController::class, 'getActiveStatic']);
         Route::get('instrumen', [InstrumenController::class, 'index']);
         Route::get('instrumen/{id}/hierarchy', [InstrumenController::class, 'getHierarchy']);
         Route::get('instrumen/{id}', [InstrumenController::class, 'show']);
@@ -178,15 +184,18 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         Route::get('projects/{id}/composite-overview', [CompositeProjectController::class, 'overview']);
         Route::get('projects/{id}/subkriteria/{subkriteriaId}/narasi-template', [NarasiSubkriteriaController::class, 'showTemplate']);
         Route::get('projects/{id}/indicators/{indicatorId}/evidence', [DashboardProgressController::class, 'showEvidence']);
+        Route::get('projects/{id}/scoring-simulation', [ProjectAkreditasiController::class, 'scoringSimulation']);
     });
+
+    // Update status project akreditasi: Khusus role Kaprodi
+    Route::patch('projects/{id}/status', [ProjectAkreditasiController::class, 'updateStatus'])
+        ->middleware('role:kaprodi');
 
     Route::middleware('role:administrator,kaprodi')->group(function () {
         Route::post('projects/quick-create', [DashboardProgressController::class, 'quickCreate']);
         Route::post('projects', [ProjectAkreditasiController::class, 'store']);
         Route::put('projects/{id}', [ProjectAkreditasiController::class, 'update']);
         Route::patch('projects/{id}', [ProjectAkreditasiController::class, 'update']);
-        // update status project akreditasi
-        Route::patch('projects/{id}/status', [ProjectAkreditasiController::class, 'updateStatus']);
         Route::delete('projects/{id}', [ProjectAkreditasiController::class, 'destroy']);
         Route::put('projects/{id}/indicators/{indicatorId}/evidence', [DashboardProgressController::class, 'storeEvidence']);
 
@@ -250,6 +259,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
 
     Route::middleware('role:administrator,kaprodi')->group(function () {
         Route::post('evidence-spmi', [EvidenceSpmiController::class, 'store']);
+        Route::delete('evidence-spmi/{id}', [EvidenceSpmiController::class, 'destroy']);
     });
 
     /*
