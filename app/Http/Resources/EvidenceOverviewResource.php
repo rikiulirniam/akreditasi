@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\EvidenceSpmi;
 use App\Models\ProjectAkreditasi;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -12,17 +13,16 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class EvidenceOverviewResource extends JsonResource
 {
     /**
-     * Menyusun rekapitulasi evidence overview untuk sebuah project.
+     * Menyusun rekapitulasi evidence overview (disederhanakan).
+     *
+     * Fokus: media penyimpanan dokumen evidence penjaminan mutu yang
+     * terhubung langsung ke indikator akreditasi. Tanpa siklus audit.
      *
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array
     {
         $evidence = $this->resource->evidenceSpmi;
-
-        $audits = $this->resource->dataSpmiAudit;
-        $openCount = $audits->where('status_penyelesaian', 'Open')->count();
-        $closedCount = $audits->where('status_penyelesaian', 'Closed')->count();
 
         // Indikator yang ditugaskan ke project melalui mapping tim
         $mappings = $this->resource->mappingTim;
@@ -65,27 +65,16 @@ class EvidenceOverviewResource extends JsonResource
                     'link' => $evidence->link_dokumen_implementasi,
                     'deskripsi' => $evidence->deskripsi_dokumen_implementasi,
                 ],
+                'pilar_terisi' => $evidence->countFilledPilars(),
                 'created_at' => $evidence->created_at,
                 'updated_at' => $evidence->updated_at,
             ] : null,
-            'assigned_indicators' => $assignedIndicators,
-            'audit_summary' => [
-                'total' => $audits->count(),
-                'open' => $openCount,
-                'closed' => $closedCount,
+            'kelengkapan_pilar' => [
+                'total_pilar' => 4,
+                'terisi' => $evidence ? $evidence->countFilledPilars() : 0,
+                'belum_terisi' => $evidence ? 4 - $evidence->countFilledPilars() : 4,
             ],
-            'audits' => $audits->map(function ($audit) {
-                return [
-                    'id' => $audit->id,
-                    'id_indikator' => $audit->id_indikator,
-                    'jenis_kegiatan' => $audit->jenis_kegiatan,
-                    'tanggal_pelaksanaan' => $audit->tanggal_pelaksanaan?->toDateString(),
-                    'tahun_audit' => $audit->tahun_audit,
-                    'temuan' => $audit->temuan,
-                    'tindak_lanjut' => $audit->tindak_lanjut,
-                    'status_penyelesaian' => $audit->status_penyelesaian,
-                ];
-            }),
+            'assigned_indicators' => $assignedIndicators,
         ];
     }
 }

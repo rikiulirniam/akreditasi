@@ -58,6 +58,9 @@ class RubrikController extends Controller
         return $this->successResponse($rubrik, 'Rubrik berhasil diperbarui');
     }
 
+    /**
+     * Menghapus master rubrik dengan proteksi soft guard transaksi aktif.
+     */
     public function destroy(int $id): JsonResponse
     {
         $rubrik = Rubrik::find($id);
@@ -66,9 +69,7 @@ class RubrikController extends Controller
             return $this->errorResponse('Rubrik tidak ditemukan', null, 404);
         }
 
-        $sudahDigunakan = $rubrik->selfAssessments()->exists();
-
-        if ($sudahDigunakan) {
+        if ($rubrik->isUsedInActiveTransactions()) {
             return $this->errorResponse(
                 'Data tidak dapat dihapus karena telah digunakan dalam penilaian atau penugasan aktif.',
                 [

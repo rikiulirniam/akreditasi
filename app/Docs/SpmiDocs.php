@@ -183,5 +183,18 @@ class SpmiDocs
             new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
         ]
     )]
+    #[OA\Delete(
+        path: '/evidence-spmi/{id}',
+        summary: 'Menghapus data evidence SPMI',
+        description: 'Menghapus rekaman evidence SPMI berdasarkan ID.',
+        tags: ['SPMI - Evidence Mutu'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Evidence SPMI'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Data evidence SPMI berhasil dihapus', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 404, description: 'Data evidence SPMI tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
     public function evidenceSpmiDocs() {}
 }
