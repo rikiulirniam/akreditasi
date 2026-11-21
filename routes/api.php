@@ -178,6 +178,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         Route::get('projects', [ProjectAkreditasiController::class, 'index']);
         Route::get('projects/{id}', [ProjectAkreditasiController::class, 'show']);
         Route::get('projects/{id}/mapping-tim', [ProjectAkreditasiController::class, 'getMappingTim']);
+        Route::get('projects/{id}/placeholder-modules', [MappingTimAkreditasiController::class, 'getPlaceholderModules']);
         Route::get('projects/{id}/review-summary', [SelfAssessmentController::class, 'reviewSummary']);
         Route::get('projects/{id}/dashboard-progress', [DashboardProgressController::class, 'dashboardProgress']);
         Route::get('projects/{id}/readiness', [DashboardProgressController::class, 'readiness']);
@@ -214,13 +215,10 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
     Route::get('dosen/my-assignments', [MappingTimAkreditasiController::class, 'getMyAssignments'])
         ->middleware('role:dosen,kaprodi,administrator');
 
-    // Self Assessment / Penilaian Mandiri Reviewer
-    Route::middleware('role:administrator,reviewer,kaprodi')->group(function () {
+    // Self Assessment / Penilaian Mandiri (Kaprodi, Reviewer & Administrator)
+    Route::middleware('role:administrator,kaprodi,reviewer')->group(function () {
         Route::get('self-assessment', [SelfAssessmentController::class, 'index']);
         Route::get('self-assessment/{id}', [SelfAssessmentController::class, 'show']);
-    });
-
-    Route::middleware('role:administrator,reviewer')->group(function () {
         Route::post('self-assessment', [SelfAssessmentController::class, 'storeOrUpdate']);
         Route::delete('self-assessment/{id}', [SelfAssessmentController::class, 'destroy']);
     });
