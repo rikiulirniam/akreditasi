@@ -120,8 +120,8 @@ class AkreditasiDocs
     )]
     #[OA\Patch(
         path: '/projects/{id}/status',
-        summary: 'Memperbarui status lifecycle project akreditasi',
-        description: 'Memperbarui status project menjadi On Progress, Pending, Cancel, atau Selesai. Jika Selesai, tanggal_verifikasi_akreditasi dan nomor_sk_akreditasi wajib diisi.',
+        summary: 'Memperbarui status lifecycle project akreditasi (Khusus Kaprodi)',
+        description: 'Memperbarui status project menjadi Draft, On Progress, Pending, Cancel, atau Selesai (eksklusif hanya dapat dilakukan oleh role Kaprodi). Nomor SK akreditasi dan tanggal verifikasi bersifat opsional untuk seluruh status termasuk status Selesai.',
         tags: ['Akreditasi - Project'],
         security: [['BearerAuth' => []]],
         parameters: [
@@ -132,7 +132,7 @@ class AkreditasiDocs
             content: new OA\JsonContent(
                 required: ['status_project'],
                 properties: [
-                    new OA\Property(property: 'status_project', type: 'string', enum: ['Draft', 'On Progress', 'Pending', 'Cancel', 'Selesai'], example: 'On Progress'),
+                    new OA\Property(property: 'status_project', type: 'string', enum: ['Draft', 'On Progress', 'Pending', 'Cancel', 'Selesai'], example: 'Selesai'),
                     new OA\Property(property: 'tanggal_verifikasi_akreditasi', type: 'string', format: 'date', example: '2026-12-14', nullable: true),
                     new OA\Property(property: 'nomor_sk_akreditasi', type: 'string', example: 'SK-BANPT-2026-001', nullable: true),
                 ]
@@ -140,8 +140,75 @@ class AkreditasiDocs
         ),
         responses: [
             new OA\Response(response: 200, description: 'Status project berhasil diperbarui', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 403, description: 'Akses ditolak (hanya role Kaprodi yang berwenang)'),
             new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
             new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/projects/{id}/scoring-simulation',
+        summary: 'Simulasi skor kuantitatif LAM-INFOKOM (SDM Dosen)',
+        description: 'Menghitung simulasi skor 3 butir kuantitatif SDM Dosen (RMD, PDS3, PJLK) berdasarkan integrasi data live Kelompok 2 pada skala 0 - 4.',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
+            new OA\Parameter(name: 'jumlah_mahasiswa', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Jumlah mahasiswa aktif (opsional / override nilai default)'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Simulasi skor LAM-INFOKOM berhasil dihitung',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Simulasi skor LAM-INFOKOM berhasil dihitung'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(
+                                    property: 'skor_per_subkriteria',
+                                    type: 'object',
+                                    properties: [
+                                        new OA\Property(
+                                            property: 'rmd',
+                                            type: 'object',
+                                            properties: [
+                                                new OA\Property(property: 'nilai', type: 'number', format: 'float', example: 18.5),
+                                                new OA\Property(property: 'skor', type: 'number', format: 'float', example: 4.0),
+                                            ]
+                                        ),
+                                        new OA\Property(
+                                            property: 'pds3',
+                                            type: 'object',
+                                            properties: [
+                                                new OA\Property(property: 'persentase', type: 'number', format: 'float', example: 50.0),
+                                                new OA\Property(property: 'skor', type: 'number', format: 'float', example: 4.0),
+                                            ]
+                                        ),
+                                        new OA\Property(
+                                            property: 'pjlk',
+                                            type: 'object',
+                                            properties: [
+                                                new OA\Property(property: 'persentase', type: 'number', format: 'float', example: 40.0),
+                                                new OA\Property(property: 'skor', type: 'number', format: 'float', example: 3.14),
+                                            ]
+                                        ),
+                                    ]
+                                ),
+                                new OA\Property(property: 'total_na', type: 'number', format: 'float', example: 3.71),
+                                new OA\Property(property: 'is_simulated', type: 'boolean', example: true),
+                                new OA\Property(property: 'minimum_not_met', type: 'boolean', example: false),
+                                new OA\Property(property: 'warning', type: 'string', nullable: true, example: 'Jumlah dosen tetap homebase kurang dari 5 (syarat minimum LAM-INFOKOM tidak terpenuhi).'),
+                            ]
+                        ),
+                        new OA\Property(property: 'errors', type: 'null', example: null),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 404, description: 'Project tidak ditemukan'),
         ]
     )]
     #[OA\Get(

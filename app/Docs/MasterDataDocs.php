@@ -261,7 +261,7 @@ class MasterDataDocs
     #[OA\Get(
         path: '/master/instrumen/{id}/hierarchy',
         summary: 'Mendapatkan struktur hierarki lengkap instrumen akreditasi',
-        description: 'Menampilkan hierarki mendalam dari Instrumen -> Kriteria -> Subkriteria -> Indikator -> Rubrik Penilaian untuk instrumen akreditasi (UUID).',
+        description: 'Menampilkan hierarki mendalam dari Instrumen -> Kriteria -> Subkriteria -> Indikator untuk instrumen akreditasi (UUID).',
         tags: ['Master Data - Instrumen'],
         security: [['BearerAuth' => []]],
         parameters: [
@@ -280,6 +280,27 @@ class MasterDataDocs
                 )
             ),
             new OA\Response(response: 404, description: 'Instrumen tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/master/instrumen/active-static',
+        summary: 'Mendapatkan struktur instrumen aktif statis LAM-INFOKOM 2.1 TRK',
+        description: 'Menyajikan struktur lengkap hierarki instrumen aktif default LAM-INFOKOM 2.1 untuk Program Sarjana Terapan (TRK) secara statis tanpa seleksi dinamis multi-jenjang.',
+        tags: ['Master Data - Instrumen'],
+        security: [['BearerAuth' => []]],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Struktur instrumen aktif LAM-INFOKOM 2.1 TRK berhasil diambil',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Struktur instrumen aktif LAM-INFOKOM 2.1 TRK berhasil diambil'),
+                        new OA\Property(property: 'data', type: 'object'),
+                    ]
+                )
+            ),
+            new OA\Response(response: 404, description: 'Instrumen aktif tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
     public function instrumenDocs() {}

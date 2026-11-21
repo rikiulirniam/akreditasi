@@ -28,7 +28,7 @@ class EvidenceSpmiController extends Controller
             ], 422);
         }
 
-        $evidence = EvidenceSpmi::where('project_id', $projectId)->first();
+        $evidence = EvidenceSpmi::forProject((int) $projectId)->first();
 
         return $this->successResponse($evidence, 'Data evidence SPMI berhasil diambil');
     }
@@ -51,18 +51,36 @@ class EvidenceSpmiController extends Controller
     }
 
     /**
+     * Menghapus data evidence SPMI berdasarkan ID.
+     */
+    public function destroy(int $id): JsonResponse
+    {
+        $evidence = EvidenceSpmi::find($id);
+
+        if (! $evidence) {
+            return $this->errorResponse('Data evidence SPMI tidak ditemukan.', [
+                'id' => ['Data evidence SPMI dengan ID tersebut tidak ditemukan.'],
+            ], 404);
+        }
+
+        $evidence->delete();
+
+        return $this->successResponse(null, 'Data evidence SPMI berhasil dihapus');
+    }
+
+    /**
      * Rekapitulasi evidence overview untuk sebuah project akreditasi.
      *
      * Endpoint: GET /api/v1/projects/{id}/evidence-overview
-     * Menampilkan ringkasan 4 pilar evidence, daftar indikator yang ditugaskan,
-     * serta riwayat status temuan audit SPMI (Open/Closed).
+     * Menampilkan ringkasan 4 pilar evidence dan daftar indikator yang ditugaskan.
+     * Disederhanakan sesuai arahan: SPMI murni sebagai media penyimpanan dokumen
+     * evidence penjaminan mutu yang terhubung langsung ke indikator akreditasi.
      */
     public function overview(int $id): JsonResponse
     {
         $project = ProjectAkreditasi::with([
             'evidenceSpmi',
             'mappingTim.indikator',
-            'dataSpmiAudit',
         ])->find($id);
 
         if (! $project) {

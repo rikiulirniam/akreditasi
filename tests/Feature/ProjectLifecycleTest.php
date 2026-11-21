@@ -160,20 +160,38 @@ class ProjectLifecycleTest extends TestCase
             ->assertJsonPath('data.0.bidang_minat', 'Kecerdasan Buatan');
     }
 
-    public function test_rejects_selesai_status_when_sk_or_verification_date_is_missing(): void
+    public function test_kaprodi_can_set_selesai_status_without_sk_and_verification_date(): void
     {
         $response = $this->withHeader('Authorization', 'Bearer '.$this->kaprodiToken)
             ->patchJson("/api/v1/projects/{$this->project->id}/status", [
                 'status_project' => 'Selesai',
             ]);
 
-        $response->assertStatus(422)
-            ->assertJsonPath('success', false);
+        $response->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.status_project', 'Selesai');
 
         $this->assertDatabaseHas('project_akreditasi', [
             'id' => $this->project->id,
-            'status_project' => 'On Progress',
+            'status_project' => 'Selesai',
         ]);
+    }
+
+    public function test_non_kaprodi_roles_are_forbidden_from_updating_project_status(): void
+    {
+        // Role Administrator ditolak dengan 403 Forbidden
+        $this->withHeader('Authorization', 'Bearer '.$this->adminToken)
+            ->patchJson("/api/v1/projects/{$this->project->id}/status", [
+                'status_project' => 'Pending',
+            ])
+            ->assertStatus(403);
+
+        // Role Dosen ditolak dengan 403 Forbidden
+        $this->withHeader('Authorization', 'Bearer '.$this->dosenToken)
+            ->patchJson("/api/v1/projects/{$this->project->id}/status", [
+                'status_project' => 'Pending',
+            ])
+            ->assertStatus(403);
     }
 
     public function test_allows_selesai_status_when_sk_and_verification_date_are_provided(): void
@@ -199,7 +217,7 @@ class ProjectLifecycleTest extends TestCase
 
     public function test_rejects_invalid_lifecycle_status_value(): void
     {
-        $response = $this->withHeader('Authorization', 'Bearer '.$this->adminToken)
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->kaprodiToken)
             ->patchJson("/api/v1/projects/{$this->project->id}/status", [
                 'status_project' => 'StatusTidakValid',
             ]);

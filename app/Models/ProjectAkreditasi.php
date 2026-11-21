@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -127,5 +128,104 @@ class ProjectAkreditasi extends Model
     public function evidenceSpmi(): HasOne
     {
         return $this->hasOne(EvidenceSpmi::class, 'project_id');
+    }
+
+    /**
+     * Relasi project ke narasi yang disimpan per subkriteria.
+     */
+    public function narasiSubkriteria(): HasMany
+    {
+        return $this->hasMany(NarasiSubkriteria::class, 'id_project');
+    }
+
+    /**
+     * Scope untuk memuat relasi profil project secara ringkas.
+     */
+    public function scopeWithOverviewProfile(Builder $query): Builder
+     * Scope untuk eager loading relasi master dasar.
+     */
+    public function scopeWithRelations(Builder $query): Builder
+    {
+        return $query->with(['versiInstrumen', 'jenjang', 'jenisInstrumen']);
+    }
+
+    /**
+     * Scope untuk eager loading seluruh detail relasi project akreditasi.
+     */
+    public function scopeWithFullDetails(Builder $query): Builder
+    {
+        return $query->with([
+            'versiInstrumen',
+            'jenjang',
+            'jenisInstrumen',
+        ]);
+    }
+
+    /**
+     * Scope untuk memastikan project memiliki instrumen yang sesuai.
+     */
+    public function scopeMatchingInstrument(Builder $query): Builder
+    {
+        return $query->whereHas('versiInstrumen')->whereHas('jenjang')->whereHas('jenisInstrumen');
+            'mappingTim.indikator',
+            'lembarProdi.buktis',
+            'selfAssessments.rubrik',
+        ]);
+    }
+
+    /**
+     * Scope untuk memfilter project berdasarkan ID Program Studi.
+     */
+    public function scopeFilterByProdi(Builder $query, mixed $idProdi): Builder
+    {
+        if (! empty($idProdi)) {
+            $query->where('id_prodi', $idProdi);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Scope untuk memfilter project berdasarkan ID Jenjang.
+     */
+    public function scopeFilterByJenjang(Builder $query, mixed $idJenjang): Builder
+    {
+        if (! empty($idJenjang)) {
+            $query->where('id_jenjang', $idJenjang);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Scope untuk memfilter project berdasarkan status siklus akreditasi.
+     */
+    public function scopeFilterByStatus(Builder $query, ?string $status): Builder
+    {
+        if (! empty($status)) {
+            $query->where('status_project', $status);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Scope untuk hanya menyertakan project dengan status aktif (bukan Cancel atau Selesai).
+     */
+    public function scopeStatusActive(Builder $query): Builder
+    {
+        return $query->whereNotIn('status_project', ['Cancel', 'Selesai']);
+    }
+
+    /**
+     * Scope pencarian nama project akreditasi.
+     */
+    public function scopeSearch(Builder $query, ?string $keyword): Builder
+    {
+        if (! empty($keyword)) {
+            $query->where('nama_project', 'like', "%{$keyword}%");
+        }
+
+        return $query;
     }
 }

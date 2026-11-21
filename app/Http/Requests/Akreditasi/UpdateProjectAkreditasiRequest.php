@@ -16,8 +16,8 @@ class UpdateProjectAkreditasiRequest extends BaseApiRequest
             'nama_project' => 'sometimes|required|string|max:255',
             'tahun_target_submit' => 'sometimes|required|integer|digits:4',
             'status_project' => 'sometimes|required|string|in:Draft,On Progress,Pending,Cancel,Selesai',
-            'tanggal_verifikasi_akreditasi' => 'nullable|date|required_if:status_project,Selesai',
-            'nomor_sk_akreditasi' => 'nullable|string|max:255|required_if:status_project,Selesai',
+            'tanggal_verifikasi_akreditasi' => 'nullable|date',
+            'nomor_sk_akreditasi' => 'nullable|string|max:255',
         ];
     }
 }

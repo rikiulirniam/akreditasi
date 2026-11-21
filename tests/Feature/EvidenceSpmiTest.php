@@ -6,7 +6,6 @@ use App\Models\EvidenceSpmi;
 use App\Models\JenisInstrumen;
 use App\Models\Jenjang;
 use App\Models\LembagaAkreditasi;
-use App\Models\Project;
 use App\Models\ProjectAkreditasi;
 use App\Models\VersiInstrumen;
 use App\Services\JwtService;
@@ -243,14 +242,145 @@ class EvidenceSpmiTest extends TestCase
         $this->assertInstanceOf(ProjectAkreditasi::class, $evidence->project);
         $this->assertEquals($this->project->id, $evidence->project->id);
 
-        // Test hasOne pada Project
-        $projectModel = Project::find($this->project->id);
-        $this->assertInstanceOf(EvidenceSpmi::class, $projectModel->evidenceSpmi);
-        $this->assertEquals($evidence->id, $projectModel->evidenceSpmi->id);
-
         // Test hasOne pada ProjectAkreditasi
         $projectAkreditasiModel = ProjectAkreditasi::find($this->project->id);
         $this->assertInstanceOf(EvidenceSpmi::class, $projectAkreditasiModel->evidenceSpmi);
         $this->assertEquals($evidence->id, $projectAkreditasiModel->evidenceSpmi->id);
+    }
+
+    // ==========================================
+    // DELETE Evidence SPMI
+    // ==========================================
+
+    public function test_unauthenticated_delete_is_rejected(): void
+    {
+        $evidence = EvidenceSpmi::create([
+            'project_id' => $this->project->id,
+            'link_bukti_evaluasi' => 'https://drive.google.com/delete-test',
+        ]);
+
+        $response = $this->deleteJson('/api/v1/evidence-spmi/'.$evidence->id);
+
+        $response->assertStatus(401);
+        $this->assertDatabaseHas('evidence_spmi', ['id' => $evidence->id]);
+    }
+
+    public function test_admin_can_delete_evidence_spmi(): void
+    {
+        $evidence = EvidenceSpmi::create([
+            'project_id' => $this->project->id,
+            'link_bukti_evaluasi' => 'https://drive.google.com/delete-admin',
+            'deskripsi_bukti_evaluasi' => 'Akan dihapus oleh admin',
+        ]);
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->adminToken)
+            ->deleteJson('/api/v1/evidence-spmi/'.$evidence->id);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'message' => 'Data evidence SPMI berhasil dihapus',
+                'data' => null,
+            ]);
+
+        $this->assertDatabaseMissing('evidence_spmi', ['id' => $evidence->id]);
+    }
+
+    public function test_kaprodi_can_delete_evidence_spmi(): void
+    {
+        $evidence = EvidenceSpmi::create([
+            'project_id' => $this->project->id,
+            'link_bukti_evaluasi' => 'https://drive.google.com/delete-kaprodi',
+        ]);
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->kaprodiToken)
+            ->deleteJson('/api/v1/evidence-spmi/'.$evidence->id);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'message' => 'Data evidence SPMI berhasil dihapus',
+            ]);
+
+        $this->assertDatabaseMissing('evidence_spmi', ['id' => $evidence->id]);
+    }
+
+    public function test_delete_returns_404_when_evidence_not_found(): void
+    {
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->adminToken)
+            ->deleteJson('/api/v1/evidence-spmi/99999');
+
+        $response->assertStatus(404)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Data evidence SPMI tidak ditemukan.',
+            ]);
+    }
+
+    public function test_reviewer_cannot_delete_evidence_spmi(): void
+    {
+        $evidence = EvidenceSpmi::create([
+            'project_id' => $this->project->id,
+            'link_bukti_evaluasi' => 'https://drive.google.com/reviewer-noaccess',
+        ]);
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->reviewerToken)
+            ->deleteJson('/api/v1/evidence-spmi/'.$evidence->id);
+
+        // Reviewer seharusnya 403 karena route hanya untuk administrator,kaprodi
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('evidence_spmi', ['id' => $evidence->id]);
+    }
+
+    // ==========================================
+    // Local Scope & Helper
+    // ==========================================
+
+    public function test_scope_for_project_filters_correctly(): void
+    {
+        EvidenceSpmi::create([
+            'project_id' => $this->project->id,
+            'link_bukti_evaluasi' => 'https://drive.google.com/scope-test',
+        ]);
+
+        $result = EvidenceSpmi::forProject($this->project->id)->first();
+
+        $this->assertNotNull($result);
+        $this->assertEquals($this->project->id, $result->project_id);
+
+        // Non-existent project returns null
+        $empty = EvidenceSpmi::forProject(99999)->first();
+        $this->assertNull($empty);
+    }
+
+    public function test_count_filled_pilars_returns_correct_count(): void
+    {
+        // 0 pilar terisi
+        $evidenceEmpty = EvidenceSpmi::create([
+            'project_id' => $this->project->id,
+        ]);
+        $this->assertEquals(0, $evidenceEmpty->countFilledPilars());
+
+        $evidenceEmpty->delete();
+
+        // 2 pilar terisi
+        $evidencePartial = EvidenceSpmi::create([
+            'project_id' => $this->project->id,
+            'link_bukti_evaluasi' => 'https://drive.google.com/evaluasi',
+            'link_bukti_dampak' => 'https://drive.google.com/dampak',
+        ]);
+        $this->assertEquals(2, $evidencePartial->countFilledPilars());
+
+        $evidencePartial->delete();
+
+        // 4 pilar terisi
+        $evidenceFull = EvidenceSpmi::create([
+            'project_id' => $this->project->id,
+            'link_bukti_evaluasi' => 'https://drive.google.com/evaluasi',
+            'link_bukti_pengendalian' => 'https://drive.google.com/pengendalian',
+            'link_bukti_dampak' => 'https://drive.google.com/dampak',
+            'link_dokumen_implementasi' => 'https://drive.google.com/implementasi',
+        ]);
+        $this->assertEquals(4, $evidenceFull->countFilledPilars());
     }
 }
