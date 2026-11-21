@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -46,6 +47,64 @@ class Kriteria extends Model
         return [
             'id_instrumen' => 'string',
         ];
+    }
+
+    /**
+     * Scope hierarki lengkap kriteria sampai indikator tanpa memuat rubrik.
+     */
+    public function scopeCompleteHierarchy(Builder $query): Builder
+    {
+        return $query->select([
+            'id',
+            'id_instrumen',
+            'kode_kriteria',
+            'nama_kriteria',
+        ])
+            ->with([
+                'subkriteria' => function ($sub): void {
+                    $sub->completeHierarchy();
+                },
+            ])
+            ->orderBy('kode_kriteria');
+    }
+
+    /**
+     * Scope untuk eager load instrumen induk dan hitungan subkriteria.
+     */
+    public function scopeWithDetails(Builder $query): Builder
+    {
+        return $query->with([
+            'instrumen.versiInstrumen.lembaga',
+            'instrumen.jenjang',
+            'instrumen.jenisInstrumen',
+        ])->withCount('subkriteria');
+    }
+
+    /**
+     * Scope untuk filter berdasarkan UUID instrumen.
+     */
+    public function scopeFilterByInstrumen(Builder $query, ?string $idInstrumen = null): Builder
+    {
+        if ($idInstrumen !== null && $idInstrumen !== '') {
+            $query->where('id_instrumen', $idInstrumen);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Scope untuk detail kriteria beserta subkriteria dan indikator_count.
+     */
+    public function scopeWithDetailedSubkriteria(Builder $query): Builder
+    {
+        return $query->with([
+            'instrumen.versiInstrumen.lembaga',
+            'instrumen.jenjang',
+            'instrumen.jenisInstrumen',
+            'subkriteria' => function ($q): void {
+                $q->withCount('indikator')->orderBy('kode_subkriteria');
+            },
+        ])->withCount('subkriteria');
     }
 
     /**

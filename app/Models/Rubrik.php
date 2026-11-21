@@ -28,6 +28,14 @@ class Rubrik extends Model
     }
 
     /**
+     * Proteksi soft guard: cek apakah rubrik sedang digunakan dalam transaksi penilaian aktif.
+     */
+    public function isUsedInActiveTransactions(): bool
+    {
+        return $this->selfAssessments()->exists();
+    }
+
+    /**
      * Relasi ke Indikator induk.
      */
     public function indikator(): BelongsTo

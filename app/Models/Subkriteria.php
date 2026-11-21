@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -52,6 +53,59 @@ class Subkriteria extends Model
         return [
             'id_kriteria' => 'integer',
         ];
+    }
+
+    /**
+     * Scope hierarki lengkap subkriteria ke indikator tanpa rubrik.
+     */
+    public function scopeCompleteHierarchy(Builder $query): Builder
+    {
+        return $query->select([
+            'id',
+            'id_kriteria',
+            'kode_subkriteria',
+            'nama_subkriteria',
+        ])
+            ->with([
+                'indikator' => function ($ind): void {
+                    $ind->completeHierarchy();
+                },
+            ])
+            ->orderBy('kode_subkriteria');
+    }
+
+    /**
+     * Scope untuk eager load kriteria induk dan hitungan indikator.
+     */
+    public function scopeWithDetails(Builder $query): Builder
+    {
+        return $query->with('kriteria')
+            ->withCount('indikator');
+    }
+
+    /**
+     * Scope untuk filter berdasarkan ID kriteria.
+     */
+    public function scopeFilterByKriteria(Builder $query, ?int $idKriteria = null): Builder
+    {
+        if ($idKriteria !== null) {
+            $query->where('id_kriteria', $idKriteria);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Scope untuk detail subkriteria beserta indikator dan rubriks_count.
+     */
+    public function scopeWithDetailedIndikator(Builder $query): Builder
+    {
+        return $query->with([
+            'kriteria',
+            'indikator' => function ($q): void {
+                $q->withCount('rubriks')->orderBy('kode_indikator');
+            },
+        ])->withCount('indikator');
     }
 
     /**
