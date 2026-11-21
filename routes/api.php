@@ -243,6 +243,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
 
     Route::middleware('role:administrator,kaprodi')->group(function () {
         Route::post('evidence-spmi', [EvidenceSpmiController::class, 'store']);
+        Route::delete('evidence-spmi/{id}', [EvidenceSpmiController::class, 'destroy']);
     });
 
     /*
