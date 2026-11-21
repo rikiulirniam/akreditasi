@@ -7,11 +7,10 @@ use App\Models\Indikator;
 use App\Models\Instrumen;
 use App\Models\JenisInstrumen;
 use App\Models\Jenjang;
-use App\Models\MappingTimAkreditasi;
 use App\Models\ProjectAkreditasi;
 use App\Models\ProjectIndicatorEvidence;
-use App\Models\SelfAssessment;
 use App\Models\VersiInstrumen;
+use App\Services\Akreditasi\DashboardMetricsService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,6 +20,16 @@ class DashboardProgressController extends Controller
 {
     use ApiResponseTrait;
 
+    /**
+     * Menyuntikkan service agregasi yang dipakai dashboard dan readiness.
+     */
+    public function __construct(
+        protected DashboardMetricsService $dashboardMetricsService,
+    ) {}
+
+    /**
+     * Mengembalikan progres pengisian bukti untuk seluruh kriteria project.
+     */
     public function dashboardProgress(int $id): JsonResponse
     {
         $project = ProjectAkreditasi::find($id);
@@ -29,67 +38,19 @@ class DashboardProgressController extends Controller
             return $this->errorResponse('Project akreditasi tidak ditemukan', null, 404);
         }
 
-        $instrument = $this->findProjectInstrument($project);
+        $progress = $this->dashboardMetricsService->getDashboardProgress($project);
 
-        if (! $instrument) {
+        if (! $progress['instrument_found']) {
             return $this->errorResponse('Instrumen untuk project ini tidak ditemukan', null, 404);
         }
+        unset($progress['instrument_found']);
 
-        $criteria = $instrument->kriterias()
-            ->with('subkriteria.indikator')
-            ->orderBy('id')
-            ->get();
-
-        $indicatorIds = $criteria
-            ->flatMap(fn ($criterion) => $criterion->subkriteria->flatMap(
-                fn ($subcriterion) => $subcriterion->indikator->pluck('id')
-            ))
-            ->values();
-
-        $evidencedIndicatorIds = ProjectIndicatorEvidence::query()
-            ->where('id_project', $project->id)
-            ->whereIn('id_indikator', $indicatorIds)
-            ->whereNotNull('link_evidence')
-            ->where('link_evidence', '<>', '')
-            ->pluck('id_indikator')
-            ->map(fn ($indicatorId) => (int) $indicatorId)
-            ->flip();
-
-        $criteriaProgress = $criteria->map(function ($criterion) use ($evidencedIndicatorIds): array {
-            $indicators = $criterion->subkriteria->flatMap(
-                fn ($subcriterion) => $subcriterion->indikator
-            );
-            $totalIndicators = $indicators->count();
-            $completedIndicators = $indicators->filter(
-                fn ($indicator) => $evidencedIndicatorIds->has((int) $indicator->id)
-            )->count();
-
-            return [
-                'id' => $criterion->id,
-                'kode_kriteria' => $criterion->kode_kriteria,
-                'nama_kriteria' => $criterion->nama_kriteria,
-                'total_indikator' => $totalIndicators,
-                'indikator_terisi_bukti' => $completedIndicators,
-                'progres_persen' => $totalIndicators > 0
-                    ? round(($completedIndicators / $totalIndicators) * 100, 2)
-                    : 0,
-            ];
-        });
-
-        $totalIndicators = $indicatorIds->count();
-        $completedIndicators = $evidencedIndicatorIds->count();
-
-        return $this->successResponse([
-            'project_id' => $project->id,
-            'kriteria' => $criteriaProgress,
-            'total_indikator' => $totalIndicators,
-            'indikator_terisi_bukti' => $completedIndicators,
-            'progres_total_persen' => $totalIndicators > 0
-                ? round(($completedIndicators / $totalIndicators) * 100, 2)
-                : 0,
-        ], 'Metrik progres dashboard berhasil dihitung');
+        return $this->successResponse($progress, 'Metrik progres dashboard berhasil dihitung');
     }
 
+    /**
+     * Mengembalikan daftar indikator yang belum memenuhi syarat submit.
+     */
     public function readiness(int $id): JsonResponse
     {
         $project = ProjectAkreditasi::find($id);
@@ -98,85 +59,19 @@ class DashboardProgressController extends Controller
             return $this->errorResponse('Project akreditasi tidak ditemukan', null, 404);
         }
 
-        $instrument = $this->findProjectInstrument($project);
+        $readiness = $this->dashboardMetricsService->getReadiness($project);
 
-        if (! $instrument) {
+        if (! $readiness['instrument_found']) {
             return $this->errorResponse('Instrumen untuk project ini tidak ditemukan', null, 404);
         }
+        unset($readiness['instrument_found']);
 
-        $indicators = $instrument->kriterias()
-            ->with('subkriteria.indikator')
-            ->orderBy('id')
-            ->get()
-            ->flatMap(fn ($criterion) => $criterion->subkriteria->flatMap(
-                fn ($subcriterion) => $subcriterion->indikator
-            ));
-
-        $indicatorIds = $indicators->pluck('id');
-        $picAssignments = MappingTimAkreditasi::query()
-            ->where('id_project', $project->id)
-            ->whereIn('id_indikator', $indicatorIds)
-            ->where(function ($query): void {
-                $query->whereNull('role')->orWhereRaw('UPPER(role) = ?', ['PIC']);
-            })
-            ->whereNotNull('id_user')
-            ->pluck('id_indikator')
-            ->map(fn ($indicatorId) => (int) $indicatorId)
-            ->flip();
-        $evidencedIndicators = ProjectIndicatorEvidence::query()
-            ->where('id_project', $project->id)
-            ->whereIn('id_indikator', $indicatorIds)
-            ->whereNotNull('link_evidence')
-            ->where('link_evidence', '<>', '')
-            ->pluck('id_indikator')
-            ->map(fn ($indicatorId) => (int) $indicatorId)
-            ->flip();
-        $scoredIndicators = SelfAssessment::query()
-            ->where('id_project', $project->id)
-            ->whereIn('id_indikator', $indicatorIds)
-            ->whereNotNull('skor_terbobot')
-            ->pluck('id_indikator')
-            ->map(fn ($indicatorId) => (int) $indicatorId)
-            ->flip();
-
-        $notReadyIndicators = $indicators->map(function (Indikator $indicator) use (
-            $picAssignments,
-            $evidencedIndicators,
-            $scoredIndicators
-        ): ?array {
-            $missing = [];
-
-            if (! $picAssignments->has((int) $indicator->id)) {
-                $missing[] = 'pic';
-            }
-            if (! $evidencedIndicators->has((int) $indicator->id)) {
-                $missing[] = 'link_evidence';
-            }
-            if (! $scoredIndicators->has((int) $indicator->id)) {
-                $missing[] = 'skor_reviewer';
-            }
-
-            if ($missing === []) {
-                return null;
-            }
-
-            return [
-                'id_indikator' => $indicator->id,
-                'kode_indikator' => $indicator->kode_indikator,
-                'deskripsi_indikator' => $indicator->deskripsi_indikator,
-                'belum_terpenuhi' => $missing,
-            ];
-        })->filter()->values();
-
-        return $this->successResponse([
-            'project_id' => $project->id,
-            'total_indikator_kritis' => $indicators->count(),
-            'indikator_belum_siap' => $notReadyIndicators,
-            'jumlah_indikator_belum_siap' => $notReadyIndicators->count(),
-            'siap_submit' => $notReadyIndicators->isEmpty(),
-        ], 'Pengecekan kesiapan submit berhasil dilakukan');
+        return $this->successResponse($readiness, 'Pengecekan kesiapan submit berhasil dilakukan');
     }
 
+    /**
+     * Membuat project ringkas berdasarkan master data TRK yang aktif.
+     */
     public function quickCreate(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -242,6 +137,9 @@ class DashboardProgressController extends Controller
         return $this->successResponse($project, 'Project TRK berhasil dibuat', 201);
     }
 
+    /**
+     * Menampilkan link evidence milik satu indikator pada project.
+     */
     public function showEvidence(int $id, int $indicatorId): JsonResponse
     {
         $project = ProjectAkreditasi::find($id);
@@ -262,6 +160,9 @@ class DashboardProgressController extends Controller
         return $this->successResponse($evidence, 'Bukti indikator berhasil diambil');
     }
 
+    /**
+     * Menyimpan atau memperbarui link evidence satu indikator project.
+     */
     public function storeEvidence(Request $request, int $id, int $indicatorId): JsonResponse
     {
         $project = ProjectAkreditasi::find($id);
@@ -289,6 +190,9 @@ class DashboardProgressController extends Controller
         return $this->successResponse($evidence, 'Bukti indikator berhasil disimpan');
     }
 
+    /**
+     * Mencari instrumen yang sesuai dengan versi, jenjang, dan jenis project.
+     */
     private function findProjectInstrument(ProjectAkreditasi $project): ?Instrumen
     {
         return Instrumen::query()
@@ -298,6 +202,9 @@ class DashboardProgressController extends Controller
             ->first();
     }
 
+    /**
+     * Memastikan indikator memang termasuk pada instrumen milik project.
+     */
     private function projectContainsIndicator(ProjectAkreditasi $project, int $indicatorId): bool
     {
         $instrument = $this->findProjectInstrument($project);

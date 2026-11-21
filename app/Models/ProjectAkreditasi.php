@@ -131,6 +131,17 @@ class ProjectAkreditasi extends Model
     }
 
     /**
+     * Relasi project ke narasi yang disimpan per subkriteria.
+     */
+    public function narasiSubkriteria(): HasMany
+    {
+        return $this->hasMany(NarasiSubkriteria::class, 'id_project');
+    }
+
+    /**
+     * Scope untuk memuat relasi profil project secara ringkas.
+     */
+    public function scopeWithOverviewProfile(Builder $query): Builder
      * Scope untuk eager loading relasi master dasar.
      */
     public function scopeWithRelations(Builder $query): Builder
@@ -147,6 +158,15 @@ class ProjectAkreditasi extends Model
             'versiInstrumen',
             'jenjang',
             'jenisInstrumen',
+        ]);
+    }
+
+    /**
+     * Scope untuk memastikan project memiliki instrumen yang sesuai.
+     */
+    public function scopeMatchingInstrument(Builder $query): Builder
+    {
+        return $query->whereHas('versiInstrumen')->whereHas('jenjang')->whereHas('jenisInstrumen');
             'mappingTim.indikator',
             'lembarProdi.buktis',
             'selfAssessments.rubrik',

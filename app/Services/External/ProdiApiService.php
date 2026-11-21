@@ -14,8 +14,7 @@ class ProdiApiService
     protected array $defaultProdi;
 
     /**
-     * Saat instansiasi default, langsung menyiapkan data Program Studi TRK
-     * sebagai state/default prodi.
+     * Menyiapkan URL akademik dan memilih data default Program Studi TRK.
      */
     public function __construct(?string $token = null)
     {
@@ -60,6 +59,44 @@ class ProdiApiService
     public function getDefaultProdi(): array
     {
         return $this->defaultProdi;
+    }
+
+    /**
+     * Mengambil data satu program studi berdasarkan ID dari API Kelompok 1.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function getProdiById(int $id, ?string $token = null): ?array
+    {
+        $authToken = $token ?? $this->token;
+
+        try {
+            $response = Http::timeout(8)
+                ->acceptJson()
+                ->when($authToken, fn ($http) => $http->withToken($authToken))
+                ->get("{$this->baseUrl}/prodi/".$id);
+
+            if ($response->successful()) {
+                $payload = $response->json('data') ?? $response->json();
+                if (is_array($payload)) {
+                    return $payload;
+                }
+            }
+        } catch (Exception) {
+            // Lanjut ke pencarian pada daftar program studi atau fallback.
+        }
+
+        foreach ($this->getAllProdi($authToken) as $prodi) {
+            if ((int) ($prodi['id'] ?? 0) === $id) {
+                return $prodi;
+            }
+        }
+
+        if ($this->getDefaultProdi()['id'] === $id) {
+            return $this->getDefaultProdi();
+        }
+
+        return null;
     }
 
     /**

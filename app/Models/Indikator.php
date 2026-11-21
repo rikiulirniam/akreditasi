@@ -205,4 +205,34 @@ class Indikator extends Model
     {
         return $this->hasMany(DataSpmiAudit::class, 'id_indikator');
     }
+
+    /**
+     * Relasi indikator ke seluruh link evidence milik project.
+     */
+    public function projectEvidences(): HasMany
+    {
+        return $this->hasMany(ProjectIndicatorEvidence::class, 'id_indikator');
+    }
+
+    /**
+     * Scope indikator milik instrumen tertentu.
+     */
+    public function scopeForInstrument(Builder $query, string $instrumentId): Builder
+    {
+        return $query->whereHas('subkriteria.kriteria', function (Builder $query) use ($instrumentId): void {
+            $query->where('id_instrumen', $instrumentId);
+        });
+    }
+
+    /**
+     * Scope indikator yang memiliki link evidence valid pada project.
+     */
+    public function scopeWithProjectEvidence(Builder $query, int $projectId): Builder
+    {
+        return $query->whereHas('projectEvidences', function (Builder $query) use ($projectId): void {
+            $query->where('id_project', $projectId)
+                ->whereNotNull('link_evidence')
+                ->where('link_evidence', '<>', '');
+        });
+    }
 }

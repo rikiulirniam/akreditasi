@@ -131,4 +131,12 @@ class Subkriteria extends Model
     {
         return $this->hasMany(Indikator::class, 'id_subkriteria');
     }
+
+    /**
+     * Relasi subkriteria ke narasi yang tersimpan pada setiap project.
+     */
+    public function narasiProject(): HasMany
+    {
+        return $this->hasMany(NarasiSubkriteria::class, 'id_subkriteria');
+    }
 }
