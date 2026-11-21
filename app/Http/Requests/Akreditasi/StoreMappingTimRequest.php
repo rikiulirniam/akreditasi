@@ -11,6 +11,22 @@ class StoreMappingTimRequest extends BaseApiRequest
         if ($this->route('id') && ! $this->has('id_project')) {
             $this->merge(['id_project' => (int) $this->route('id')]);
         }
+
+        if ($this->has('role') && is_string($this->role)) {
+            $this->merge(['role' => strtoupper(trim($this->role))]);
+        }
+
+        if ($this->has('assignments') && is_array($this->assignments)) {
+            $assignments = array_map(function ($item) {
+                if (is_array($item) && isset($item['role']) && is_string($item['role'])) {
+                    $item['role'] = strtoupper(trim($item['role']));
+                }
+
+                return $item;
+            }, $this->assignments);
+
+            $this->merge(['assignments' => $assignments]);
+        }
     }
 
     public function rules(): array
