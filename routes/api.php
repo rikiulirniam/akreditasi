@@ -76,8 +76,12 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | 1. Modul Master Data
+    | 1. Modul Master Data & Static Instrument
     |--------------------------------------------------------------------------
+    | Hasil Audit Rute & Clean Data:
+    | - Endpoint form input manual Lembar Evaluasi Diri Prodi dan rubrik bertingkat
+    |   dinamis telah ditiadakan agar konsisten dengan data riil API & SPMI.
+    | - Instrumen dikunci statis pada LAM-INFOKOM 2.1 TRK: GET instrumen/active-static
     | Read (GET): Semua role (administrator, kaprodi, reviewer, dosen)
     | Write/Modify (POST, PUT, DELETE): Khusus administrator
     */
@@ -90,6 +94,8 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
             Route::get('versi-instrumen', [VersiInstrumenController::class, 'index']);
             Route::get('versi-instrumen/{id}', [VersiInstrumenController::class, 'show']);
 
+            // Struktur instrumen aktif statis LAM-INFOKOM 2.1 TRK
+            Route::get('instrumen/active-static', [InstrumenController::class, 'getActiveStatic']);
             Route::get('instrumen', [InstrumenController::class, 'index']);
             Route::get('instrumen/{id}/hierarchy', [InstrumenController::class, 'getHierarchy']);
             Route::get('instrumen/{id}', [InstrumenController::class, 'show']);
@@ -119,7 +125,6 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
             Route::patch('versi-instrumen/{id}/aktifkan', [VersiInstrumenController::class, 'aktifkan']);
             Route::apiResource('versi-instrumen', VersiInstrumenController::class)->except(['index', 'show']);
             Route::apiResource('instrumen', InstrumenController::class)->except(['index', 'show']);
-            Route::apiResource('instrumen', InstrumenController::class)->except(['index', 'show']);
             Route::apiResource('jenjang', JenjangController::class)->except(['index', 'show']);
             Route::apiResource('kriteria', KriteriaController::class)->except(['index', 'show']);
             Route::apiResource('subkriteria', SubkriteriaController::class)->except(['index', 'show']);
@@ -134,6 +139,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         Route::get('versi-instrumen', [VersiInstrumenController::class, 'index']);
         Route::get('versi-instrumen/{id}', [VersiInstrumenController::class, 'show']);
 
+        Route::get('instrumen/active-static', [InstrumenController::class, 'getActiveStatic']);
         Route::get('instrumen', [InstrumenController::class, 'index']);
         Route::get('instrumen/{id}/hierarchy', [InstrumenController::class, 'getHierarchy']);
         Route::get('instrumen/{id}', [InstrumenController::class, 'show']);

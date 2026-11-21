@@ -16,17 +16,12 @@ class KriteriaController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = Kriteria::with([
-            'instrumen.versiInstrumen.lembaga',
-            'instrumen.jenjang',
-            'instrumen.jenisInstrumen',
-        ])->withCount('subkriteria');
+        $idInstrumen = $request->filled('id_instrumen') ? (string) $request->query('id_instrumen') : null;
 
-        if ($request->filled('id_instrumen')) {
-            $query->where('id_instrumen', $request->query('id_instrumen'));
-        }
-
-        $data = $query->orderBy('kode_kriteria')->get();
+        $data = Kriteria::withDetails()
+            ->filterByInstrumen($idInstrumen)
+            ->orderBy('kode_kriteria')
+            ->get();
 
         return $this->successResponse($data, 'Data kriteria berhasil diambil');
     }
@@ -45,14 +40,7 @@ class KriteriaController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $kriteria = Kriteria::with([
-            'instrumen.versiInstrumen.lembaga',
-            'instrumen.jenjang',
-            'instrumen.jenisInstrumen',
-            'subkriteria' => function ($q) {
-                $q->withCount('indikator')->orderBy('kode_subkriteria');
-            },
-        ])->withCount('subkriteria')->find($id);
+        $kriteria = Kriteria::withDetailedSubkriteria()->find($id);
 
         if (! $kriteria) {
             return $this->errorResponse('Kriteria tidak ditemukan', null, 404);

@@ -2533,7 +2533,7 @@
                     "Master Data - Instrumen"
                 ],
                 "summary": "Mendapatkan struktur hierarki lengkap instrumen akreditasi",
-                "description": "Menampilkan hierarki mendalam dari Instrumen -> Kriteria -> Subkriteria -> Indikator -> Rubrik Penilaian untuk instrumen akreditasi (UUID).",
+                "description": "Menampilkan hierarki mendalam dari Instrumen -> Kriteria -> Subkriteria -> Indikator untuk instrumen akreditasi (UUID).",
                 "operationId": "8b0385d1c7be220c2536525736e0cb67",
                 "parameters": [
                     {
@@ -2573,6 +2573,56 @@
                     },
                     "404": {
                         "description": "Instrumen tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/master/instrumen/active-static": {
+            "get": {
+                "tags": [
+                    "Master Data - Instrumen"
+                ],
+                "summary": "Mendapatkan struktur instrumen aktif statis LAM-INFOKOM 2.1 TRK",
+                "description": "Menyajikan struktur lengkap hierarki instrumen aktif default LAM-INFOKOM 2.1 untuk Program Sarjana Terapan (TRK) secara statis tanpa seleksi dinamis multi-jenjang.",
+                "operationId": "b72e9998b0baaf06a71f21507cfb79bc",
+                "responses": {
+                    "200": {
+                        "description": "Struktur instrumen aktif LAM-INFOKOM 2.1 TRK berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Struktur instrumen aktif LAM-INFOKOM 2.1 TRK berhasil diambil"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Instrumen aktif tidak ditemukan",
                         "content": {
                             "application/json": {
                                 "schema": {
