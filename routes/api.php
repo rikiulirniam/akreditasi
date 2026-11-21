@@ -180,15 +180,18 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         Route::get('projects/{id}/dashboard-progress', [DashboardProgressController::class, 'dashboardProgress']);
         Route::get('projects/{id}/readiness', [DashboardProgressController::class, 'readiness']);
         Route::get('projects/{id}/indicators/{indicatorId}/evidence', [DashboardProgressController::class, 'showEvidence']);
+        Route::get('projects/{id}/scoring-simulation', [ProjectAkreditasiController::class, 'scoringSimulation']);
     });
+
+    // Update status project akreditasi: Khusus role Kaprodi
+    Route::patch('projects/{id}/status', [ProjectAkreditasiController::class, 'updateStatus'])
+        ->middleware('role:kaprodi');
 
     Route::middleware('role:administrator,kaprodi')->group(function () {
         Route::post('projects/quick-create', [DashboardProgressController::class, 'quickCreate']);
         Route::post('projects', [ProjectAkreditasiController::class, 'store']);
         Route::put('projects/{id}', [ProjectAkreditasiController::class, 'update']);
         Route::patch('projects/{id}', [ProjectAkreditasiController::class, 'update']);
-        // update status project akreditasi
-        Route::patch('projects/{id}/status', [ProjectAkreditasiController::class, 'updateStatus']);
         Route::delete('projects/{id}', [ProjectAkreditasiController::class, 'destroy']);
         Route::put('projects/{id}/indicators/{indicatorId}/evidence', [DashboardProgressController::class, 'storeEvidence']);
 

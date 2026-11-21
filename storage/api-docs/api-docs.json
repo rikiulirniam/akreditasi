@@ -382,8 +382,8 @@
                 "tags": [
                     "Akreditasi - Project"
                 ],
-                "summary": "Memperbarui status lifecycle project akreditasi",
-                "description": "Memperbarui status project menjadi On Progress, Pending, Cancel, atau Selesai. Jika Selesai, tanggal_verifikasi_akreditasi dan nomor_sk_akreditasi wajib diisi.",
+                "summary": "Memperbarui status lifecycle project akreditasi (Khusus Kaprodi)",
+                "description": "Memperbarui status project menjadi Draft, On Progress, Pending, Cancel, atau Selesai (eksklusif hanya dapat dilakukan oleh role Kaprodi). Nomor SK akreditasi dan tanggal verifikasi bersifat opsional untuk seluruh status termasuk status Selesai.",
                 "operationId": "b3312d56386d014aab1c08cf6296cfea",
                 "parameters": [
                     {
@@ -406,7 +406,7 @@
                                 "properties": {
                                     "status_project": {
                                         "type": "string",
-                                        "example": "On Progress",
+                                        "example": "Selesai",
                                         "enum": [
                                             "Draft",
                                             "On Progress",
@@ -443,6 +443,9 @@
                             }
                         }
                     },
+                    "403": {
+                        "description": "Akses ditolak (hanya role Kaprodi yang berwenang)"
+                    },
                     "422": {
                         "description": "Validasi gagal",
                         "content": {
@@ -462,6 +465,146 @@
                                 }
                             }
                         }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/projects/{id}/scoring-simulation": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Simulasi skor kuantitatif LAM-INFOKOM (SDM Dosen)",
+                "description": "Menghitung simulasi skor 3 butir kuantitatif SDM Dosen (RMD, PDS3, PJLK) berdasarkan integrasi data live Kelompok 2 pada skala 0 - 4.",
+                "operationId": "50ac90a032abd2fcd9c34898b70eb981",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Project Akreditasi",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "jumlah_mahasiswa",
+                        "in": "query",
+                        "description": "Jumlah mahasiswa aktif (opsional / override nilai default)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Simulasi skor LAM-INFOKOM berhasil dihitung",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Simulasi skor LAM-INFOKOM berhasil dihitung"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "skor_per_subkriteria": {
+                                                    "properties": {
+                                                        "rmd": {
+                                                            "properties": {
+                                                                "nilai": {
+                                                                    "type": "number",
+                                                                    "format": "float",
+                                                                    "example": 18.5
+                                                                },
+                                                                "skor": {
+                                                                    "type": "number",
+                                                                    "format": "float",
+                                                                    "example": 4
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "pds3": {
+                                                            "properties": {
+                                                                "persentase": {
+                                                                    "type": "number",
+                                                                    "format": "float",
+                                                                    "example": 50
+                                                                },
+                                                                "skor": {
+                                                                    "type": "number",
+                                                                    "format": "float",
+                                                                    "example": 4
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "pjlk": {
+                                                            "properties": {
+                                                                "persentase": {
+                                                                    "type": "number",
+                                                                    "format": "float",
+                                                                    "example": 40
+                                                                },
+                                                                "skor": {
+                                                                    "type": "number",
+                                                                    "format": "float",
+                                                                    "example": 3.14
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "total_na": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 3.71
+                                                },
+                                                "is_simulated": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "minimum_not_met": {
+                                                    "type": "boolean",
+                                                    "example": false
+                                                },
+                                                "warning": {
+                                                    "type": "string",
+                                                    "example": "Jumlah dosen tetap homebase kurang dari 5 (syarat minimum LAM-INFOKOM tidak terpenuhi).",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "errors": {
+                                            "type": "null",
+                                            "example": null
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Project tidak ditemukan"
                     }
                 },
                 "security": [
@@ -1725,7 +1868,7 @@
                     "Integrasi Eksternal"
                 ],
                 "summary": "Mendapatkan daftar dosen dari Kelompok 2",
-                "description": "Mengambil data seluruh dosen aktif dari sistem Tridharma (Kelompok 2) untuk kebutuhan penugasan tim (PJ & PIC).",
+                "description": "Mengambil data seluruh dosen aktif dari sistem Tridharma (Kelompok 2) dengan standardisasi 5 field: nip_nidn, nama_lengkap, gelar, jabatan_fungsional, dan status_homebase.",
                 "operationId": "76ebbeaaeb5ef8f0b6dfc53aa758d571",
                 "responses": {
                     "200": {
@@ -1745,6 +1888,44 @@
                                         "data": {
                                             "type": "array",
                                             "items": {
+                                                "properties": {
+                                                    "nip_nidn": {
+                                                        "type": "string",
+                                                        "example": "197504122000031001"
+                                                    },
+                                                    "nidn": {
+                                                        "type": "string",
+                                                        "example": "0012048801"
+                                                    },
+                                                    "nama_lengkap": {
+                                                        "type": "string",
+                                                        "example": "Prof. Dr. Andi Wijaya, S.Kom., M.T."
+                                                    },
+                                                    "nama": {
+                                                        "type": "string",
+                                                        "example": "Prof. Dr. Andi Wijaya, S.Kom., M.T."
+                                                    },
+                                                    "gelar": {
+                                                        "type": "string",
+                                                        "example": "Doktor (S3)"
+                                                    },
+                                                    "jabatan_fungsional": {
+                                                        "type": "string",
+                                                        "example": "Guru Besar"
+                                                    },
+                                                    "status_homebase": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "email": {
+                                                        "type": "string",
+                                                        "example": "andi.wijaya@kampus.ac.id"
+                                                    },
+                                                    "bidang_minat": {
+                                                        "type": "string",
+                                                        "example": "Rekayasa Perangkat Lunak & Sistem Informasi"
+                                                    }
+                                                },
                                                 "type": "object"
                                             }
                                         },
