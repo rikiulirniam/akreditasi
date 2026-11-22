@@ -29,12 +29,12 @@ use Illuminate\Support\Facades\Route;
 | API Routes (Version 1 - Protected by JWT & Role-Based Access Control)
 |--------------------------------------------------------------------------
 | Seluruh endpoint REST API di bawah diproteksi oleh middleware JWT (jwt.auth)
-| dan pembagian hak akses per role (administrator, reviewer, kaprodi, dosen).
+| dan pembagian hak akses per role (administrator, kaprodi, dosen).
 */
 
 Route::prefix('v1')->middleware('jwt.auth')->group(function () {
 
-    Route::prefix('external')->middleware('role:administrator,kaprodi,reviewer,dosen')->group(function () {
+    Route::prefix('external')->middleware('role:administrator,kaprodi,dosen')->group(function () {
 
         Route::get('prodi', function (ProdiApiService $prodiService) {
             return response()->json([
@@ -80,6 +80,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
     |--------------------------------------------------------------------------
     | 1. Modul Master Data & Static Instrument
     |--------------------------------------------------------------------------
+    | Read (GET): Semua role (administrator, kaprodi, dosen)
     | Hasil Audit Rute & Clean Data:
     | - Endpoint form input manual Lembar Evaluasi Diri Prodi dan rubrik bertingkat
     |   dinamis telah ditiadakan agar konsisten dengan data riil API & SPMI.
@@ -89,7 +90,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
     */
     Route::prefix('master')->group(function () {
         // Read-only untuk kebutuhan instrumen semua role
-        Route::middleware('role:administrator,kaprodi,reviewer,dosen')->group(function () {
+        Route::middleware('role:administrator,kaprodi,dosen')->group(function () {
             Route::get('lembaga-akreditasi', [LembagaAkreditasiController::class, 'index']);
             Route::get('lembaga-akreditasi/{id}', [LembagaAkreditasiController::class, 'show']);
 
@@ -137,7 +138,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
     });
 
     // Direct alias endpoint untuk akses master instrumen & kriteria tanpa prefix /master/
-    Route::middleware('role:administrator,kaprodi,reviewer,dosen')->group(function () {
+    Route::middleware('role:administrator,kaprodi,dosen')->group(function () {
         Route::get('versi-instrumen', [VersiInstrumenController::class, 'index']);
         Route::get('versi-instrumen/{id}', [VersiInstrumenController::class, 'show']);
 
@@ -164,17 +165,17 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
     | 2. Modul Akreditasi
     |--------------------------------------------------------------------------
     | Project Akreditasi:
-    |   - Read (GET): administrator, kaprodi, reviewer, dosen
+    |   - Read (GET): administrator, kaprodi, dosen
     |   - Write (POST, PUT, DELETE): administrator, kaprodi
     | Mapping Tim Akreditasi:
-    |   - Read (GET): administrator, kaprodi, reviewer, dosen
+    |   - Read (GET): administrator, kaprodi, dosen
     |   - Write (POST, DELETE): administrator, kaprodi
-    | Self Assessment / Penilaian Reviewer:
-    |   - Read (GET): administrator, reviewer, kaprodi
-    |   - Write (POST, DELETE penilaian): administrator, reviewer
+    | Self Assessment / Penilaian (dikelola Kaprodi):
+    |   - Read (GET): administrator, kaprodi
+    |   - Write (POST, DELETE penilaian): administrator, kaprodi
     */
     // Project Akreditasi
-    Route::middleware('role:administrator,kaprodi,reviewer,dosen')->group(function () {
+    Route::middleware('role:administrator,kaprodi,dosen')->group(function () {
         Route::get('projects', [ProjectAkreditasiController::class, 'index']);
         Route::get('projects/{id}', [ProjectAkreditasiController::class, 'show']);
         Route::get('projects/{id}/mapping-tim', [ProjectAkreditasiController::class, 'getMappingTim']);
@@ -210,14 +211,14 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         ->middleware('role:administrator,kaprodi,dosen');
 
     Route::get('mapping-tim', [MappingTimAkreditasiController::class, 'index'])
-        ->middleware('role:administrator,kaprodi,reviewer,dosen');
+        ->middleware('role:administrator,kaprodi,dosen');
 
     // Endpoint khusus Dosen: daftar butir indikator yang ditugaskan ke dosen login
     Route::get('dosen/my-assignments', [MappingTimAkreditasiController::class, 'getMyAssignments'])
         ->middleware('role:dosen,kaprodi,administrator');
 
-    // Self Assessment / Penilaian Mandiri (Kaprodi, Reviewer & Administrator)
-    Route::middleware('role:administrator,kaprodi,reviewer')->group(function () {
+    // Self Assessment / Penilaian Mandiri (Kaprodi & Administrator — Reviewer dilebur ke Kaprodi)
+    Route::middleware('role:administrator,kaprodi')->group(function () {
         Route::get('self-assessment', [SelfAssessmentController::class, 'index']);
         Route::get('self-assessment/{id}', [SelfAssessmentController::class, 'show']);
         Route::post('self-assessment', [SelfAssessmentController::class, 'storeOrUpdate']);
@@ -233,10 +234,10 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
     |--------------------------------------------------------------------------
     | 3. Modul SPMI & Audit
     |--------------------------------------------------------------------------
-    | Read (GET): administrator, kaprodi, reviewer, dosen
+    | Read (GET): administrator, kaprodi, dosen
     | Write (POST, PUT, DELETE, Tindak Lanjut): administrator, kaprodi
     */
-    Route::middleware('role:administrator,kaprodi,reviewer')->group(function () {
+    Route::middleware('role:administrator,kaprodi')->group(function () {
         Route::get('spmi-audit', [SpmiAuditController::class, 'index']);
         Route::get('spmi-audit/{id}', [SpmiAuditController::class, 'show']);
     });
@@ -251,7 +252,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
     });
 
     // Modul Evidence SPMI (One-to-One dengan Project Akreditasi)
-    Route::middleware('role:administrator,kaprodi,reviewer,dosen')->group(function () {
+    Route::middleware('role:administrator,kaprodi,dosen')->group(function () {
         Route::get('evidence-spmi', [EvidenceSpmiController::class, 'show']);
         Route::get('projects/{id}/evidence-overview', [EvidenceSpmiController::class, 'overview']);
     });
@@ -265,10 +266,10 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
     |--------------------------------------------------------------------------
     | 4. Modul Sarana & Prasarana
     |--------------------------------------------------------------------------
-    | Read (GET): administrator, kaprodi, reviewer, dosen
+    | Read (GET): administrator, kaprodi, dosen
     | Write (POST, PUT, DELETE): administrator, kaprodi
     */
-    Route::middleware('role:administrator,kaprodi,reviewer,dosen')->group(function () {
+    Route::middleware('role:administrator,kaprodi,dosen')->group(function () {
         Route::get('sarpras-prodi', [DataSarprasProdiController::class, 'index']);
         Route::get('sarpras-prodi/{id}', [DataSarprasProdiController::class, 'show']);
         Route::get('sarana-prodi', [DataSaranaProdiController::class, 'index']);

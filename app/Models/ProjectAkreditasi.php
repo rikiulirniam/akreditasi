@@ -85,10 +85,10 @@ class ProjectAkreditasi extends Model
     /**
      * Relasi ke Lembar Kerja Prodi.
      */
-    public function lembarProdi(): HasMany
-    {
-        return $this->hasMany(LembarProdi::class, 'id_project');
-    }
+    // public function lembarProdi(): HasMany
+    // {
+    //     return $this->hasMany(LembarKerjaProdi::class, 'id_project');
+    // }
 
     /**
      * Relasi ke Self Assessment / Penilaian Mandiri.
