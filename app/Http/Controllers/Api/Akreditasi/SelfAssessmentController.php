@@ -26,8 +26,8 @@ class SelfAssessmentController extends Controller
     {
         $query = SelfAssessment::with(['project', 'indikator', 'rubrik']);
 
-        if ($request->has('id_project')) {
-            $query->where('id_project', $request->query('id_project'));
+        if ($request->filled('id_project')) {
+            $query->forProject((int) $request->query('id_project'));
         }
 
         if ($request->has('id_indikator')) {
@@ -125,5 +125,15 @@ class SelfAssessmentController extends Controller
         $summary = $this->scoringService->calculateProjectReviewSummary($id);
 
         return $this->successResponse($summary, 'Rekapitulasi review penilaian project berhasil diambil');
+    }
+
+    /**
+     * Menghitung hasil simulasi akreditasi (skor per subkriteria, total NA, predikat, dan detail simulasi).
+     */
+    public function scoringResult(int $id): JsonResponse
+    {
+        $data = $this->scoringService->calculateScoringResult($id);
+
+        return $this->successResponse($data, 'Hasil simulasi akreditasi berhasil dihitung');
     }
 }

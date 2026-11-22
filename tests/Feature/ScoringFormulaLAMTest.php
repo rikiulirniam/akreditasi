@@ -473,4 +473,37 @@ class ScoringFormulaLAMTest extends TestCase
                 ->assertJsonPath('success', true);
         }
     }
+
+    /**
+     * Uji Kasus 11: Indikator non-data (pajangan) yang belum dinilai otomatis menggunakan SKOR_DEFAULT_SIMULASI (3) dan mengaktifkan flag is_simulated.
+     */
+    public function test_non_data_indicators_use_default_simulation_score(): void
+    {
+        [$project, $instrumen] = $this->createBaseProject();
+
+        // 1 Indikator data riil dinilai skor 4 (bobot 10.0 -> skor terbobot 40.0)
+        $indData = $this->createIndikatorWithRubriks($instrumen, 'A', 'A.1', 'IND-A.1', 10.00);
+        $rubrik4 = Rubrik::where('id_indikator', $indData->id)->where('skor', 4)->first();
+        SelfAssessment::create([
+            'id_project' => $project->id,
+            'id_indikator' => $indData->id,
+            'id_rubrik' => $rubrik4->id,
+        ]);
+
+        // 1 Indikator non-data (pajangan E.1.1) belum dinilai (bobot 5.0)
+        $this->createIndikatorWithRubriks($instrumen, 'E', 'E.1', 'E.1.1', 5.00);
+
+        $token = $this->generateToken('ADMINISTRATOR');
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
+            ->getJson("/api/v1/projects/{$project->id}/review-summary");
+
+        // Total skor = (10 * 4) + (5 * 3) = 40 + 15 = 55
+        $response->assertStatus(200)
+            ->assertJsonPath('data.total_skor', 55)
+            ->assertJsonPath('data.is_simulated', true)
+            ->assertJsonCount(1, 'data.detail_simulasi')
+            ->assertJsonPath('data.detail_simulasi.0.kode_indikator', 'E.1.1')
+            ->assertJsonPath('data.detail_simulasi.0.skor_default', 3);
+    }
 }

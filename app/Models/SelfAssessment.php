@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -49,5 +50,29 @@ class SelfAssessment extends Model
     public function rubrik(): BelongsTo
     {
         return $this->belongsTo(Rubrik::class, 'id_rubrik');
+    }
+
+    /**
+     * Scope untuk memfilter penilaian berdasarkan project ID.
+     */
+    public function scopeForProject(Builder $query, int $projectId): Builder
+    {
+        return $query->where('id_project', $projectId);
+    }
+
+    /**
+     * Scope untuk hanya memuat penilaian yang memiliki penjelasan / tanggapan kaprodi.
+     */
+    public function scopeWithPenjelasan(Builder $query): Builder
+    {
+        return $query->whereNotNull('tanggapan_kaprodi')->where('tanggapan_kaprodi', '!=', '');
+    }
+
+    /**
+     * Scope untuk eager loading relasi rubrik dan hierarki indikator -> subkriteria -> kriteria.
+     */
+    public function scopeWithRubrikAndIndikator(Builder $query): Builder
+    {
+        return $query->with(['rubrik', 'indikator.subkriteria.kriteria']);
     }
 }

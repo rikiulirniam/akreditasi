@@ -142,6 +142,11 @@ class ProjectAkreditasi extends Model
      * Scope untuk memuat relasi profil project secara ringkas.
      */
     public function scopeWithOverviewProfile(Builder $query): Builder
+    {
+        return $query->with(['versiInstrumen', 'jenjang', 'jenisInstrumen']);
+    }
+
+    /**
      * Scope untuk eager loading relasi master dasar.
      */
     public function scopeWithRelations(Builder $query): Builder
@@ -158,6 +163,9 @@ class ProjectAkreditasi extends Model
             'versiInstrumen',
             'jenjang',
             'jenisInstrumen',
+            'mappingTim.indikator',
+            'lembarProdi.buktis',
+            'selfAssessments.rubrik',
         ]);
     }
 
@@ -167,10 +175,6 @@ class ProjectAkreditasi extends Model
     public function scopeMatchingInstrument(Builder $query): Builder
     {
         return $query->whereHas('versiInstrumen')->whereHas('jenjang')->whereHas('jenisInstrumen');
-            'mappingTim.indikator',
-            'lembarProdi.buktis',
-            'selfAssessments.rubrik',
-        ]);
     }
 
     /**

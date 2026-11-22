@@ -54,21 +54,22 @@ class DosenApiService
                         $payload = $payload['data'];
                     }
 
-                if (is_array($payload) && count($payload) > 0) {
-                    return collect($payload)->map(function ($dosen) {
-                        return [
-                            'nidn' => $dosen['nidn'] ?? '-',
-                            'nama' => $dosen['nama'] ?? $dosen['nama_dosen'] ?? $dosen['name'] ?? '-',
-                            'email' => $dosen['email'] ?? '-',
-                            'bidang_minat' => $dosen['bidang_minat'] ?? $dosen['keahlian'] ?? '-',
-                            'id_prodi' => $dosen['id_prodi'] ?? $dosen['prodi_id'] ?? null,
-                            'kode_prodi' => $dosen['kode_prodi'] ?? $dosen['singkatan'] ?? null,
-                            'nama_prodi' => $dosen['nama_prodi'] ?? $dosen['prodi'] ?? null,
-                            'status_dosen' => $dosen['status_dosen'] ?? $dosen['status'] ?? null,
-                            'pendidikan_terakhir' => $dosen['pendidikan_terakhir'] ?? $dosen['pendidikan'] ?? $dosen['kualifikasi'] ?? null,
-                            'gelar' => $dosen['gelar'] ?? null,
-                        ];
-                    })->values()->toArray();
+                    if (is_array($payload) && count($payload) > 0) {
+                        return collect($payload)->map(function ($dosen) {
+                            return [
+                                'nidn' => $dosen['nidn'] ?? '-',
+                                'nama' => $dosen['nama'] ?? $dosen['nama_dosen'] ?? $dosen['name'] ?? '-',
+                                'email' => $dosen['email'] ?? '-',
+                                'bidang_minat' => $dosen['bidang_minat'] ?? $dosen['keahlian'] ?? '-',
+                                'id_prodi' => $dosen['id_prodi'] ?? $dosen['prodi_id'] ?? null,
+                                'kode_prodi' => $dosen['kode_prodi'] ?? $dosen['singkatan'] ?? null,
+                                'nama_prodi' => $dosen['nama_prodi'] ?? $dosen['prodi'] ?? null,
+                                'status_dosen' => $dosen['status_dosen'] ?? $dosen['status'] ?? null,
+                                'pendidikan_terakhir' => $dosen['pendidikan_terakhir'] ?? $dosen['pendidikan'] ?? $dosen['kualifikasi'] ?? null,
+                                'gelar' => $dosen['gelar'] ?? null,
+                            ];
+                        })->values()->toArray();
+                    }
                 }
             } catch (Exception $e) {
                 // Server Kelompok 2 unreachable / timeout -> lanjut ke fallback dummy
@@ -224,7 +225,6 @@ class DosenApiService
 
             if ($response->successful()) {
                 $payload = $response->json('data') ?? $response->json();
-
                 if (is_array($payload)) {
                     return $payload;
                 }
