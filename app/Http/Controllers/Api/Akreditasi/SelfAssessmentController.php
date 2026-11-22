@@ -44,11 +44,9 @@ class SelfAssessmentController extends Controller
         $validated = $request->validated();
 
         $skorTerbobot = null;
-
         if (! empty($validated['id_rubrik'])) {
             $rubrik = Rubrik::findOrFail($validated['id_rubrik']);
             $indikator = Indikator::findOrFail($validated['id_indikator']);
-
             $skorTerbobot = $this->scoringService->calculateItemScore($indikator->bobot, $rubrik->skor);
         }
 
@@ -135,5 +133,27 @@ class SelfAssessmentController extends Controller
         $data = $this->scoringService->calculateScoringResult($id);
 
         return $this->successResponse($data, 'Hasil simulasi akreditasi berhasil dihitung');
+    }
+
+    /**
+     * Verifikasi bukti oleh Kaprodi/Administrator (Disetujui / Perlu Revisi).
+     */
+    public function verifikasiBukti(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'status_verifikasi' => 'required|in:disetujui,perlu_revisi',
+        ]);
+
+        $assessment = SelfAssessment::find($id);
+
+        if (! $assessment) {
+            return $this->errorResponse('Data penilaian mandiri tidak ditemukan', null, 404);
+        }
+
+        $assessment->update([
+            'status_verifikasi_bukti' => $request->validated('status_verifikasi'),
+        ]);
+
+        return $this->successResponse($assessment, 'Status verifikasi bukti berhasil diperbarui');
     }
 }
