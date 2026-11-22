@@ -146,7 +146,7 @@ class SpmiDocs
     #[OA\Get(
         path: '/projects/{id}/evidence-overview',
         summary: 'Rekapitulasi evidence overview sebuah project akreditasi',
-        description: 'Mengambil rekapitulasi data dokumen mutu 4 pilar, daftar indikator yang ditugaskan beserta dosen PIC, serta ringkasan riwayat temuan audit SPMI (Open/Closed).',
+        description: 'Mengambil rekapitulasi data 4 Pilar Dokumen Mutu Institusi (Laporan AMI & Monev, RTM & RTL, Capaian IKU & Survei Kepuasan Stakeholder, Dokumen Implementasi Kebijakan/Manual/SOP), daftar indikator yang ditugaskan beserta status kelengkapan.',
         tags: ['SPMI - Evidence Mutu'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
@@ -159,7 +159,7 @@ class SpmiDocs
     #[OA\Post(
         path: '/evidence-spmi',
         summary: 'Menyimpan atau memperbarui data evidence SPMI project',
-        description: 'Menyimpan rekaman 4 pilar bukti SPMI berbasis updateOrCreate pada project_id.',
+        description: 'Menyimpan rekaman 4 Pilar Dokumen Mutu Institusi SPMI berbasis updateOrCreate pada project_id.',
         tags: ['SPMI - Evidence Mutu'],
         requestBody: new OA\RequestBody(
             required: true,
@@ -167,14 +167,14 @@ class SpmiDocs
                 required: ['project_id'],
                 properties: [
                     new OA\Property(property: 'project_id', type: 'integer', example: 1),
-                    new OA\Property(property: 'link_bukti_evaluasi', type: 'string', example: 'https://drive.google.com/evaluasi', nullable: true),
-                    new OA\Property(property: 'deskripsi_bukti_evaluasi', type: 'string', example: 'Laporan AMI Semester Genap', nullable: true),
-                    new OA\Property(property: 'link_bukti_pengendalian', type: 'string', example: 'https://drive.google.com/pengendalian', nullable: true),
-                    new OA\Property(property: 'deskripsi_bukti_pengendalian', type: 'string', example: 'Tindakan korektif dan RTL rapat tinjauan manajemen', nullable: true),
-                    new OA\Property(property: 'link_bukti_dampak', type: 'string', example: 'https://drive.google.com/dampak', nullable: true),
-                    new OA\Property(property: 'deskripsi_bukti_dampak', type: 'string', example: 'Bukti luaran tridharma dan prestasi mahasiswa', nullable: true),
-                    new OA\Property(property: 'link_dokumen_implementasi', type: 'string', example: 'https://drive.google.com/implementasi', nullable: true),
-                    new OA\Property(property: 'deskripsi_dokumen_implementasi', type: 'string', example: 'SOP dan formulir operasional harian prodi', nullable: true),
+                    new OA\Property(property: 'link_bukti_evaluasi', type: 'string', example: 'https://drive.google.com/ami-monev', nullable: true, description: 'Pilar 1: Laporan Audit Mutu Internal (AMI & Monev)'),
+                    new OA\Property(property: 'deskripsi_bukti_evaluasi', type: 'string', example: 'Laporan Audit Mutu Internal (AMI & Monev) Semester Genap', nullable: true),
+                    new OA\Property(property: 'link_bukti_pengendalian', type: 'string', example: 'https://drive.google.com/rtm-rtl', nullable: true, description: 'Pilar 2: Rapat Tinjauan Manajemen (RTM & RTL)'),
+                    new OA\Property(property: 'deskripsi_bukti_pengendalian', type: 'string', example: 'Notulen RTM dan Rencana Tindak Lanjut (RTL)', nullable: true),
+                    new OA\Property(property: 'link_bukti_dampak', type: 'string', example: 'https://drive.google.com/iku-kepuasan', nullable: true, description: 'Pilar 3: Capaian IKU & Survei Kepuasan Stakeholder'),
+                    new OA\Property(property: 'deskripsi_bukti_dampak', type: 'string', example: 'Laporan Capaian IKU & Hasil Survei Kepuasan Stakeholder', nullable: true),
+                    new OA\Property(property: 'link_dokumen_implementasi', type: 'string', example: 'https://drive.google.com/spmi-manual-sop', nullable: true, description: 'Pilar 4: Dokumen Implementasi (Buku Kebijakan SPMI, Manual Mutu, SOP PPEPP)'),
+                    new OA\Property(property: 'deskripsi_dokumen_implementasi', type: 'string', example: 'Buku Kebijakan SPMI, Manual Mutu, dan SOP PPEPP Operasional', nullable: true),
                 ]
             )
         ),
