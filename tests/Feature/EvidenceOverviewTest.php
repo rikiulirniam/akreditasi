@@ -187,10 +187,14 @@ class EvidenceOverviewTest extends TestCase
 
         // Verifikasi 4 pilar evidence
         $this->assertNotNull($data['evidence']);
+        $this->assertEquals('Laporan Audit Mutu Internal (AMI & Monev)', $data['evidence']['pilar_1_evaluasi']['nama_pilar']);
         $this->assertEquals('https://drive.google.com/evaluasi', $data['evidence']['pilar_1_evaluasi']['link']);
         $this->assertEquals('Laporan AMI', $data['evidence']['pilar_1_evaluasi']['deskripsi']);
+        $this->assertEquals('Rapat Tinjauan Manajemen (RTM & RTL)', $data['evidence']['pilar_2_pengendalian']['nama_pilar']);
         $this->assertEquals('https://drive.google.com/pengendalian', $data['evidence']['pilar_2_pengendalian']['link']);
+        $this->assertEquals('Capaian IKU & Survei Kepuasan Stakeholder', $data['evidence']['pilar_3_dampak']['nama_pilar']);
         $this->assertEquals('https://drive.google.com/dampak', $data['evidence']['pilar_3_dampak']['link']);
+        $this->assertEquals('Dokumen Implementasi (Buku Kebijakan SPMI, Manual Mutu, SOP PPEPP)', $data['evidence']['pilar_4_implementasi']['nama_pilar']);
         $this->assertEquals('https://drive.google.com/implementasi', $data['evidence']['pilar_4_implementasi']['link']);
 
         // Verifikasi kelengkapan pilar
@@ -198,6 +202,9 @@ class EvidenceOverviewTest extends TestCase
         $this->assertEquals(4, $data['kelengkapan_pilar']['total_pilar']);
         $this->assertEquals(4, $data['kelengkapan_pilar']['terisi']);
         $this->assertEquals(0, $data['kelengkapan_pilar']['belum_terisi']);
+        $this->assertCount(4, $data['kelengkapan_pilar']['daftar_pilar']);
+        $this->assertTrue($data['kelengkapan_pilar']['daftar_pilar'][0]['terisi']);
+        $this->assertEquals('Laporan Audit Mutu Internal (AMI & Monev)', $data['kelengkapan_pilar']['daftar_pilar'][0]['nama_pilar']);
 
         // Verifikasi indikator yang ditugaskan
         $this->assertCount(1, $data['assigned_indicators']);
