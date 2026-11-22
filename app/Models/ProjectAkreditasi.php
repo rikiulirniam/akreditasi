@@ -168,7 +168,7 @@ class ProjectAkreditasi extends Model
             'jenjang',
             'jenisInstrumen',
             'mappingTim.indikator',
-            'lembarProdi.buktis',
+            'indikatorEvidences.indikator.subkriteria.kriteria',
             'selfAssessments.rubrik',
         ]);
     }

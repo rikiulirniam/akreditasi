@@ -202,6 +202,23 @@ class DashboardMetricsTest extends TestCase
             ->assertJsonPath('data.link_evidence', 'https://example.test/evidence/new');
     }
 
+    public function test_project_detail_includes_evidence_with_criterion_hierarchy(): void
+    {
+        ProjectIndicatorEvidence::create([
+            'id_project' => $this->project->id,
+            'id_indikator' => $this->indicators[0]->id,
+            'link_evidence' => 'https://example.test/evidence/detail',
+        ]);
+
+        $this->withToken($this->token)
+            ->getJson('/api/v1/projects/'.$this->project->id)
+            ->assertOk()
+            ->assertJsonPath('data.indikator_evidences.0.id_project', $this->project->id)
+            ->assertJsonPath('data.indikator_evidences.0.link_evidence', 'https://example.test/evidence/detail')
+            ->assertJsonPath('data.indikator_evidences.0.indikator.kode_indikator', 'IND-1.1.1')
+            ->assertJsonPath('data.indikator_evidences.0.indikator.subkriteria.kriteria.kode_kriteria', 'K-1');
+    }
+
     public function test_quick_create_fails_when_required_active_master_data_is_missing(): void
     {
         $this->project->versiInstrumen->jenjangs()->updateExistingPivot(
