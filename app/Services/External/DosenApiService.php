@@ -214,7 +214,6 @@ class DosenApiService
 
             if ($response->successful()) {
                 $payload = $response->json('data') ?? $response->json();
-
                 if (is_array($payload)) {
                     return $payload;
                 }

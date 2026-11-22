@@ -181,6 +181,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         Route::get('projects/{id}/mapping-tim', [ProjectAkreditasiController::class, 'getMappingTim']);
         Route::get('projects/{id}/placeholder-modules', [MappingTimAkreditasiController::class, 'getPlaceholderModules']);
         Route::get('projects/{id}/review-summary', [SelfAssessmentController::class, 'reviewSummary']);
+        Route::get('projects/{id}/scoring-result', [SelfAssessmentController::class, 'scoringResult']);
         Route::get('projects/{id}/dashboard-progress', [DashboardProgressController::class, 'dashboardProgress']);
         Route::get('projects/{id}/readiness', [DashboardProgressController::class, 'readiness']);
         Route::get('projects/{id}/composite-overview', [CompositeProjectController::class, 'overview']);

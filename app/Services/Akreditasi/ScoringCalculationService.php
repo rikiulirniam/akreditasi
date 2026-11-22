@@ -7,17 +7,11 @@ use App\Models\Instrumen;
 use App\Models\Kriteria;
 use App\Models\ProjectAkreditasi;
 use App\Models\SelfAssessment;
-use App\Services\External\DosenApiService;
+use App\Models\Subkriteria;
 use Illuminate\Support\Collection;
 
 class ScoringCalculationService
 {
-    public function __construct(
-        protected ?DosenApiService $dosenApiService = null
-    ) {
-        $this->dosenApiService = $dosenApiService ?? app(DosenApiService::class);
-    }
-
     /**
      * Nama-nama predikat akreditasi LAM-INFOKOM.
      */
@@ -52,6 +46,21 @@ class ScoringCalculationService
      * Batas skor rubrik maksimum untuk kategori butir di bawah target.
      */
     public const SKOR_DI_BAWAH_TARGET_MAX = 2;
+
+    /**
+     * Skor default untuk indikator non-data (pajangan/simulasi).
+     */
+    public const SKOR_DEFAULT_SIMULASI = 3;
+
+    /**
+     * Daftar kode indikator non-data (pajangan).
+     *
+     * @var array<int, string>
+     */
+    public const NON_DATA_INDIKATOR_CODES = [
+        'E.1.1', 'E.1.2', 'E.2.1', 'E.2.2',
+        'F.1.1', 'F.1.2', 'F.2.1', 'F.2.2',
+    ];
 
     /**
      * Menghitung skor terbobot untuk satu butir penilaian.
@@ -107,8 +116,8 @@ class ScoringCalculationService
         }
 
         // Ambil seluruh penilaian self assessment yang ada untuk project ini
-        $assessments = SelfAssessment::with(['rubrik', 'indikator.subkriteria.kriteria'])
-            ->where('id_project', $project->id)
+        $assessments = SelfAssessment::forProject($project->id)
+            ->withRubrikAndIndikator()
             ->get()
             ->keyBy('id_indikator');
 
@@ -123,6 +132,9 @@ class ScoringCalculationService
         $butirDiBawahTarget = [];
         $catatanReviewer = [];
         $tanggapanPenjelasanProdi = [];
+
+        $detailSimulasi = [];
+        $hasAnySimulated = false;
 
         $kriteriaDIndikatorCount = 0;
         $kriteriaDMetCount = 0;
@@ -147,6 +159,10 @@ class ScoringCalculationService
 
                 $bobot = (float) ($ind->bobot ?? 0.0);
                 $kriteriaBobotTotal += $bobot;
+
+                $kodeIndikator = (string) $ind->kode_indikator;
+                $isNonData = in_array($kodeIndikator, self::NON_DATA_INDIKATOR_CODES, true);
+                $indIsSimulated = false;
 
                 $assessment = $assessments->get($ind->id);
                 $hasRubrik = $assessment !== null && $assessment->id_rubrik !== null && $assessment->rubrik !== null;
@@ -185,6 +201,31 @@ class ScoringCalculationService
                             $kriteriaDMetCount++;
                         }
                     }
+                } elseif ($isNonData) {
+                    // Indikator non-data (pajangan) yang belum dinilai: gunakan SKOR_DEFAULT_SIMULASI
+                    $skorRubrik = self::SKOR_DEFAULT_SIMULASI;
+                    $skorTerbobot = round($bobot * self::SKOR_DEFAULT_SIMULASI, 2);
+                    $status = 'simulasi';
+                    $indIsSimulated = true;
+                    $hasAnySimulated = true;
+
+                    $totalSkor += $skorTerbobot;
+                    $kriteriaSkorTerbobot += $skorTerbobot;
+
+                    if ($isKriteriaD) {
+                        $kriteriaDIndikatorCount++;
+                        if ($skorRubrik >= self::THRESHOLD_KRITERIA_D_MIN_SKOR) {
+                            $kriteriaDMetCount++;
+                        }
+                    }
+
+                    $detailSimulasi[] = [
+                        'id_indikator' => $ind->id,
+                        'kode_indikator' => $ind->kode_indikator,
+                        'nama_indikator' => $ind->deskripsi_indikator ?? $ind->kode_indikator,
+                        'skor_default' => self::SKOR_DEFAULT_SIMULASI,
+                        'keterangan' => 'Menggunakan skor default simulasi (indikator non-data)',
+                    ];
                 } else {
                     $skorRubrik = null;
                     $skorTerbobot = 0.0;
@@ -232,6 +273,7 @@ class ScoringCalculationService
                     'skor_rubrik' => $skorRubrik,
                     'skor_terbobot' => $skorTerbobot,
                     'status' => $status,
+                    'is_simulated' => $indIsSimulated,
                     'catatan_reviewer' => $assessment?->catatan_reviewer,
                     'tanggapan_kaprodi' => $assessment?->tanggapan_kaprodi,
                     'tanggal_penilaian' => $assessment?->tanggal_penilaian?->toISOString(),
@@ -265,6 +307,8 @@ class ScoringCalculationService
             'status_project' => $project->status_project,
             'total_skor' => $totalSkorFinal,
             'predikat' => $predikat,
+            'is_simulated' => $hasAnySimulated,
+            'detail_simulasi' => $detailSimulasi,
             'threshold_kriteria_d' => [
                 'kode_kriteria' => self::KRITERIA_D_CODE,
                 'terpenuhi' => $thresholdDMet,
@@ -356,6 +400,75 @@ class ScoringCalculationService
     }
 
     /**
+     * Menghitung hasil simulasi akreditasi dengan rekapitulasi per subkriteria,
+     * Nilai Akhir (total_na), predikat, flag simulasi, dan status minimum terpenuhi.
+     *
+     * @return array<string, mixed>
+     */
+    public function calculateScoringResult(ProjectAkreditasi|int $project): array
+    {
+        $summary = $this->calculateProjectReviewSummary($project);
+
+        // Indeks data kalkulasi indikator dari review-summary
+        $calculatedIndikators = [];
+        foreach ($summary['rincian_kriteria'] as $kriteria) {
+            foreach ($kriteria['indikator'] as $indItem) {
+                $calculatedIndikators[$indItem['id_indikator']] = $indItem;
+            }
+        }
+
+        $indikatorIds = array_keys($calculatedIndikators);
+
+        // Query independen ke model Subkriteria untuk indikator project terkait
+        $subkriterias = Subkriteria::whereHas('indikator', function ($q) use ($indikatorIds) {
+            $q->whereIn('id', $indikatorIds);
+        })->with(['indikator' => function ($q) use ($indikatorIds) {
+            $q->whereIn('id', $indikatorIds)->orderBy('kode_indikator');
+        }])->orderBy('kode_subkriteria')->get();
+
+        $skorPerSubkriteria = [];
+        foreach ($subkriterias as $sub) {
+            $subSkorTerbobot = 0.0;
+            $subJumlahIndikator = 0;
+            $subJumlahDinilai = 0;
+
+            foreach ($sub->indikator as $ind) {
+                $calc = $calculatedIndikators[$ind->id] ?? null;
+                if (! $calc) {
+                    continue;
+                }
+
+                $subJumlahIndikator++;
+                $subSkorTerbobot += (float) ($calc['skor_terbobot'] ?? 0.0);
+
+                if (($calc['status'] ?? '') === 'dinilai') {
+                    $subJumlahDinilai++;
+                }
+            }
+
+            $skorPerSubkriteria[] = [
+                'id_subkriteria' => (int) $sub->id,
+                'kode_subkriteria' => (string) $sub->kode_subkriteria,
+                'nama_subkriteria' => (string) $sub->nama_subkriteria,
+                'total_skor_terbobot' => round($subSkorTerbobot, 2),
+                'jumlah_indikator' => $subJumlahIndikator,
+                'jumlah_dinilai' => $subJumlahDinilai,
+            ];
+        }
+
+        return [
+            'project_id' => (int) $summary['project_id'],
+            'nama_project' => (string) $summary['nama_project'],
+            'total_na' => (float) $summary['total_skor'],
+            'predikat' => (string) $summary['predikat'],
+            'skor_per_subkriteria' => $skorPerSubkriteria,
+            'is_simulated' => (bool) $summary['is_simulated'],
+            'minimum_not_met' => ! (bool) ($summary['threshold_kriteria_d']['terpenuhi'] ?? false),
+            'detail_simulasi' => $summary['detail_simulasi'],
+        ];
+    }
+
+    /**
      * Menjalankan simulasi skor kuantitatif SDM Dosen LAM-INFOKOM terintegrasi data live Kelompok 2.
      *
      * Menghitung 3 butir kuantitatif SDM Dosen LAM-INFOKOM pada skala skor 0 - 4:
@@ -394,7 +507,7 @@ class ScoringCalculationService
      */
     public function simulateDosenScoring(ProjectAkreditasi $project, int $mahasiswaInput = 0): array
     {
-        $allDosen = $this->dosenApiService->getAllDosen();
+        $allDosen = app('App\Services\External\DosenApiService')->getAllDosen();
 
         // Filter dosen tetap yang memiliki status homebase aktif
         $homebaseDosen = array_values(array_filter($allDosen, function ($dosen) {

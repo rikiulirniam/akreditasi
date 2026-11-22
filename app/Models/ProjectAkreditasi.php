@@ -143,11 +143,7 @@ class ProjectAkreditasi extends Model
      */
     public function scopeWithOverviewProfile(Builder $query): Builder
     {
-        return $query->with([
-            'versiInstrumen',
-            'jenjang',
-            'jenisInstrumen',
-        ]);
+        return $query->with(['versiInstrumen', 'jenjang', 'jenisInstrumen']);
     }
 
     /**
