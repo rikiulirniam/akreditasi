@@ -7,10 +7,17 @@ use App\Models\Instrumen;
 use App\Models\Kriteria;
 use App\Models\ProjectAkreditasi;
 use App\Models\SelfAssessment;
+use App\Services\External\DosenApiService;
 use Illuminate\Support\Collection;
 
 class ScoringCalculationService
 {
+    public function __construct(
+        protected ?DosenApiService $dosenApiService = null
+    ) {
+        $this->dosenApiService = $dosenApiService ?? app(DosenApiService::class);
+    }
+
     /**
      * Nama-nama predikat akreditasi LAM-INFOKOM.
      */
@@ -346,5 +353,227 @@ class ScoringCalculationService
         }
 
         return $indikators;
+    }
+
+    /**
+     * Menjalankan simulasi skor kuantitatif SDM Dosen LAM-INFOKOM terintegrasi data live Kelompok 2.
+     *
+     * Menghitung 3 butir kuantitatif SDM Dosen LAM-INFOKOM pada skala skor 0 - 4:
+     * 1. RMD  : Rasio Mahasiswa terhadap Dosen Tetap Homebase
+     * 2. PDS3 : Persentase Dosen Tetap Homebase berpendidikan Doktor / S3
+     * 3. PJLK : Persentase Dosen Tetap Homebase berpangkat Lektor Kepala & Guru Besar
+     *
+     * Kontrak Output JSON:
+     * {
+     *   "skor_per_subkriteria": {
+     *     "rmd": { "nilai": 0, "skor": 0.0 },
+     *     "pds3": { "persentase": 0, "skor": 0.0 },
+     *     "pjlk": { "persentase": 0, "skor": 0.0 }
+     *   },
+     *   "total_na": 0.0,
+     *   "is_simulated": true,
+     *   "minimum_not_met": false
+     * }
+     *
+     * Business Rule Homebase:
+     * Jika total dosen tetap homebase < 5, minimum_not_met bernilai true dan disertakan pesan peringatan.
+     *
+     * @param  ProjectAkreditasi  $project  Instance project akreditasi
+     * @param  int  $mahasiswaInput  Jumlah mahasiswa aktif (opsional / parameter override)
+     * @return array{
+     *     skor_per_subkriteria: array{
+     *         rmd: array{nilai: float|int, skor: float},
+     *         pds3: array{persentase: float|int, skor: float},
+     *         pjlk: array{persentase: float|int, skor: float}
+     *     },
+     *     total_na: float,
+     *     is_simulated: bool,
+     *     minimum_not_met: bool,
+     *     warning?: string
+     * }
+     */
+    public function simulateDosenScoring(ProjectAkreditasi $project, int $mahasiswaInput = 0): array
+    {
+        $allDosen = $this->dosenApiService->getAllDosen();
+
+        // Filter dosen tetap yang memiliki status homebase aktif
+        $homebaseDosen = array_values(array_filter($allDosen, function ($dosen) {
+            return filter_var($dosen['status_homebase'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        }));
+
+        $totalDth = count($homebaseDosen);
+        $minimumNotMet = $totalDth < 5;
+
+        $jumlahMahasiswa = $this->resolveJumlahMahasiswa($project, $mahasiswaInput);
+
+        $rmdResult = $this->calculateRmd($jumlahMahasiswa, $totalDth);
+        $pds3Result = $this->calculatePds3($homebaseDosen, $totalDth);
+        $pjlkResult = $this->calculatePjlk($homebaseDosen, $totalDth);
+
+        $totalNa = round(($rmdResult['skor'] + $pds3Result['skor'] + $pjlkResult['skor']) / 3.0, 2);
+
+        $response = [
+            'skor_per_subkriteria' => [
+                'rmd' => $rmdResult,
+                'pds3' => $pds3Result,
+                'pjlk' => $pjlkResult,
+            ],
+            'total_na' => $totalNa,
+            'is_simulated' => true,
+            'minimum_not_met' => $minimumNotMet,
+        ];
+
+        if ($minimumNotMet) {
+            $response['warning'] = 'Jumlah dosen tetap homebase kurang dari 5 (syarat minimum LAM-INFOKOM tidak terpenuhi).';
+        }
+
+        return $response;
+    }
+
+    /**
+     * Menghitung RMD (Rasio Mahasiswa terhadap Dosen Tetap Homebase) dan skornya (0 - 4).
+     *
+     * @return array{nilai: float|int, skor: float}
+     */
+    protected function calculateRmd(int $jumlahMahasiswa, int $totalDth): array
+    {
+        if ($totalDth <= 0) {
+            return [
+                'nilai' => 0,
+                'skor' => 0.0,
+            ];
+        }
+
+        $rmd = round($jumlahMahasiswa / $totalDth, 2);
+
+        if ($rmd >= 15 && $rmd <= 25) {
+            $skor = 4.0;
+        } elseif ($rmd < 15 && $rmd > 0) {
+            $skor = round((4.0 * $rmd) / 15.0, 2);
+        } elseif ($rmd > 25 && $rmd <= 35) {
+            $skor = round((35.0 - $rmd) / 2.5, 2);
+        } else {
+            $skor = 0.0;
+        }
+
+        $skor = max(0.0, min(4.0, $skor));
+
+        return [
+            'nilai' => $rmd,
+            'skor' => $skor,
+        ];
+    }
+
+    /**
+     * Menghitung PDS3 (Persentase Dosen S3/Doktor) dan skornya (0 - 4).
+     *
+     * @param  array<int, array<string, mixed>>  $homebaseDosen
+     * @return array{persentase: float|int, skor: float}
+     */
+    protected function calculatePds3(array $homebaseDosen, int $totalDth): array
+    {
+        if ($totalDth <= 0) {
+            return [
+                'persentase' => 0,
+                'skor' => 0.0,
+            ];
+        }
+
+        $totalS3 = count(array_filter($homebaseDosen, fn ($d) => $this->isDoktor($d)));
+        $persentase = round(($totalS3 / $totalDth) * 100.0, 2);
+
+        if ($persentase >= 50.0) {
+            $skor = 4.0;
+        } else {
+            $skor = round(2.0 + (4.0 * ($persentase / 100.0)), 2);
+        }
+
+        $skor = max(0.0, min(4.0, $skor));
+
+        return [
+            'persentase' => $persentase,
+            'skor' => $skor,
+        ];
+    }
+
+    /**
+     * Menghitung PJLK (Persentase Dosen Lektor Kepala & Guru Besar) dan skornya (0 - 4).
+     *
+     * @param  array<int, array<string, mixed>>  $homebaseDosen
+     * @return array{persentase: float|int, skor: float}
+     */
+    protected function calculatePjlk(array $homebaseDosen, int $totalDth): array
+    {
+        if ($totalDth <= 0) {
+            return [
+                'persentase' => 0,
+                'skor' => 0.0,
+            ];
+        }
+
+        $totalLkGb = count(array_filter($homebaseDosen, fn ($d) => $this->isLektorKepalaOrGuruBesar($d)));
+        $persentase = round(($totalLkGb / $totalDth) * 100.0, 2);
+
+        if ($persentase >= 70.0) {
+            $skor = 4.0;
+        } else {
+            $skor = round(2.0 + (2.0 * ($persentase / 70.0)), 2);
+        }
+
+        $skor = max(0.0, min(4.0, $skor));
+
+        return [
+            'persentase' => $persentase,
+            'skor' => $skor,
+        ];
+    }
+
+    /**
+     * Menentukan estimasi jumlah mahasiswa aktif untuk project akreditasi.
+     */
+    private function resolveJumlahMahasiswa(ProjectAkreditasi $project, int $mahasiswaInput): int
+    {
+        if ($mahasiswaInput > 0) {
+            return $mahasiswaInput;
+        }
+
+        $sarprasKapasitas = (int) $project->dataSarprasProdi()->sum('kapasitas');
+        if ($sarprasKapasitas > 0) {
+            return $sarprasKapasitas;
+        }
+
+        return 100;
+    }
+
+    /**
+     * Mendeteksi kualifikasi akademik Doktor / S3 dari gelar atau nama lengkap dosen.
+     *
+     * @param  array<string, mixed>  $dosen
+     */
+    private function isDoktor(array $dosen): bool
+    {
+        $gelar = strtoupper((string) ($dosen['gelar'] ?? ''));
+        $nama = strtoupper((string) ($dosen['nama_lengkap'] ?? $dosen['nama'] ?? ''));
+
+        return str_contains($gelar, 'S3')
+            || str_contains($gelar, 'DOKTOR')
+            || str_contains($gelar, 'PH.D')
+            || str_contains($gelar, 'DR.')
+            || str_contains($nama, 'DR.')
+            || str_contains($nama, 'PH.D');
+    }
+
+    /**
+     * Mendeteksi jabatan fungsional Lektor Kepala atau Guru Besar / Profesor.
+     *
+     * @param  array<string, mixed>  $dosen
+     */
+    private function isLektorKepalaOrGuruBesar(array $dosen): bool
+    {
+        $jafung = strtoupper((string) ($dosen['jabatan_fungsional'] ?? ''));
+
+        return str_contains($jafung, 'LEKTOR KEPALA')
+            || str_contains($jafung, 'GURU BESAR')
+            || str_contains($jafung, 'PROFESOR');
     }
 }

@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Akreditasi\StoreMappingTimRequest;
 use App\Http\Requests\Akreditasi\StoreProjectAkreditasiRequest;
 use App\Http\Requests\Akreditasi\UpdateProjectAkreditasiRequest;
+use App\Http\Requests\Akreditasi\UpdateProjectStatusRequest;
 use App\Models\MappingTimAkreditasi;
 use App\Models\ProjectAkreditasi;
+use App\Services\Akreditasi\ScoringCalculationService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,19 +21,14 @@ class ProjectAkreditasiController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = ProjectAkreditasi::with(['versiInstrumen', 'jenjang', 'jenisInstrumen']);
-
-        if ($request->filled('id_prodi')) {
-            $query->where('id_prodi', $request->query('id_prodi'));
-        }
-        if ($request->filled('id_jenjang')) {
-            $query->where('id_jenjang', $request->query('id_jenjang'));
-        }
-        if ($request->filled('status_project')) {
-            $query->where('status_project', $request->query('status_project'));
-        }
-
-        $projects = $query->latest()->get();
+        $projects = ProjectAkreditasi::query()
+            ->withRelations()
+            ->filterByProdi($request->query('id_prodi'))
+            ->filterByJenjang($request->query('id_jenjang'))
+            ->filterByStatus($request->query('status_project'))
+            ->search($request->query('search'))
+            ->latest()
+            ->get();
 
         return $this->successResponse($projects, 'Daftar project akreditasi berhasil diambil');
     }
@@ -45,14 +42,9 @@ class ProjectAkreditasiController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $project = ProjectAkreditasi::with([
-            'versiInstrumen',
-            'jenjang',
-            'jenisInstrumen',
-            'mappingTim.indikator',
-            'lembarProdi.buktis',
-            'selfAssessments.rubrik',
-        ])->find($id);
+        $project = ProjectAkreditasi::query()
+            ->withFullDetails()
+            ->find($id);
 
         if (! $project) {
             return $this->errorResponse('Project akreditasi tidak ditemukan', null, 404);
@@ -149,15 +141,19 @@ class ProjectAkreditasiController extends Controller
     }
 
     /**
+     * Mengambil metadata modul kriteria placeholder (Tata Pamong, Keuangan & Sarpras).
+     */
+    public function getPlaceholderModules(int $id): JsonResponse
+    {
+        return app(MappingTimAkreditasiController::class)->getPlaceholderModules($id);
+    }
+
+    /**
      * Memperbarui siklus status project akreditasi.
      */
-    public function updateStatus(Request $request, int $id): JsonResponse
+    public function updateStatus(UpdateProjectStatusRequest $request, int $id): JsonResponse
     {
-        $validated = $request->validate([
-            'status_project' => 'required|string|in:Draft,On Progress,Pending,Cancel,Selesai',
-            'tanggal_verifikasi_akreditasi' => 'nullable|date',
-            'nomor_sk_akreditasi' => 'nullable|string|max:255',
-        ]);
+        $validated = $request->validated();
 
         $project = ProjectAkreditasi::find($id);
 
@@ -173,16 +169,6 @@ class ProjectAkreditasiController extends Controller
             ? $validated['nomor_sk_akreditasi']
             : $project->nomor_sk_akreditasi;
 
-        if ($validated['status_project'] === 'Selesai' && (empty($tanggalVerifikasi) || empty($nomorSk))) {
-            return $this->errorResponse(
-                'Status Selesai ditolak. Tanggal verifikasi akreditasi dan nomor SK akreditasi wajib diisi.',
-                [
-                    'status_project' => ['Tanggal verifikasi akreditasi dan nomor SK akreditasi wajib terisi untuk menyelesaikan project.'],
-                ],
-                422
-            );
-        }
-
         $project->update([
             'status_project' => $validated['status_project'],
             'tanggal_verifikasi_akreditasi' => $tanggalVerifikasi,
@@ -190,5 +176,24 @@ class ProjectAkreditasiController extends Controller
         ]);
 
         return $this->successResponse($project->fresh(), 'Status project akreditasi berhasil diperbarui');
+    }
+
+    /**
+     * Simulasi skor kuantitatif LAM-INFOKOM (SDM Dosen) terintegrasi data live Kelompok 2.
+     */
+    public function scoringSimulation(Request $request, int $id, ScoringCalculationService $scoringService): JsonResponse
+    {
+        $project = ProjectAkreditasi::query()
+            ->withRelations()
+            ->find($id);
+
+        if (! $project) {
+            return $this->errorResponse('Project akreditasi tidak ditemukan', null, 404);
+        }
+
+        $mahasiswaInput = (int) $request->query('jumlah_mahasiswa', 0);
+        $result = $scoringService->simulateDosenScoring($project, $mahasiswaInput);
+
+        return $this->successResponse($result, 'Simulasi skor LAM-INFOKOM berhasil dihitung');
     }
 }

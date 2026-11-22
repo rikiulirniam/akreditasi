@@ -14,31 +14,31 @@ class InstrumenController extends Controller
 {
     use ApiResponseTrait;
 
+    /**
+     * Menampilkan daftar instrumen akreditasi dengan filter relasi.
+     */
     public function index(Request $request): JsonResponse
     {
-        $query = Instrumen::with(['versiInstrumen.lembaga', 'jenjang', 'jenisInstrumen'])
-            ->withCount('kriterias');
+        $idJenjang = $request->filled('id_jenjang') ? (int) $request->query('id_jenjang') : null;
+        $idVersi = $request->filled('id_versi_instrumen') ? (int) $request->query('id_versi_instrumen') : null;
+        $idJenis = $request->filled('id_jenis_instrumen') ? (int) $request->query('id_jenis_instrumen') : null;
 
-        if ($request->filled('id_jenjang')) {
-            $query->where('id_jenjang', $request->query('id_jenjang'));
-        }
-        if ($request->filled('id_versi_instrumen')) {
-            $query->where('id_versi_instrumen', $request->query('id_versi_instrumen'));
-        }
-        if ($request->filled('id_jenis_instrumen')) {
-            $query->where('id_jenis_instrumen', $request->query('id_jenis_instrumen'));
-        }
-
-        $data = $query->latest()->get();
+        $data = Instrumen::withRelations()
+            ->filterByParams($idJenjang, $idVersi, $idJenis)
+            ->latest()
+            ->get();
 
         return $this->successResponse($data, 'Daftar instrumen berhasil diambil');
     }
 
+    /**
+     * Menyimpan instrumen akreditasi baru beserta mapping pivot versi-jenjang.
+     */
     public function store(StoreInstrumenRequest $request): JsonResponse
     {
         $data = $request->validated();
 
-        $instrumen = DB::transaction(function () use ($data) {
+        $instrumen = DB::transaction(function () use ($data): Instrumen {
             DB::table('versi_instrumen_jenjang')->insertOrIgnore([
                 'id_versi_instrumen' => $data['id_versi_instrumen'],
                 'id_jenjang' => $data['id_jenjang'],
@@ -63,16 +63,12 @@ class InstrumenController extends Controller
         );
     }
 
+    /**
+     * Menampilkan detail spesifik instrumen akreditasi dan daftar kriterianya.
+     */
     public function show(string $id): JsonResponse
     {
-        $instrumen = Instrumen::with([
-            'versiInstrumen.lembaga',
-            'jenjang',
-            'jenisInstrumen',
-            'kriterias' => function ($q) {
-                $q->withCount('subkriteria')->orderBy('kode_kriteria');
-            },
-        ])->withCount('kriterias')->find($id);
+        $instrumen = Instrumen::withDetailedKriterias()->find($id);
 
         if (! $instrumen) {
             return $this->errorResponse('Data instrumen tidak ditemukan', null, 404);
@@ -81,63 +77,33 @@ class InstrumenController extends Controller
         return $this->successResponse($instrumen, 'Detail instrumen berhasil diambil');
     }
 
+    /**
+     * Endpoint ringkas menyajikan hierarki instrumen aktif LAM-INFOKOM 2.1 TRK secara statis.
+     */
+    public function getActiveStatic(): JsonResponse
+    {
+        $instrumen = Instrumen::findActiveStatic();
+
+        if (! $instrumen) {
+            return $this->errorResponse(
+                'Data instrumen aktif LAM-INFOKOM 2.1 TRK tidak ditemukan',
+                null,
+                404
+            );
+        }
+
+        return $this->successResponse(
+            $instrumen->toHierarchyArray(),
+            'Struktur instrumen aktif LAM-INFOKOM 2.1 TRK berhasil diambil'
+        );
+    }
+
+    /**
+     * Menampilkan struktur hierarki mendalam instrumen akreditasi berdasarkan ID (UUID).
+     */
     public function getHierarchy(string $id): JsonResponse
     {
-        $instrumen = Instrumen::query()
-            ->select([
-                'id',
-                'id_versi_instrumen',
-                'id_jenjang',
-                'id_jenis_instrumen',
-            ])
-            ->with([
-                'versiInstrumen' => function ($q) {
-                    $q->select([
-                        'id',
-                        'id_lembaga',
-                        'nomor_versi',
-                    ]);
-                },
-                'versiInstrumen.lembaga' => function ($q) {
-                    $q->select([
-                        'id',
-                        'nama_lembaga',
-                    ]);
-                },
-                'jenjang:id,nama_jenjang',
-                'jenisInstrumen:id,nama_jenis',
-                'kriterias' => function ($q) {
-                    $q->select([
-                        'id',
-                        'id_instrumen',
-                        'kode_kriteria',
-                        'nama_kriteria',
-                    ])
-                        ->with([
-                            'subkriteria' => function ($sub) {
-                                $sub->select([
-                                    'id',
-                                    'id_kriteria',
-                                    'kode_subkriteria',
-                                    'nama_subkriteria',
-                                ])
-                                    ->with([
-                                        'indikator' => function ($indikator) {
-                                            $indikator->select([
-                                                'id',
-                                                'id_subkriteria',
-                                                'kode_indikator',
-                                                'deskripsi_indikator',
-                                            ])->orderBy('kode_indikator');
-                                        },
-                                    ])
-                                    ->orderBy('kode_subkriteria');
-                            },
-                        ])
-                        ->orderBy('kode_kriteria');
-                },
-            ])
-            ->find($id);
+        $instrumen = Instrumen::completeHierarchy()->find($id);
 
         if (! $instrumen) {
             return $this->errorResponse(
@@ -147,53 +113,15 @@ class InstrumenController extends Controller
             );
         }
 
-        $data = [
-            'id_instrumen' => $instrumen->id,
-
-            'lembaga' => [
-                'nama' => $instrumen->versiInstrumen?->lembaga?->nama_lembaga,
-            ],
-
-            'versi_instrumen' => [
-                'nomor_versi' => $instrumen->versiInstrumen?->nomor_versi,
-            ],
-
-            'jenjang' => [
-                'nama' => $instrumen->jenjang?->nama_jenjang,
-            ],
-
-            'jenis_instrumen' => [
-                'nama' => $instrumen->jenisInstrumen?->nama_jenis,
-            ],
-
-            'kriteria' => $instrumen->kriterias->map(function ($kriteria) {
-                return [
-                    'kode' => $kriteria->kode_kriteria,
-                    'nama' => $kriteria->nama_kriteria,
-
-                    'subkriteria' => $kriteria->subkriteria->map(function ($subkriteria) {
-                        return [
-                            'kode' => $subkriteria->kode_subkriteria,
-                            'nama' => $subkriteria->nama_subkriteria,
-
-                            'indikator' => $subkriteria->indikator->map(function ($indikator) {
-                                return [
-                                    'kode' => $indikator->kode_indikator,
-                                    'nama' => $indikator->deskripsi_indikator,
-                                ];
-                            })->values(),
-                        ];
-                    })->values(),
-                ];
-            })->values(),
-        ];
-
         return $this->successResponse(
-            $data,
+            $instrumen->toHierarchyArray(),
             'Hierarchy instrumen berhasil diambil'
         );
     }
 
+    /**
+     * Menghapus instrumen akreditasi.
+     */
     public function destroy(string $id): JsonResponse
     {
         $instrumen = Instrumen::find($id);

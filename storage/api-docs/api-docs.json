@@ -382,8 +382,8 @@
                 "tags": [
                     "Akreditasi - Project"
                 ],
-                "summary": "Memperbarui status lifecycle project akreditasi",
-                "description": "Memperbarui status project menjadi On Progress, Pending, Cancel, atau Selesai. Jika Selesai, tanggal_verifikasi_akreditasi dan nomor_sk_akreditasi wajib diisi.",
+                "summary": "Memperbarui status lifecycle project akreditasi (Khusus Kaprodi)",
+                "description": "Memperbarui status project menjadi Draft, On Progress, Pending, Cancel, atau Selesai (eksklusif hanya dapat dilakukan oleh role Kaprodi). Nomor SK akreditasi dan tanggal verifikasi bersifat opsional untuk seluruh status termasuk status Selesai.",
                 "operationId": "b3312d56386d014aab1c08cf6296cfea",
                 "parameters": [
                     {
@@ -406,7 +406,7 @@
                                 "properties": {
                                     "status_project": {
                                         "type": "string",
-                                        "example": "On Progress",
+                                        "example": "Selesai",
                                         "enum": [
                                             "Draft",
                                             "On Progress",
@@ -443,6 +443,9 @@
                             }
                         }
                     },
+                    "403": {
+                        "description": "Akses ditolak (hanya role Kaprodi yang berwenang)"
+                    },
                     "422": {
                         "description": "Validasi gagal",
                         "content": {
@@ -462,6 +465,146 @@
                                 }
                             }
                         }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/projects/{id}/scoring-simulation": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Simulasi skor kuantitatif LAM-INFOKOM (SDM Dosen)",
+                "description": "Menghitung simulasi skor 3 butir kuantitatif SDM Dosen (RMD, PDS3, PJLK) berdasarkan integrasi data live Kelompok 2 pada skala 0 - 4.",
+                "operationId": "50ac90a032abd2fcd9c34898b70eb981",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Project Akreditasi",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "jumlah_mahasiswa",
+                        "in": "query",
+                        "description": "Jumlah mahasiswa aktif (opsional / override nilai default)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Simulasi skor LAM-INFOKOM berhasil dihitung",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Simulasi skor LAM-INFOKOM berhasil dihitung"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "skor_per_subkriteria": {
+                                                    "properties": {
+                                                        "rmd": {
+                                                            "properties": {
+                                                                "nilai": {
+                                                                    "type": "number",
+                                                                    "format": "float",
+                                                                    "example": 18.5
+                                                                },
+                                                                "skor": {
+                                                                    "type": "number",
+                                                                    "format": "float",
+                                                                    "example": 4
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "pds3": {
+                                                            "properties": {
+                                                                "persentase": {
+                                                                    "type": "number",
+                                                                    "format": "float",
+                                                                    "example": 50
+                                                                },
+                                                                "skor": {
+                                                                    "type": "number",
+                                                                    "format": "float",
+                                                                    "example": 4
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "pjlk": {
+                                                            "properties": {
+                                                                "persentase": {
+                                                                    "type": "number",
+                                                                    "format": "float",
+                                                                    "example": 40
+                                                                },
+                                                                "skor": {
+                                                                    "type": "number",
+                                                                    "format": "float",
+                                                                    "example": 3.14
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "total_na": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 3.71
+                                                },
+                                                "is_simulated": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "minimum_not_met": {
+                                                    "type": "boolean",
+                                                    "example": false
+                                                },
+                                                "warning": {
+                                                    "type": "string",
+                                                    "example": "Jumlah dosen tetap homebase kurang dari 5 (syarat minimum LAM-INFOKOM tidak terpenuhi).",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "errors": {
+                                            "type": "null",
+                                            "example": null
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Project tidak ditemukan"
                     }
                 },
                 "security": [
@@ -681,6 +824,94 @@
                         "BearerAuth": []
                     }
                 ]
+            }
+        },
+        "/projects/{id}/placeholder-modules": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Mendapatkan metadata modul kriteria placeholder (Tata Pamong, Keuangan & Sarpras)",
+                "description": "Mengembalikan daftar kriteria read-only non-handle yang tidak dikelola oleh mitra agar struktur 9 kriteria LAM-INFOKOM tetap lengkap di frontend.",
+                "operationId": "f0f4ba02c36002cfff5892e81bc4de30",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Project Akreditasi",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Metadata modul placeholder berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data modul placeholder berhasil diambil."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "kode_kriteria": {
+                                                        "type": "string",
+                                                        "example": "C.2"
+                                                    },
+                                                    "nama_kriteria": {
+                                                        "type": "string",
+                                                        "example": "Tata Pamong, Tata Kelola, dan Kerjasama"
+                                                    },
+                                                    "is_placeholder": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "mode": {
+                                                        "type": "string",
+                                                        "example": "read_only"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "Aktif (Placeholder LAM-INFOKOM)"
+                                                    },
+                                                    "keterangan": {
+                                                        "type": "string",
+                                                        "example": "Modul Tata Pamong tidak memerlukan transaksi penginputan langsung."
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Project tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/projects/{id}/mapping-tim": {
@@ -1299,6 +1530,275 @@
                 }
             }
         },
+        "/projects/{id}/composite-overview": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Overview komposit project (Profil, Progres 9 Kriteria, Evidence, & Skor)",
+                "description": "Endpoint agregasi yang menggabungkan profil project, progress kelengkapan 9 kriteria, ringkasan evidence, dan skor penilaian dalam 1 request untuk efisiensi loading frontend.",
+                "operationId": "713d5bf5dfd98e493f12b364083b4559",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Project Akreditasi",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Overview komposit project berhasil dimuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data berhasil diambil"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "profil_project": {
+                                                    "type": "object"
+                                                },
+                                                "progress": {
+                                                    "type": "object"
+                                                },
+                                                "scoring": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Project akreditasi tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/projects/{id}/subkriteria/{subkriteriaId}/narasi-template": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Mendapatkan template narasi subkriteria dengan angka agregasi aktual",
+                "description": "Menghasilkan template narasi deskriptif untuk subkriteria tertentu (misal Kriteria C.4 SDM Dosen) yang disuntik dengan angka riil dari API Kelompok 2 (misal jumlah dosen, rasio, kualifikasi S3). Frontend menampilkan narasi ini sebagai draft yang dapat diedit.",
+                "operationId": "aa1191e63fd9bb55ee5c2963f01de78d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Project Akreditasi",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "subkriteriaId",
+                        "in": "path",
+                        "description": "ID Subkriteria",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Template narasi subkriteria berhasil dibuat"
+                    },
+                    "404": {
+                        "description": "Project atau Subkriteria tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/projects/{id}/subkriteria/{subkriteriaId}/narasi": {
+            "put": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Menyimpan teks narasi subkriteria hasil editan (Kaprodi / PIC)",
+                "description": "Menyimpan teks narasi yang telah disesuaikan/diedit oleh Kaprodi atau PIC butir subkriteria terkait.",
+                "operationId": "f8e1fd0b3afaa361a3fe0562103434ce",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Project Akreditasi",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "subkriteriaId",
+                        "in": "path",
+                        "description": "ID Subkriteria",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "narasi"
+                                ],
+                                "properties": {
+                                    "narasi": {
+                                        "type": "string",
+                                        "example": "Program Studi Teknologi Rekayasa Komputer memiliki 12 orang dosen tetap yang berkualifikasi..."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Narasi subkriteria berhasil disimpan"
+                    },
+                    "403": {
+                        "description": "Tidak memiliki hak akses menyimpan narasi pada butir ini"
+                    },
+                    "404": {
+                        "description": "Project atau Subkriteria tidak ditemukan"
+                    },
+                    "422": {
+                        "description": "Validasi gagal"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/projects/{id}/review-summary": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Self Assessment"
+                ],
+                "summary": "Mendapatkan rekapitulasi penilaian review project akreditasi",
+                "description": "Menampilkan ringkasan total nilai terbobot, skor akhir, dan rincian butir yang sudah dinilai oleh reviewer/kaprodi.",
+                "operationId": "96d6b07724e92615ec9dfdc3514e295e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Project Akreditasi",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rekapitulasi review penilaian project berhasil diambil"
+                    },
+                    "404": {
+                        "description": "Project tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/self-assessment/{id}/penjelasan-prodi": {
+            "put": {
+                "tags": [
+                    "Akreditasi - Self Assessment"
+                ],
+                "summary": "Menambahkan tanggapan / klarifikasi prodi atas catatan reviewer (Khusus Kaprodi)",
+                "description": "Kaprodi memberikan tanggapan atau penjelasan klarifikasi atas temuan/catatan reviewer pada butir self assessment.",
+                "operationId": "8982ca678e695780b84b5fb87ece01e6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Self Assessment",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "tanggapan_kaprodi"
+                                ],
+                                "properties": {
+                                    "tanggapan_kaprodi": {
+                                        "type": "string",
+                                        "example": "Dokumen revisi RPS dan bukti keterlibatan industri telah diunggah pada tautan pendukung."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Penjelasan / tanggapan prodi berhasil disimpan"
+                    },
+                    "403": {
+                        "description": "Akses ditolak (hanya role Kaprodi yang berwenang)"
+                    },
+                    "404": {
+                        "description": "Data penilaian mandiri tidak ditemukan"
+                    },
+                    "422": {
+                        "description": "Validasi gagal"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/auth/login": {
             "post": {
                 "tags": [
@@ -1725,7 +2225,7 @@
                     "Integrasi Eksternal"
                 ],
                 "summary": "Mendapatkan daftar dosen dari Kelompok 2",
-                "description": "Mengambil data seluruh dosen aktif dari sistem Tridharma (Kelompok 2) untuk kebutuhan penugasan tim (PJ & PIC).",
+                "description": "Mengambil data seluruh dosen aktif dari sistem Tridharma (Kelompok 2) dengan standardisasi 5 field: nip_nidn, nama_lengkap, gelar, jabatan_fungsional, dan status_homebase.",
                 "operationId": "76ebbeaaeb5ef8f0b6dfc53aa758d571",
                 "responses": {
                     "200": {
@@ -1745,6 +2245,44 @@
                                         "data": {
                                             "type": "array",
                                             "items": {
+                                                "properties": {
+                                                    "nip_nidn": {
+                                                        "type": "string",
+                                                        "example": "197504122000031001"
+                                                    },
+                                                    "nidn": {
+                                                        "type": "string",
+                                                        "example": "0012048801"
+                                                    },
+                                                    "nama_lengkap": {
+                                                        "type": "string",
+                                                        "example": "Prof. Dr. Andi Wijaya, S.Kom., M.T."
+                                                    },
+                                                    "nama": {
+                                                        "type": "string",
+                                                        "example": "Prof. Dr. Andi Wijaya, S.Kom., M.T."
+                                                    },
+                                                    "gelar": {
+                                                        "type": "string",
+                                                        "example": "Doktor (S3)"
+                                                    },
+                                                    "jabatan_fungsional": {
+                                                        "type": "string",
+                                                        "example": "Guru Besar"
+                                                    },
+                                                    "status_homebase": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "email": {
+                                                        "type": "string",
+                                                        "example": "andi.wijaya@kampus.ac.id"
+                                                    },
+                                                    "bidang_minat": {
+                                                        "type": "string",
+                                                        "example": "Rekayasa Perangkat Lunak & Sistem Informasi"
+                                                    }
+                                                },
                                                 "type": "object"
                                             }
                                         },
@@ -2533,7 +3071,7 @@
                     "Master Data - Instrumen"
                 ],
                 "summary": "Mendapatkan struktur hierarki lengkap instrumen akreditasi",
-                "description": "Menampilkan hierarki mendalam dari Instrumen -> Kriteria -> Subkriteria -> Indikator -> Rubrik Penilaian untuk instrumen akreditasi (UUID).",
+                "description": "Menampilkan hierarki mendalam dari Instrumen -> Kriteria -> Subkriteria -> Indikator untuk instrumen akreditasi (UUID).",
                 "operationId": "8b0385d1c7be220c2536525736e0cb67",
                 "parameters": [
                     {
@@ -2573,6 +3111,56 @@
                     },
                     "404": {
                         "description": "Instrumen tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/master/instrumen/active-static": {
+            "get": {
+                "tags": [
+                    "Master Data - Instrumen"
+                ],
+                "summary": "Mendapatkan struktur instrumen aktif statis LAM-INFOKOM 2.1 TRK",
+                "description": "Menyajikan struktur lengkap hierarki instrumen aktif default LAM-INFOKOM 2.1 untuk Program Sarjana Terapan (TRK) secara statis tanpa seleksi dinamis multi-jenjang.",
+                "operationId": "b72e9998b0baaf06a71f21507cfb79bc",
+                "responses": {
+                    "200": {
+                        "description": "Struktur instrumen aktif LAM-INFOKOM 2.1 TRK berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Struktur instrumen aktif LAM-INFOKOM 2.1 TRK berhasil diambil"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Instrumen aktif tidak ditemukan",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4978,6 +5566,49 @@
                     },
                     "404": {
                         "description": "Project akreditasi tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/evidence-spmi/{id}": {
+            "delete": {
+                "tags": [
+                    "SPMI - Evidence Mutu"
+                ],
+                "summary": "Menghapus data evidence SPMI",
+                "description": "Menghapus rekaman evidence SPMI berdasarkan ID.",
+                "operationId": "b88831bb9bd5ba71c96165237710a45a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Evidence SPMI",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data evidence SPMI berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Data evidence SPMI tidak ditemukan",
                         "content": {
                             "application/json": {
                                 "schema": {

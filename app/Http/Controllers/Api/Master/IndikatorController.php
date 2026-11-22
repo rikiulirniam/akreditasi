@@ -16,14 +16,12 @@ class IndikatorController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = Indikator::with(['subkriteria.kriteria'])
-            ->withCount('rubriks');
+        $idSubkriteria = $request->filled('id_subkriteria') ? (int) $request->query('id_subkriteria') : null;
 
-        if ($request->filled('id_subkriteria')) {
-            $query->where('id_subkriteria', $request->query('id_subkriteria'));
-        }
-
-        $data = $query->orderBy('kode_indikator')->get();
+        $data = Indikator::withDetails()
+            ->filterBySubkriteria($idSubkriteria)
+            ->orderBy('kode_indikator')
+            ->get();
 
         return $this->successResponse($data, 'Data indikator berhasil diambil');
     }
@@ -38,12 +36,7 @@ class IndikatorController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $indikator = Indikator::with([
-            'subkriteria.kriteria',
-            'rubriks' => function ($q) {
-                $q->orderBy('skor');
-            },
-        ])->withCount('rubriks')->find($id);
+        $indikator = Indikator::withDetailedRubriks()->find($id);
 
         if (! $indikator) {
             return $this->errorResponse('Indikator tidak ditemukan', null, 404);
@@ -66,12 +59,27 @@ class IndikatorController extends Controller
         return $this->successResponse($indikator, 'Indikator berhasil diperbarui');
     }
 
+    /**
+     * Menghapus master indikator dengan proteksi soft guard transaksi aktif.
+     */
     public function destroy(int $id): JsonResponse
     {
         $indikator = Indikator::find($id);
 
         if (! $indikator) {
             return $this->errorResponse('Indikator tidak ditemukan', null, 404);
+        }
+
+        if ($indikator->isUsedInActiveTransactions()) {
+            return $this->errorResponse(
+                'Data tidak dapat dihapus karena telah digunakan dalam penilaian atau penugasan aktif.',
+                [
+                    'id' => [
+                        'Data sedang aktif digunakan pada transaksi penilaian/penugasan.',
+                    ],
+                ],
+                422
+            );
         }
 
         $indikator->delete();

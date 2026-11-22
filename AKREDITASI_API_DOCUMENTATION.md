@@ -467,6 +467,41 @@ Digunakan saat Kaprodi ingin memeriksa apakah dokumen sudah lengkap sebelum diaj
 #### 3.3 Hapus Penugasan Dosen
 * **URL:** `DELETE {{base_url}}/mapping-tim/{id_mapping}`
 
+#### 3.4 Ambil Metadata Modul Placeholder (Non-Handle: Tata Pamong & Keuangan/Sarpras)
+Digunakan oleh frontend untuk menampilkan kriteria yang tidak dikelola mitra (C.2 Tata Pamong & C.5 Keuangan/Sarpras) sebagai komponen display read-only agar 9 kriteria LAM-INFOKOM tetap lengkap di UI tanpa error saat PBL Expo.
+* **URL:** `GET {{base_url}}/projects/{id}/placeholder-modules`
+* **Role Diizinkan:** `administrator`, `kaprodi`, `reviewer`, `dosen`
+* **Respons Sukses (HTTP 200):**
+  ```json
+  {
+    "success": true,
+    "message": "Data modul placeholder berhasil diambil.",
+    "data": [
+      {
+        "kode_kriteria": "C.2",
+        "nama_kriteria": "Tata Pamong, Tata Kelola, dan Kerjasama",
+        "is_placeholder": true,
+        "mode": "read_only",
+        "status": "Aktif (Placeholder LAM-INFOKOM)",
+        "keterangan": "Modul Tata Pamong, Tata Kelola, dan Kerjasama disajikan sebagai komponen display data statis/read-only untuk kelengkapan 9 kriteria LAM-INFOKOM."
+      },
+      {
+        "kode_kriteria": "C.5",
+        "nama_kriteria": "Keuangan, Sarana, dan Prasarana",
+        "is_placeholder": true,
+        "mode": "read_only",
+        "status": "Aktif (Placeholder LAM-INFOKOM)",
+        "keterangan": "Modul Keuangan, Sarana, dan Prasarana disajikan sebagai komponen display data statis/read-only tanpa transaksi form input borang."
+      }
+    ],
+    "meta": {
+      "id_project": 1,
+      "nama_project": "Akreditasi TRK 2026",
+      "total": 2
+    }
+  }
+  ```
+
 ---
 
 ### MODUL 4: PENGISIAN BUKTI INDIKATOR (DOSEN / PIC)
@@ -613,11 +648,14 @@ Model ini menyimpan rekapitulasi bukti mutu institusi untuk project akreditasi (
 
 ---
 
-### MODUL 6: PENILAIAN MANDIRI (SELF ASSESSMENT / REVIEWER)
+### MODUL 6: PENILAIAN MANDIRI (SELF ASSESSMENT - KAPRODI & REVIEWER)
+
+> **Catatan Alur Bisnis (Konsolidasi Reviewer ke Kaprodi):** Peran Reviewer independen ditiadakan dan dilebur ke role **Kaprodi**. Kaprodi (bersama Administrator) memiliki fleksibilitas penuh untuk menugaskan dirinya sendiri sebagai PIC butir, sekaligus mereview, mengisi nilai rubrik, merevisi catatan, dan memverifikasi penilaian butir indikator.
 
 #### 6.1 Simpan Penilaian Mandiri (Skor Otomatis Terbobot)
-Reviewer memilih salah satu ID Rubrik (skor 1, 2, 3, atau 4). **Backend secara otomatis menghitung `skor_terbobot = skor * bobot_indikator`**.
+Kaprodi atau Reviewer memilih salah satu ID Rubrik (skor 1, 2, 3, atau 4). **Backend secara otomatis menghitung `skor_terbobot = skor * bobot_indikator`**.
 * **URL:** `POST {{base_url}}/self-assessment`
+* **Role Diizinkan:** `administrator`, `kaprodi`, `reviewer`
 * **Request Body:**
   ```json
   {

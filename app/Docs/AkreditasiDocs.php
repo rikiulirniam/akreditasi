@@ -120,8 +120,8 @@ class AkreditasiDocs
     )]
     #[OA\Patch(
         path: '/projects/{id}/status',
-        summary: 'Memperbarui status lifecycle project akreditasi',
-        description: 'Memperbarui status project menjadi On Progress, Pending, Cancel, atau Selesai. Jika Selesai, tanggal_verifikasi_akreditasi dan nomor_sk_akreditasi wajib diisi.',
+        summary: 'Memperbarui status lifecycle project akreditasi (Khusus Kaprodi)',
+        description: 'Memperbarui status project menjadi Draft, On Progress, Pending, Cancel, atau Selesai (eksklusif hanya dapat dilakukan oleh role Kaprodi). Nomor SK akreditasi dan tanggal verifikasi bersifat opsional untuk seluruh status termasuk status Selesai.',
         tags: ['Akreditasi - Project'],
         security: [['BearerAuth' => []]],
         parameters: [
@@ -132,7 +132,7 @@ class AkreditasiDocs
             content: new OA\JsonContent(
                 required: ['status_project'],
                 properties: [
-                    new OA\Property(property: 'status_project', type: 'string', enum: ['Draft', 'On Progress', 'Pending', 'Cancel', 'Selesai'], example: 'On Progress'),
+                    new OA\Property(property: 'status_project', type: 'string', enum: ['Draft', 'On Progress', 'Pending', 'Cancel', 'Selesai'], example: 'Selesai'),
                     new OA\Property(property: 'tanggal_verifikasi_akreditasi', type: 'string', format: 'date', example: '2026-12-14', nullable: true),
                     new OA\Property(property: 'nomor_sk_akreditasi', type: 'string', example: 'SK-BANPT-2026-001', nullable: true),
                 ]
@@ -140,8 +140,75 @@ class AkreditasiDocs
         ),
         responses: [
             new OA\Response(response: 200, description: 'Status project berhasil diperbarui', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 403, description: 'Akses ditolak (hanya role Kaprodi yang berwenang)'),
             new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
             new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/projects/{id}/scoring-simulation',
+        summary: 'Simulasi skor kuantitatif LAM-INFOKOM (SDM Dosen)',
+        description: 'Menghitung simulasi skor 3 butir kuantitatif SDM Dosen (RMD, PDS3, PJLK) berdasarkan integrasi data live Kelompok 2 pada skala 0 - 4.',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
+            new OA\Parameter(name: 'jumlah_mahasiswa', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Jumlah mahasiswa aktif (opsional / override nilai default)'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Simulasi skor LAM-INFOKOM berhasil dihitung',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Simulasi skor LAM-INFOKOM berhasil dihitung'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(
+                                    property: 'skor_per_subkriteria',
+                                    type: 'object',
+                                    properties: [
+                                        new OA\Property(
+                                            property: 'rmd',
+                                            type: 'object',
+                                            properties: [
+                                                new OA\Property(property: 'nilai', type: 'number', format: 'float', example: 18.5),
+                                                new OA\Property(property: 'skor', type: 'number', format: 'float', example: 4.0),
+                                            ]
+                                        ),
+                                        new OA\Property(
+                                            property: 'pds3',
+                                            type: 'object',
+                                            properties: [
+                                                new OA\Property(property: 'persentase', type: 'number', format: 'float', example: 50.0),
+                                                new OA\Property(property: 'skor', type: 'number', format: 'float', example: 4.0),
+                                            ]
+                                        ),
+                                        new OA\Property(
+                                            property: 'pjlk',
+                                            type: 'object',
+                                            properties: [
+                                                new OA\Property(property: 'persentase', type: 'number', format: 'float', example: 40.0),
+                                                new OA\Property(property: 'skor', type: 'number', format: 'float', example: 3.14),
+                                            ]
+                                        ),
+                                    ]
+                                ),
+                                new OA\Property(property: 'total_na', type: 'number', format: 'float', example: 3.71),
+                                new OA\Property(property: 'is_simulated', type: 'boolean', example: true),
+                                new OA\Property(property: 'minimum_not_met', type: 'boolean', example: false),
+                                new OA\Property(property: 'warning', type: 'string', nullable: true, example: 'Jumlah dosen tetap homebase kurang dari 5 (syarat minimum LAM-INFOKOM tidak terpenuhi).'),
+                            ]
+                        ),
+                        new OA\Property(property: 'errors', type: 'null', example: null),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 404, description: 'Project tidak ditemukan'),
         ]
     )]
     #[OA\Get(
@@ -230,6 +297,35 @@ class AkreditasiDocs
             new OA\Response(response: 200, description: 'Bukti indikator berhasil disimpan'),
             new OA\Response(response: 422, description: 'Validasi gagal'),
             new OA\Response(response: 404, description: 'Project atau indikator tidak ditemukan'),
+        ]
+    )]
+    #[OA\Get(
+        path: '/projects/{id}/placeholder-modules',
+        summary: 'Mendapatkan metadata modul kriteria placeholder (Tata Pamong, Keuangan & Sarpras)',
+        description: 'Mengembalikan daftar kriteria read-only non-handle yang tidak dikelola oleh mitra agar struktur 9 kriteria LAM-INFOKOM tetap lengkap di frontend.',
+        tags: ['Akreditasi - Project'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Metadata modul placeholder berhasil dimuat', content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'success', type: 'boolean', example: true),
+                    new OA\Property(property: 'message', type: 'string', example: 'Data modul placeholder berhasil diambil.'),
+                    new OA\Property(property: 'data', type: 'array', items: new OA\Items(
+                        properties: [
+                            new OA\Property(property: 'kode_kriteria', type: 'string', example: 'C.2'),
+                            new OA\Property(property: 'nama_kriteria', type: 'string', example: 'Tata Pamong, Tata Kelola, dan Kerjasama'),
+                            new OA\Property(property: 'is_placeholder', type: 'boolean', example: true),
+                            new OA\Property(property: 'mode', type: 'string', example: 'read_only'),
+                            new OA\Property(property: 'status', type: 'string', example: 'Aktif (Placeholder LAM-INFOKOM)'),
+                            new OA\Property(property: 'keterangan', type: 'string', example: 'Modul Tata Pamong tidak memerlukan transaksi penginputan langsung.'),
+                        ]
+                    )),
+                    new OA\Property(property: 'meta', type: 'object'),
+                ]
+            )),
+            new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
     #[OA\Get(
@@ -427,6 +523,118 @@ class AkreditasiDocs
         responses: [
             new OA\Response(response: 200, description: 'Data self-assessment berhasil dihapus', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
             new OA\Response(response: 404, description: 'Data tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/projects/{id}/composite-overview',
+        summary: 'Overview komposit project (Profil, Progres 9 Kriteria, Evidence, & Skor)',
+        description: 'Endpoint agregasi yang menggabungkan profil project, progress kelengkapan 9 kriteria, ringkasan evidence, dan skor penilaian dalam 1 request untuk efisiensi loading frontend.',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Overview komposit project berhasil dimuat',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Data berhasil diambil'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'profil_project', type: 'object'),
+                                new OA\Property(property: 'progress', type: 'object'),
+                                new OA\Property(property: 'scoring', type: 'object'),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(response: 404, description: 'Project akreditasi tidak ditemukan'),
+        ]
+    )]
+    #[OA\Get(
+        path: '/projects/{id}/subkriteria/{subkriteriaId}/narasi-template',
+        summary: 'Mendapatkan template narasi subkriteria dengan angka agregasi aktual',
+        description: 'Menghasilkan template narasi deskriptif untuk subkriteria tertentu (misal Kriteria C.4 SDM Dosen) yang disuntik dengan angka riil dari API Kelompok 2 (misal jumlah dosen, rasio, kualifikasi S3). Frontend menampilkan narasi ini sebagai draft yang dapat diedit.',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
+            new OA\Parameter(name: 'subkriteriaId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Subkriteria'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Template narasi subkriteria berhasil dibuat'),
+            new OA\Response(response: 404, description: 'Project atau Subkriteria tidak ditemukan'),
+        ]
+    )]
+    #[OA\Put(
+        path: '/projects/{id}/subkriteria/{subkriteriaId}/narasi',
+        summary: 'Menyimpan teks narasi subkriteria hasil editan (Kaprodi / PIC)',
+        description: 'Menyimpan teks narasi yang telah disesuaikan/diedit oleh Kaprodi atau PIC butir subkriteria terkait.',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
+            new OA\Parameter(name: 'subkriteriaId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Subkriteria'),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['narasi'],
+                properties: [
+                    new OA\Property(property: 'narasi', type: 'string', example: 'Program Studi Teknologi Rekayasa Komputer memiliki 12 orang dosen tetap yang berkualifikasi...'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Narasi subkriteria berhasil disimpan'),
+            new OA\Response(response: 403, description: 'Tidak memiliki hak akses menyimpan narasi pada butir ini'),
+            new OA\Response(response: 404, description: 'Project atau Subkriteria tidak ditemukan'),
+            new OA\Response(response: 422, description: 'Validasi gagal'),
+        ]
+    )]
+    #[OA\Get(
+        path: '/projects/{id}/review-summary',
+        summary: 'Mendapatkan rekapitulasi penilaian review project akreditasi',
+        description: 'Menampilkan ringkasan total nilai terbobot, skor akhir, dan rincian butir yang sudah dinilai oleh reviewer/kaprodi.',
+        tags: ['Akreditasi - Self Assessment'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Rekapitulasi review penilaian project berhasil diambil'),
+            new OA\Response(response: 404, description: 'Project tidak ditemukan'),
+        ]
+    )]
+    #[OA\Put(
+        path: '/self-assessment/{id}/penjelasan-prodi',
+        summary: 'Menambahkan tanggapan / klarifikasi prodi atas catatan reviewer (Khusus Kaprodi)',
+        description: 'Kaprodi memberikan tanggapan atau penjelasan klarifikasi atas temuan/catatan reviewer pada butir self assessment.',
+        tags: ['Akreditasi - Self Assessment'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Self Assessment'),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['tanggapan_kaprodi'],
+                properties: [
+                    new OA\Property(property: 'tanggapan_kaprodi', type: 'string', example: 'Dokumen revisi RPS dan bukti keterlibatan industri telah diunggah pada tautan pendukung.'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Penjelasan / tanggapan prodi berhasil disimpan'),
+            new OA\Response(response: 403, description: 'Akses ditolak (hanya role Kaprodi yang berwenang)'),
+            new OA\Response(response: 404, description: 'Data penilaian mandiri tidak ditemukan'),
+            new OA\Response(response: 422, description: 'Validasi gagal'),
         ]
     )]
     #[OA\Post(
