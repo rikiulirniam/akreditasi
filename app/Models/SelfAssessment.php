@@ -22,6 +22,7 @@ class SelfAssessment extends Model
         'tanggal_penilaian',
         'reviewer_id',
         'tanggapan_kaprodi',
+        'status_verifikasi_bukti', 
     ];
 
     protected function casts(): array
@@ -34,6 +35,7 @@ class SelfAssessment extends Model
             'tanggal_penilaian' => 'datetime',
             'catatan_reviewer' => 'string',
             'reviewer_id' => 'integer',
+            'status_verifikasi_bukti' => 'string', 
         ];
     }
 

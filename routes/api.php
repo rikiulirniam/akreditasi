@@ -228,6 +228,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
     Route::middleware('role:administrator,kaprodi')->group(function () {
         Route::put('self-assessment/{id}/penjelasan-prodi', [SelfAssessmentController::class, 'penjelasanProdi']);
         Route::patch('self-assessment/{id}/penjelasan-prodi', [SelfAssessmentController::class, 'penjelasanProdi']);
+        Route::put('self-assessment/{id}/verifikasi-bukti', [SelfAssessmentController::class, 'verifikasiBukti']);
     });
 
     /*
