@@ -113,8 +113,20 @@ class MappingTimAkreditasi extends Model
     {
         return $query->with([
             'indikator:id,id_subkriteria,kode_indikator,deskripsi_indikator,bobot',
+            'indikator.subkriteria:id,id_kriteria,kode_subkriteria,nama_subkriteria',
+            'indikator.subkriteria.kriteria:id,kode_kriteria,nama_kriteria',
             'project:id,nama_project,status_project',
         ]);
+    }
+
+    /**
+     * Scope: Kecualikan indikator dari Kriteria Statis / Non-Handle (Kriteria 5: Tata Pamong, Keuangan, Sarpras).
+     */
+    public function scopeExcludeNonHandleCriteria($query)
+    {
+        return $query->whereDoesntHave('indikator.subkriteria.kriteria', function ($q) {
+            $q->whereIn('kode_kriteria', ['K5', 'C.5', '5']);
+        });
     }
 
     /**

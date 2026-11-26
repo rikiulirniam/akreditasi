@@ -19,14 +19,40 @@ class VersiInstrumen extends Model
         'id_lembaga',
         'nomor_versi',
         'tanggal_berlaku',
+        'keterangan',
+    ];
+
+    protected $appends = [
+        'nama_lembaga',
+        'status_aktif',
     ];
 
     protected function casts(): array
     {
         return [
             'id_lembaga' => 'integer',
-            'tanggal_berlaku' => 'date',
+            'tanggal_berlaku' => 'date:Y-m-d',
         ];
+    }
+
+    public function getNamaLembagaAttribute(): ?string
+    {
+        if (! $this->relationLoaded('lembaga')) {
+            return null;
+        }
+
+        return $this->lembaga?->nama_lembaga;
+    }
+
+    public function getStatusAktifAttribute(): bool
+    {
+        if (! $this->relationLoaded('jenjangs')) {
+            return false;
+        }
+
+        return $this->jenjangs->contains(
+            fn ($jenjang): bool => (bool) ($jenjang->pivot?->status_aktif ?? false)
+        );
     }
 
     /**

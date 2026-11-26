@@ -90,15 +90,26 @@ class MasterDataDocs
     // ==========================================
     #[OA\Get(
         path: '/master/versi-instrumen',
-        summary: 'Mendapatkan daftar versi instrumen akreditasi',
-        description: 'Menampilkan list versi instrumen dengan filter id_lembaga dan status_aktif.',
+        summary: 'Mendapatkan daftar versi instrumen akreditasi (Aktif & Arsip)',
+        description: 'Menampilkan list versi instrumen aktif maupun arsip komparasi (misal: 2.1 aktif dan 2.0 arsip) dengan filter opsional id_lembaga, id_jenjang, dan status_aktif. Dapat diakses oleh seluruh role aktif (ADMINISTRATOR, KAPRODI, DOSEN).',
         tags: ['Master Data - Versi Instrumen'],
         parameters: [
             new OA\Parameter(name: 'id_lembaga', in: 'query', required: false, schema: new OA\Schema(type: 'integer'), description: 'Filter berdasarkan ID Lembaga'),
             new OA\Parameter(name: 'status_aktif', in: 'query', required: false, schema: new OA\Schema(type: 'boolean'), description: 'Filter status aktif (true/false)'),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'Berhasil memuat daftar versi instrumen', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseListSuccess')),
+            new OA\Response(
+                response: 200,
+                description: 'Berhasil memuat daftar versi instrumen',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Data versi instrumen berhasil diambil'),
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/VersiInstrumen')),
+                        new OA\Property(property: 'errors', type: 'null', example: null),
+                    ]
+                )
+            ),
         ]
     )]
     #[OA\Post(
@@ -113,6 +124,7 @@ class MasterDataDocs
                     new OA\Property(property: 'id_lembaga', type: 'integer', example: 1),
                     new OA\Property(property: 'nomor_versi', type: 'string', example: '2.1'),
                     new OA\Property(property: 'tanggal_berlaku', type: 'string', format: 'date', example: '2026-01-25'),
+                    new OA\Property(property: 'keterangan', type: 'string', example: 'Instrumen Akreditasi Program Studi Sarjana Terapan TRK (Aktif)', nullable: true),
                     new OA\Property(property: 'status_aktif', type: 'boolean', example: true),
                 ]
             )

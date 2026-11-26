@@ -200,7 +200,7 @@ class EvidenceSpmiTest extends TestCase
             'deskripsi_bukti_evaluasi' => 'Laporan AMI',
         ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer '.$this->reviewerToken)
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->kaprodiToken)
             ->getJson('/api/v1/evidence-spmi?project_id='.$this->project->id);
 
         $response->assertStatus(200)
@@ -213,6 +213,11 @@ class EvidenceSpmiTest extends TestCase
                     'deskripsi_bukti_evaluasi' => 'Laporan AMI',
                 ],
             ]);
+
+        // Reviewer ditolak 403 Forbidden
+        $this->withHeader('Authorization', 'Bearer '.$this->reviewerToken)
+            ->getJson('/api/v1/evidence-spmi?project_id='.$this->project->id)
+            ->assertStatus(403);
     }
 
     public function test_post_evidence_fails_with_422_when_project_id_does_not_exist(): void
