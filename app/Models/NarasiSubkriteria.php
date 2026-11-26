@@ -13,6 +13,8 @@ class NarasiSubkriteria extends Model
         'id_project',
         'id_subkriteria',
         'narasi',
+        'disunting_oleh',
+        'catatan_revisi',
         'data_agregasi',
     ];
 
