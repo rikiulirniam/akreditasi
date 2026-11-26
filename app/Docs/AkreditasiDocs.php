@@ -118,6 +118,35 @@ class AkreditasiDocs
             new OA\Response(response: 422, description: 'Master data aktif belum lengkap', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
         ]
     )]
+    #[OA\Put(
+        path: '/projects/{id}/status',
+        summary: 'Memperbarui status lifecycle project akreditasi (Kaprodi & Administrator)',
+        description: 'Memperbarui status project menjadi Draft, Pengisian, Review, On Progress, Pending, Cancel, atau Selesai oleh role KAPRODI atau ADMINISTRATOR. Nomor SK dan tanggal verifikasi/kedaluwarsa bersifat opsional (nullable) termasuk saat status diubah menjadi Selesai.',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['status_project'],
+                properties: [
+                    new OA\Property(property: 'status_project', type: 'string', enum: ['Draft', 'Pengisian', 'Review', 'On Progress', 'Pending', 'Cancel', 'Selesai'], example: 'Selesai'),
+                    new OA\Property(property: 'nomor_sk', type: 'string', example: null, nullable: true, description: 'Opsional (tidak wajib meskipun status Selesai)'),
+                    new OA\Property(property: 'tanggal_kedaluwarsa', type: 'string', format: 'date', example: null, nullable: true),
+                    new OA\Property(property: 'nomor_sk_akreditasi', type: 'string', example: null, nullable: true),
+                    new OA\Property(property: 'tanggal_verifikasi_akreditasi', type: 'string', format: 'date', example: null, nullable: true),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Status project berhasil diperbarui', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 403, description: 'Akses ditolak (khusus role KAPRODI atau ADMINISTRATOR)'),
+            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
+            new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
     #[OA\Patch(
         path: '/projects/{id}/status',
         summary: 'Memperbarui status lifecycle project akreditasi (Khusus Kaprodi)',
@@ -302,7 +331,7 @@ class AkreditasiDocs
     #[OA\Get(
         path: '/projects/{id}/placeholder-modules',
         summary: 'Mendapatkan metadata modul kriteria placeholder (Tata Pamong, Keuangan & Sarpras)',
-        description: 'Mengembalikan daftar kriteria read-only non-handle yang tidak dikelola oleh mitra agar struktur 9 kriteria LAM-INFOKOM tetap lengkap di frontend.',
+        description: 'Mengembalikan daftar kriteria read-only non-handle (C.2 & C.5 dengan total bobot 40, subkriteria 5.1 & 5.2 berstatus Statis / Read-Only, is_editable: false) yang tidak dapat di-plotting pada penugasan tim agar struktur 9 kriteria LAM-INFOKOM tetap lengkap di frontend. Dapat diakses oleh ADMINISTRATOR, KAPRODI, dan DOSEN.',
         tags: ['Akreditasi - Project'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
@@ -314,12 +343,22 @@ class AkreditasiDocs
                     new OA\Property(property: 'message', type: 'string', example: 'Data modul placeholder berhasil diambil.'),
                     new OA\Property(property: 'data', type: 'array', items: new OA\Items(
                         properties: [
-                            new OA\Property(property: 'kode_kriteria', type: 'string', example: 'C.2'),
-                            new OA\Property(property: 'nama_kriteria', type: 'string', example: 'Tata Pamong, Tata Kelola, dan Kerjasama'),
+                            new OA\Property(property: 'kode_kriteria', type: 'string', example: 'C.5'),
+                            new OA\Property(property: 'nama_kriteria', type: 'string', example: 'Keuangan, Sarana, dan Prasarana'),
+                            new OA\Property(property: 'total_bobot', type: 'integer', example: 40, nullable: true),
                             new OA\Property(property: 'is_placeholder', type: 'boolean', example: true),
                             new OA\Property(property: 'mode', type: 'string', example: 'read_only'),
                             new OA\Property(property: 'status', type: 'string', example: 'Aktif (Placeholder LAM-INFOKOM)'),
-                            new OA\Property(property: 'keterangan', type: 'string', example: 'Modul Tata Pamong tidak memerlukan transaksi penginputan langsung.'),
+                            new OA\Property(property: 'catatan_sistem', type: 'string', example: 'Komponen Read-Only LAM-INFOKOM (Data dikelola oleh SPMI Pusat Polines)', nullable: true),
+                            new OA\Property(property: 'keterangan', type: 'string', example: 'Modul Keuangan, Sarana, dan Prasarana disajikan sebagai komponen display data statis/read-only tanpa transaksi form input borang.'),
+                            new OA\Property(property: 'subkriteria', type: 'array', nullable: true, items: new OA\Items(
+                                properties: [
+                                    new OA\Property(property: 'kode_subkriteria', type: 'string', example: '5.1'),
+                                    new OA\Property(property: 'nama_subkriteria', type: 'string', example: 'Standar Tata Kelola Otonom & Transparan'),
+                                    new OA\Property(property: 'is_editable', type: 'boolean', example: false),
+                                    new OA\Property(property: 'status', type: 'string', example: 'Statis / Read-Only'),
+                                ]
+                            )),
                         ]
                     )),
                     new OA\Property(property: 'meta', type: 'object'),
@@ -348,8 +387,8 @@ class AkreditasiDocs
     )]
     #[OA\Post(
         path: '/projects/{id}/mapping-tim',
-        summary: 'Menyimpan pembagian tugas tim per indikator untuk project tertentu',
-        description: 'Menugaskan user/dosen untuk indikator pada project akreditasi (mendukung format single assignment atau batch assignments).',
+        summary: 'Menyimpan batch/single penugasan dosen (Plotting PJ & PIC) untuk project',
+        description: 'Menugaskan user/dosen dengan role PJ atau PIC pada indikator aktif (menolak indikator dari Kriteria Statis/Non-Handle K5 dan role selain PJ/PIC dengan HTTP 422). Hanya dapat diakses oleh role ADMINISTRATOR dan KAPRODI (403 Forbidden untuk role lain).',
         tags: ['Akreditasi - Mapping Tim'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
@@ -359,17 +398,18 @@ class AkreditasiDocs
             content: new OA\JsonContent(
                 properties: [
                     new OA\Property(property: 'id_user', type: 'integer', example: 101, description: 'Diisi jika single penugasan'),
-                    new OA\Property(property: 'id_indikator', type: 'integer', example: 1, description: 'Diisi jika single penugasan'),
-                    new OA\Property(property: 'role', type: 'string', example: 'Penyusun', nullable: true),
+                    new OA\Property(property: 'id_indikator', type: 'integer', example: 1, description: 'Diisi jika single penugasan (harus indikator aktif non-K5)'),
+                    new OA\Property(property: 'role', type: 'string', enum: ['PJ', 'PIC'], example: 'PJ', nullable: true),
                     new OA\Property(
                         property: 'assignments',
                         type: 'array',
-                        description: 'Diisi jika batch penugasan sekaligus',
+                        description: 'Diisi jika batch penugasan sekaligus (min: 1)',
                         items: new OA\Items(
+                            required: ['id_user', 'id_indikator', 'role'],
                             properties: [
-                                new OA\Property(property: 'id_user', type: 'integer', example: 101),
-                                new OA\Property(property: 'id_indikator', type: 'integer', example: 1),
-                                new OA\Property(property: 'role', type: 'string', example: 'Penyusun', nullable: true),
+                                new OA\Property(property: 'id_user', type: 'integer', example: 10),
+                                new OA\Property(property: 'id_indikator', type: 'integer', example: 4),
+                                new OA\Property(property: 'role', type: 'string', enum: ['PJ', 'PIC'], example: 'PIC'),
                             ]
                         )
                     ),
@@ -378,7 +418,8 @@ class AkreditasiDocs
         ),
         responses: [
             new OA\Response(response: 201, description: 'Pembagian tugas tim akreditasi berhasil disimpan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
+            new OA\Response(response: 403, description: 'Akses ditolak (hanya ADMINISTRATOR dan KAPRODI)'),
+            new OA\Response(response: 422, description: 'Validasi gagal (role selain PJ/PIC atau indikator termasuk Kriteria 5 statis)', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
             new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
@@ -462,7 +503,7 @@ class AkreditasiDocs
     #[OA\Get(
         path: '/dosen/my-assignments',
         summary: 'Daftar butir indikator tugas dosen login (PIC & PJ)',
-        description: 'Menampilkan daftar butir indikator yang ditugaskan kepada dosen yang sedang login (sebagai PIC atau PJ), dilengkapi status keterisian bukti dan hak akses edit.',
+        description: 'Menampilkan daftar butir indikator aktif yang ditugaskan kepada pengguna yang sedang login (PIC/PJ), secara otomatis mengecualikan indikator dari Kriteria Statis / Non-Handle (K5), serta menyertakan kelengkapan bukti (has_bukti, status_narasi, status_evidence). Dapat diakses oleh role DOSEN, KAPRODI, dan ADMINISTRATOR (403 Forbidden untuk role REVIEWER yang telah dinonaktifkan).',
         tags: ['Dosen - Penugasan PIC'],
         security: [['BearerAuth' => []]],
         parameters: [
@@ -475,12 +516,30 @@ class AkreditasiDocs
                 content: new OA\JsonContent(
                     properties: [
                         new OA\Property(property: 'success', type: 'boolean', example: true),
-                        new OA\Property(property: 'message', type: 'string', example: 'Daftar penugasan berhasil diambil'),
-                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(type: 'object')),
+                        new OA\Property(property: 'message', type: 'string', example: 'Daftar penugasan dosen berhasil diambil.'),
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(
+                            properties: [
+                                new OA\Property(property: 'id_mapping', type: 'integer', example: 16),
+                                new OA\Property(property: 'role', type: 'string', example: 'PIC'),
+                                new OA\Property(property: 'id_project', type: 'integer', example: 1),
+                                new OA\Property(property: 'nama_project', type: 'string', example: 'Akreditasi TRK 2026'),
+                                new OA\Property(property: 'status_project', type: 'string', example: 'Draft'),
+                                new OA\Property(property: 'id_indikator', type: 'integer', example: 4),
+                                new OA\Property(property: 'kode_indikator', type: 'string', example: '2.1.B'),
+                                new OA\Property(property: 'deskripsi', type: 'string', example: 'Standar isi pembelajaran & kurikulum OBE'),
+                                new OA\Property(property: 'bobot', type: 'number', example: 4),
+                                new OA\Property(property: 'kriteria', type: 'string', example: 'Kriteria 2: Relevansi Pendidikan', nullable: true),
+                                new OA\Property(property: 'has_bukti', type: 'boolean', example: false),
+                                new OA\Property(property: 'status_narasi', type: 'string', example: 'Belum Terisi'),
+                                new OA\Property(property: 'status_evidence', type: 'string', example: 'Belum Terunggah'),
+                            ]
+                        )),
+                        new OA\Property(property: 'meta', type: 'object'),
                     ]
                 )
             ),
             new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Akses ditolak (role REVIEWER dinonaktifkan)'),
         ]
     )]
     public function mappingTimDocs() {}
@@ -601,7 +660,7 @@ class AkreditasiDocs
     #[OA\Get(
         path: '/projects/{id}/review-summary',
         summary: 'Mendapatkan rekapitulasi penilaian review project akreditasi',
-        description: 'Menampilkan ringkasan total nilai terbobot, skor akhir, dan rincian butir yang sudah dinilai oleh reviewer/kaprodi.',
+        description: 'Menampilkan ringkasan total nilai terbobot, skor akhir, dan rincian butir yang sudah dinilai oleh Kaprodi/Administrator. Dapat diakses oleh ADMINISTRATOR, KAPRODI, dan DOSEN (role REVIEWER telah dinonaktifkan).',
         tags: ['Akreditasi - Self Assessment'],
         security: [['BearerAuth' => []]],
         parameters: [
@@ -609,13 +668,14 @@ class AkreditasiDocs
         ],
         responses: [
             new OA\Response(response: 200, description: 'Rekapitulasi review penilaian project berhasil diambil'),
+            new OA\Response(response: 403, description: 'Akses ditolak (role REVIEWER dinonaktifkan)'),
             new OA\Response(response: 404, description: 'Project tidak ditemukan'),
         ]
     )]
     #[OA\Put(
         path: '/self-assessment/{id}/penjelasan-prodi',
-        summary: 'Menambahkan tanggapan / klarifikasi prodi atas catatan reviewer (Khusus Kaprodi)',
-        description: 'Kaprodi memberikan tanggapan atau penjelasan klarifikasi atas temuan/catatan reviewer pada butir self assessment.',
+        summary: 'Menambahkan tanggapan / klarifikasi resmi prodi (Kaprodi & Administrator)',
+        description: 'Kaprodi atau Administrator memberikan tanggapan/klarifikasi resmi atas catatan evaluasi pada butir self assessment (minimal 5 karakter). Role DOSEN dan REVIEWER ditolak dengan HTTP 403 Forbidden.',
         tags: ['Akreditasi - Self Assessment'],
         security: [['BearerAuth' => []]],
         parameters: [
@@ -626,21 +686,21 @@ class AkreditasiDocs
             content: new OA\JsonContent(
                 required: ['tanggapan_kaprodi'],
                 properties: [
-                    new OA\Property(property: 'tanggapan_kaprodi', type: 'string', example: 'Dokumen revisi RPS dan bukti keterlibatan industri telah diunggah pada tautan pendukung.'),
+                    new OA\Property(property: 'tanggapan_kaprodi', type: 'string', minLength: 5, example: 'SK Kurikulum OBE 2024 dan Berita Acara DUDIKA telah disematkan pada tautan bukti pilar 2.'),
                 ]
             )
         ),
         responses: [
             new OA\Response(response: 200, description: 'Penjelasan / tanggapan prodi berhasil disimpan'),
-            new OA\Response(response: 403, description: 'Akses ditolak (hanya role Kaprodi yang berwenang)'),
+            new OA\Response(response: 403, description: 'Akses ditolak: Hanya Kaprodi atau Administrator yang berhak mengisi tanggapan prodi'),
             new OA\Response(response: 404, description: 'Data penilaian mandiri tidak ditemukan'),
-            new OA\Response(response: 422, description: 'Validasi gagal'),
+            new OA\Response(response: 422, description: 'Validasi gagal (tanggapan_kaprodi wajib minimal 5 karakter)'),
         ]
     )]
     #[OA\Post(
         path: '/self-assessment',
-        summary: 'Mengisi atau memperbarui penilaian mandiri (Self Assessment)',
-        description: 'Menyimpan penilaian reviewer untuk indikator pada project. Jika id_rubrik disertakan, sistem secara otomatis menghitung skor_terbobot = rubrik.skor * bobot.nilai_bobot.',
+        summary: 'Mengisi atau memperbarui penilaian mandiri (Kaprodi & Administrator)',
+        description: 'Menyimpan penilaian evaluasi untuk indikator pada project oleh KAPRODI atau ADMINISTRATOR (role REVIEWER dinonaktifkan). Jika id_rubrik disertakan, sistem otomatis menghitung skor_terbobot = rubrik.skor * bobot.',
         tags: ['Akreditasi - Self Assessment'],
         requestBody: new OA\RequestBody(
             required: true,
@@ -650,7 +710,7 @@ class AkreditasiDocs
                     new OA\Property(property: 'id_project', type: 'integer', example: 1),
                     new OA\Property(property: 'id_indikator', type: 'integer', example: 1),
                     new OA\Property(property: 'id_rubrik', type: 'integer', example: 1, nullable: true),
-                    new OA\Property(property: 'reviewer_id', type: 'integer', example: 301, nullable: true, description: 'ID User Reviewer'),
+                    new OA\Property(property: 'reviewer_id', type: 'integer', example: 2, nullable: true, description: 'ID User Penilai (Kaprodi / Administrator)'),
                     new OA\Property(property: 'catatan_reviewer', type: 'string', example: 'Bukti dukung sangat komprehensif dan implementasi terlaksana dengan sangat baik.', nullable: true),
                     new OA\Property(property: 'tanggal_penilaian', type: 'string', format: 'date', example: '2026-10-24', nullable: true),
                 ]
@@ -658,6 +718,7 @@ class AkreditasiDocs
         ),
         responses: [
             new OA\Response(response: 200, description: 'Penilaian mandiri berhasil disimpan dengan perhitungan skor terbobot otomatis', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 403, description: 'Akses ditolak (hanya KAPRODI atau ADMINISTRATOR)'),
             new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
         ]
     )]

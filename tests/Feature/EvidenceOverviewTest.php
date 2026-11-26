@@ -169,7 +169,7 @@ class EvidenceOverviewTest extends TestCase
             'role' => 'PIC',
         ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer '.$this->reviewerToken)
+        $response = $this->withHeader('Authorization', 'Bearer '.$this->kaprodiToken)
             ->getJson('/api/v1/projects/'.$this->project->id.'/evidence-overview');
 
         $response->assertStatus(200)
@@ -252,9 +252,9 @@ class EvidenceOverviewTest extends TestCase
             ->getJson('/api/v1/projects/'.$this->project->id.'/evidence-overview')
             ->assertStatus(200);
 
-        // Reviewer
+        // Reviewer (dinonaktifkan -> 403 Forbidden)
         $this->withHeader('Authorization', 'Bearer '.$this->reviewerToken)
             ->getJson('/api/v1/projects/'.$this->project->id.'/evidence-overview')
-            ->assertStatus(200);
+            ->assertStatus(403);
     }
 }

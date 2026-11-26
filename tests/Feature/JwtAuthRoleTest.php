@@ -79,14 +79,14 @@ class JwtAuthRoleTest extends TestCase
             ->assertStatus(403);
     }
 
-    public function test_reviewer_can_view_self_assessment_but_cannot_create_project(): void
+    public function test_reviewer_cannot_access_self_assessment_or_create_project(): void
     {
         $token = $this->generateTestToken('REVIEWER', 3);
 
-        // Reviewer can view self-assessment
+        // Reviewer CANNOT view self-assessment (role dinonaktifkan -> 403 Forbidden)
         $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson('/api/v1/self-assessment')
-            ->assertStatus(200);
+            ->assertStatus(403);
 
         // Reviewer CANNOT create project akreditasi (403 Forbidden)
         $this->withHeader('Authorization', 'Bearer '.$token)

@@ -42,12 +42,21 @@ class LamInfokomSeeder extends Seeder
         );
 
         // =========================================================================
-        // 2. VERSI INSTRUMEN (2.1 - Diberlakukan 25 Januari 2026)
+        // 2. VERSI INSTRUMEN (2.1 Aktif & 2.0 Arsip Komparasi)
         // =========================================================================
-        $versi = VersiInstrumen::firstOrCreate(
+        $versi = VersiInstrumen::updateOrCreate(
             ['nomor_versi' => '2.1', 'id_lembaga' => $lembaga->id],
             [
                 'tanggal_berlaku' => '2026-01-25',
+                'keterangan' => 'Instrumen Akreditasi Program Studi Sarjana Terapan TRK (Aktif)',
+            ]
+        );
+
+        $versiArsip = VersiInstrumen::updateOrCreate(
+            ['nomor_versi' => '2.0', 'id_lembaga' => $lembaga->id],
+            [
+                'tanggal_berlaku' => '2022-06-01',
+                'keterangan' => 'Instrumen Akreditasi Versi Lama (Contoh Arsip Komparasi)',
             ]
         );
 
@@ -71,6 +80,10 @@ class LamInfokomSeeder extends Seeder
         $versi->jenjangs()->syncWithoutDetaching([
             $jenjangSarjanaTerapan->id => ['status_aktif' => true],
             $jenjangDiploma->id => ['status_aktif' => true],
+        ]);
+
+        $versiArsip->jenjangs()->syncWithoutDetaching([
+            $jenjangSarjanaTerapan->id => ['status_aktif' => false],
         ]);
 
         Jenjang::firstOrCreate(['nama_jenjang' => 'Sarjana']);

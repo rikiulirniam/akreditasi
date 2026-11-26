@@ -219,7 +219,7 @@ class ScoringFormulaLAMTest extends TestCase
         ]);
 
         // Total skor = (95 * 4) + (5 * 2) = 380 + 10 = 390.0 (melebihi 361)
-        $token = $this->generateToken('REVIEWER');
+        $token = $this->generateToken('KAPRODI');
 
         $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson("/api/v1/projects/{$project->id}/review-summary");
@@ -428,7 +428,17 @@ class ScoringFormulaLAMTest extends TestCase
         $ind = $this->createIndikatorWithRubriks($instrumen, 'B', 'B.1', 'IND-B.1', 3.50);
         $rubrik3 = Rubrik::where('id_indikator', $ind->id)->where('skor', 3)->first();
 
-        $token = $this->generateToken('REVIEWER');
+        // Role REVIEWER ditolak 403 Forbidden
+        $reviewerToken = $this->generateToken('REVIEWER');
+        $this->withHeader('Authorization', 'Bearer '.$reviewerToken)
+            ->postJson('/api/v1/self-assessment', [
+                'id_project' => $project->id,
+                'id_indikator' => $ind->id,
+                'id_rubrik' => $rubrik3->id,
+            ])
+            ->assertStatus(403);
+
+        $token = $this->generateToken('KAPRODI');
 
         // Submit assessment: skor terbobot otomatis = 3.50 * 3 = 10.50
         $response = $this->withHeader('Authorization', 'Bearer '.$token)
@@ -463,8 +473,8 @@ class ScoringFormulaLAMTest extends TestCase
         $this->getJson("/api/v1/projects/{$project->id}/review-summary")
             ->assertStatus(401);
 
-        // 2. Seluruh role resmi (ADMINISTRATOR, KAPRODI, REVIEWER, DOSEN) dapat mengakses (200 OK)
-        foreach (['ADMINISTRATOR', 'KAPRODI', 'REVIEWER', 'DOSEN'] as $role) {
+        // 2. Role aktif (ADMINISTRATOR, KAPRODI, DOSEN) dapat mengakses (200 OK)
+        foreach (['ADMINISTRATOR', 'KAPRODI', 'DOSEN'] as $role) {
             $token = $this->generateToken($role);
 
             $this->withHeader('Authorization', 'Bearer '.$token)
@@ -472,6 +482,12 @@ class ScoringFormulaLAMTest extends TestCase
                 ->assertStatus(200)
                 ->assertJsonPath('success', true);
         }
+
+        // 3. Role REVIEWER ditolak (403 Forbidden)
+        $reviewerToken = $this->generateToken('REVIEWER');
+        $this->withHeader('Authorization', 'Bearer '.$reviewerToken)
+            ->getJson("/api/v1/projects/{$project->id}/review-summary")
+            ->assertStatus(403);
     }
 
     /**

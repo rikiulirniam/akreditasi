@@ -139,17 +139,22 @@ class MappingTimAkreditasiController extends Controller
         $user = $request->user();
         $userId = (int) ($user->id ?? $user->getAuthIdentifier());
 
-        // Gunakan scope Model: withDetails, forDosen, dan assignedRoles
+        // Gunakan scope Model: withDetails, forDosen, assignedRoles, dan excludeNonHandleCriteria
         $mappings = MappingTimAkreditasi::withDetails()
             ->forDosen($userId)
             ->assignedRoles()
+            ->excludeNonHandleCriteria()
             ->get();
 
-        // Optimasi: Tarik seluruh self_assessment yang sudah dinilai dalam 1 query (Bebas N+1)
+        // Optimasi: Tarik seluruh self_assessment, evidence indikator, dan narasi subkriteria dalam 3 batch query (Bebas N+1)
         $projectIds = $mappings->pluck('id_project')->unique()->filter()->values()->all();
         $indikatorIds = $mappings->pluck('id_indikator')->unique()->filter()->values()->all();
+        $subkriteriaIds = $mappings->pluck('indikator.id_subkriteria')->unique()->filter()->values()->all();
 
         $assessedMap = [];
+        $evidenceMap = [];
+        $narasiMap = [];
+
         if (! empty($projectIds) && ! empty($indikatorIds)) {
             $assessedMap = DB::table('self_assessment')
                 ->whereIn('id_project', $projectIds)
@@ -159,11 +164,34 @@ class MappingTimAkreditasiController extends Controller
                 ->get()
                 ->mapWithKeys(fn ($row) => ["{$row->id_project}_{$row->id_indikator}" => true])
                 ->all();
+
+            $evidenceMap = DB::table('project_indicator_evidence')
+                ->whereIn('id_project', $projectIds)
+                ->whereIn('id_indikator', $indikatorIds)
+                ->select('id_project', 'id_indikator')
+                ->get()
+                ->mapWithKeys(fn ($row) => ["{$row->id_project}_{$row->id_indikator}" => true])
+                ->all();
         }
 
-        $assignments = $mappings->map(function ($mapping) use ($assessedMap) {
+        if (! empty($projectIds) && ! empty($subkriteriaIds)) {
+            $narasiMap = DB::table('narasi_subkriterias')
+                ->whereIn('id_project', $projectIds)
+                ->whereIn('id_subkriteria', $subkriteriaIds)
+                ->whereNotNull('narasi')
+                ->where('narasi', '!=', '')
+                ->select('id_project', 'id_subkriteria')
+                ->get()
+                ->mapWithKeys(fn ($row) => ["{$row->id_project}_{$row->id_subkriteria}" => true])
+                ->all();
+        }
+
+        $assignments = $mappings->map(function ($mapping) use ($assessedMap, $evidenceMap, $narasiMap) {
             $key = "{$mapping->id_project}_{$mapping->id_indikator}";
+            $subKey = "{$mapping->id_project}_{$mapping->indikator?->id_subkriteria}";
             $hasBukti = isset($assessedMap[$key]);
+            $hasEvidence = $hasBukti || isset($evidenceMap[$key]);
+            $hasNarasi = isset($narasiMap[$subKey]);
 
             return [
                 'id_mapping' => $mapping->id,
@@ -175,7 +203,10 @@ class MappingTimAkreditasiController extends Controller
                 'kode_indikator' => $mapping->indikator?->kode_indikator,
                 'deskripsi' => $mapping->indikator?->deskripsi_indikator,
                 'bobot' => $mapping->indikator?->bobot,
+                'kriteria' => $mapping->indikator?->subkriteria?->kriteria?->nama_kriteria,
                 'has_bukti' => $hasBukti,
+                'status_narasi' => $hasNarasi ? 'Terisi' : 'Belum Terisi',
+                'status_evidence' => $hasEvidence ? 'Terunggah' : 'Belum Terunggah',
             ];
         });
 
@@ -220,10 +251,26 @@ class MappingTimAkreditasiController extends Controller
             [
                 'kode_kriteria' => 'C.5',
                 'nama_kriteria' => 'Keuangan, Sarana, dan Prasarana',
+                'total_bobot' => 40,
                 'is_placeholder' => true,
                 'mode' => 'read_only',
                 'status' => 'Aktif (Placeholder LAM-INFOKOM)',
+                'catatan_sistem' => 'Komponen Read-Only LAM-INFOKOM (Data dikelola oleh SPMI Pusat Polines)',
                 'keterangan' => 'Modul Keuangan, Sarana, dan Prasarana disajikan sebagai komponen display data statis/read-only tanpa transaksi form input borang.',
+                'subkriteria' => [
+                    [
+                        'kode_subkriteria' => '5.1',
+                        'nama_subkriteria' => 'Standar Tata Kelola Otonom & Transparan',
+                        'is_editable' => false,
+                        'status' => 'Statis / Read-Only',
+                    ],
+                    [
+                        'kode_subkriteria' => '5.2',
+                        'nama_subkriteria' => 'Sarana, Prasarana, dan Keuangan',
+                        'is_editable' => false,
+                        'status' => 'Statis / Read-Only',
+                    ],
+                ],
             ],
         ];
 
