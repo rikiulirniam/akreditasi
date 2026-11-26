@@ -187,9 +187,11 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         Route::get('projects/{id}/scoring-simulation', [ProjectAkreditasiController::class, 'scoringSimulation']);
     });
 
-    // Update status project akreditasi: Khusus role Kaprodi
+    // Update status project akreditasi: PATCH khusus Kaprodi, PUT untuk Administrator & Kaprodi
     Route::patch('projects/{id}/status', [ProjectAkreditasiController::class, 'updateStatus'])
         ->middleware('role:kaprodi');
+    Route::put('projects/{id}/status', [ProjectAkreditasiController::class, 'updateStatus'])
+        ->middleware('role:administrator,kaprodi');
 
     Route::middleware('role:administrator,kaprodi')->group(function () {
         Route::post('projects/quick-create', [DashboardProgressController::class, 'quickCreate']);
@@ -252,11 +254,11 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
     // Modul Evidence SPMI (One-to-One dengan Project Akreditasi)
     Route::middleware('role:administrator,kaprodi,dosen')->group(function () {
         Route::get('evidence-spmi', [EvidenceSpmiController::class, 'show']);
+        Route::post('evidence-spmi', [EvidenceSpmiController::class, 'store']);
         Route::get('projects/{id}/evidence-overview', [EvidenceSpmiController::class, 'overview']);
     });
 
     Route::middleware('role:administrator,kaprodi')->group(function () {
-        Route::post('evidence-spmi', [EvidenceSpmiController::class, 'store']);
         Route::delete('evidence-spmi/{id}', [EvidenceSpmiController::class, 'destroy']);
     });
 

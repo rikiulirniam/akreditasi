@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Models\EvidenceSpmi;
 use App\Models\ProjectAkreditasi;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -75,8 +74,9 @@ class EvidenceOverviewResource extends JsonResource
             ] : null,
             'kelengkapan_pilar' => [
                 'total_pilar' => 4,
-                'terisi' => $evidence ? $evidence->countFilledPilars() : 0,
-                'belum_terisi' => $evidence ? 4 - $evidence->countFilledPilars() : 4,
+                'terisi' => $filledCount = $evidence ? $evidence->countFilledPilars() : 0,
+                'belum_terisi' => 4 - $filledCount,
+                'persentase' => number_format(($filledCount / 4) * 100, 1).'%',
                 'daftar_pilar' => [
                     [
                         'urutan' => 1,
@@ -102,6 +102,28 @@ class EvidenceOverviewResource extends JsonResource
                         'key' => 'pilar_4_implementasi',
                         'terisi' => ! empty($evidence?->link_dokumen_implementasi),
                     ],
+                ],
+            ],
+            'evidence_pilar' => [
+                'pilar_1_evaluasi' => [
+                    'status' => ! empty($evidence?->link_bukti_evaluasi) ? 'Terisi' : 'Belum Terisi',
+                    'url' => $evidence?->link_bukti_evaluasi,
+                    'deskripsi' => $evidence?->deskripsi_bukti_evaluasi,
+                ],
+                'pilar_2_kebijakan' => [
+                    'status' => ! empty($evidence?->link_bukti_pengendalian) ? 'Terisi' : 'Belum Terisi',
+                    'url' => $evidence?->link_bukti_pengendalian,
+                    'deskripsi' => $evidence?->deskripsi_bukti_pengendalian,
+                ],
+                'pilar_3_manual' => [
+                    'status' => ! empty($evidence?->link_bukti_dampak) ? 'Terisi' : 'Belum Terisi',
+                    'url' => $evidence?->link_bukti_dampak,
+                    'deskripsi' => $evidence?->deskripsi_bukti_dampak,
+                ],
+                'pilar_4_formulir' => [
+                    'status' => ! empty($evidence?->link_dokumen_implementasi) ? 'Terisi' : 'Belum Terisi',
+                    'url' => $evidence?->link_dokumen_implementasi,
+                    'deskripsi' => $evidence?->deskripsi_dokumen_implementasi,
                 ],
             ],
             'assigned_indicators' => $assignedIndicators,

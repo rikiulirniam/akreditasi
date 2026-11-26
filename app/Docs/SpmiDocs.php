@@ -128,59 +128,76 @@ class SpmiDocs
     public function spmiAuditDocs() {}
 
     // ==========================================
-    // EVIDENCE SPMI (KAPRODI)
+    // EVIDENCE SPMI (ADMINISTRATOR, KAPRODI, DOSEN)
     // ==========================================
     #[OA\Get(
         path: '/evidence-spmi',
         summary: 'Mendapatkan data evidence SPMI berdasarkan project_id',
-        description: 'Mengambil data evidence SPMI untuk suatu project. Jika belum ada data, mengembalikan data: null dengan status 200 OK.',
+        description: 'Mengambil data evidence SPMI untuk suatu project (akses: ADMINISTRATOR, KAPRODI, DOSEN; role REVIEWER telah dinonaktifkan -> 403 Forbidden). Jika belum ada data, mengembalikan data: null dengan status 200 OK.',
         tags: ['SPMI - Evidence Mutu'],
         parameters: [
             new OA\Parameter(name: 'project_id', in: 'query', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
         ],
         responses: [
             new OA\Response(response: 200, description: 'Data evidence SPMI berhasil diambil', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 403, description: 'Akses ditolak (role REVIEWER dinonaktifkan)'),
             new OA\Response(response: 422, description: 'Parameter project_id tidak disertakan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
         ]
     )]
     #[OA\Get(
         path: '/projects/{id}/evidence-overview',
         summary: 'Rekapitulasi evidence overview sebuah project akreditasi',
-        description: 'Mengambil rekapitulasi data 4 Pilar Dokumen Mutu Institusi (Laporan AMI & Monev, RTM & RTL, Capaian IKU & Survei Kepuasan Stakeholder, Dokumen Implementasi Kebijakan/Manual/SOP), daftar indikator yang ditugaskan beserta status kelengkapan.',
+        description: 'Mengambil rekapitulasi kelengkapan 4 Pilar Dokumen Mutu Institusi (termasuk persentase kelengkapan 1 desimal dan status masing-masing pilar) beserta daftar indikator yang ditugaskan. Dapat diakses oleh ADMINISTRATOR, KAPRODI, dan DOSEN (role REVIEWER ditolak dengan 403 Forbidden).',
         tags: ['SPMI - Evidence Mutu'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'Rekapitulasi evidence overview berhasil diambil', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(
+                response: 200,
+                description: 'Rekapitulasi evidence overview berhasil diambil',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Rekapitulasi evidence overview berhasil diambil'),
+                        new OA\Property(property: 'data', ref: '#/components/schemas/EvidenceSpmiOverview'),
+                        new OA\Property(property: 'errors', type: 'null', example: null),
+                    ]
+                )
+            ),
+            new OA\Response(response: 403, description: 'Akses ditolak (role REVIEWER dinonaktifkan)'),
             new OA\Response(response: 404, description: 'Project akreditasi tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
     #[OA\Post(
         path: '/evidence-spmi',
         summary: 'Menyimpan atau memperbarui data evidence SPMI project',
-        description: 'Menyimpan rekaman 4 Pilar Dokumen Mutu Institusi SPMI berbasis updateOrCreate pada project_id.',
+        description: 'Menyimpan rekaman 4 Pilar Dokumen Mutu Institusi SPMI berbasis updateOrCreate pada project_id. Dapat diakses oleh ADMINISTRATOR, KAPRODI, dan DOSEN (role REVIEWER ditolak 403). Seluruh tautan pilar divalidasi format URL http/https yang aman (menolak skema berbahaya seperti javascript:).',
         tags: ['SPMI - Evidence Mutu'],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['project_id'],
+                required: ['project_id', 'link_bukti_evaluasi'],
                 properties: [
                     new OA\Property(property: 'project_id', type: 'integer', example: 1),
-                    new OA\Property(property: 'link_bukti_evaluasi', type: 'string', example: 'https://drive.google.com/ami-monev', nullable: true, description: 'Pilar 1: Laporan Audit Mutu Internal (AMI & Monev)'),
+                    new OA\Property(property: 'link_bukti_evaluasi', type: 'string', format: 'uri', example: 'https://drive.google.com/ami-monev', description: 'Pilar 1 (Wajib, URL http/https valid): Laporan Audit Mutu Internal (AMI & Monev)'),
                     new OA\Property(property: 'deskripsi_bukti_evaluasi', type: 'string', example: 'Laporan Audit Mutu Internal (AMI & Monev) Semester Genap', nullable: true),
-                    new OA\Property(property: 'link_bukti_pengendalian', type: 'string', example: 'https://drive.google.com/rtm-rtl', nullable: true, description: 'Pilar 2: Rapat Tinjauan Manajemen (RTM & RTL)'),
+                    new OA\Property(property: 'link_bukti_pengendalian', type: 'string', format: 'uri', example: 'https://drive.google.com/rtm-rtl', nullable: true, description: 'Pilar 2 (URL http/https valid): Rapat Tinjauan Manajemen / Kebijakan'),
+                    new OA\Property(property: 'link_dokumen_kebijakan', type: 'string', format: 'uri', example: 'https://drive.google.com/kebijakan', nullable: true, description: 'Alias untuk link_bukti_pengendalian'),
                     new OA\Property(property: 'deskripsi_bukti_pengendalian', type: 'string', example: 'Notulen RTM dan Rencana Tindak Lanjut (RTL)', nullable: true),
-                    new OA\Property(property: 'link_bukti_dampak', type: 'string', example: 'https://drive.google.com/iku-kepuasan', nullable: true, description: 'Pilar 3: Capaian IKU & Survei Kepuasan Stakeholder'),
+                    new OA\Property(property: 'link_bukti_dampak', type: 'string', format: 'uri', example: 'https://drive.google.com/iku-kepuasan', nullable: true, description: 'Pilar 3 (URL http/https valid): Capaian IKU / Manual Mutu'),
+                    new OA\Property(property: 'link_dokumen_manual', type: 'string', format: 'uri', example: 'https://drive.google.com/manual', nullable: true, description: 'Alias untuk link_bukti_dampak'),
                     new OA\Property(property: 'deskripsi_bukti_dampak', type: 'string', example: 'Laporan Capaian IKU & Hasil Survei Kepuasan Stakeholder', nullable: true),
-                    new OA\Property(property: 'link_dokumen_implementasi', type: 'string', example: 'https://drive.google.com/spmi-manual-sop', nullable: true, description: 'Pilar 4: Dokumen Implementasi (Buku Kebijakan SPMI, Manual Mutu, SOP PPEPP)'),
+                    new OA\Property(property: 'link_dokumen_implementasi', type: 'string', format: 'uri', example: 'https://drive.google.com/spmi-manual-sop', nullable: true, description: 'Pilar 4 (URL http/https valid): Dokumen Implementasi / Formulir'),
+                    new OA\Property(property: 'link_dokumen_formulir', type: 'string', format: 'uri', example: 'https://drive.google.com/formulir', nullable: true, description: 'Alias untuk link_dokumen_implementasi'),
                     new OA\Property(property: 'deskripsi_dokumen_implementasi', type: 'string', example: 'Buku Kebijakan SPMI, Manual Mutu, dan SOP PPEPP Operasional', nullable: true),
                 ]
             )
         ),
         responses: [
             new OA\Response(response: 200, description: 'Evidence SPMI berhasil disimpan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
-            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
+            new OA\Response(response: 403, description: 'Akses ditolak (role REVIEWER dinonaktifkan)'),
+            new OA\Response(response: 422, description: 'Validasi gagal (URL tidak valid atau skema berbahaya)', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
         ]
     )]
     #[OA\Delete(

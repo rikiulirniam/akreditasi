@@ -378,6 +378,115 @@
             }
         },
         "/projects/{id}/status": {
+            "put": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Memperbarui status lifecycle project akreditasi (Kaprodi & Administrator)",
+                "description": "Memperbarui status project menjadi Draft, Pengisian, Review, On Progress, Pending, Cancel, atau Selesai oleh role KAPRODI atau ADMINISTRATOR. Nomor SK dan tanggal verifikasi/kedaluwarsa bersifat opsional (nullable) termasuk saat status diubah menjadi Selesai.",
+                "operationId": "aa2f65f147f208834ba25221252ff9dd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status_project"
+                                ],
+                                "properties": {
+                                    "status_project": {
+                                        "type": "string",
+                                        "example": "Selesai",
+                                        "enum": [
+                                            "Draft",
+                                            "Pengisian",
+                                            "Review",
+                                            "On Progress",
+                                            "Pending",
+                                            "Cancel",
+                                            "Selesai"
+                                        ]
+                                    },
+                                    "nomor_sk": {
+                                        "description": "Opsional (tidak wajib meskipun status Selesai)",
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "tanggal_kedaluwarsa": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "nomor_sk_akreditasi": {
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "tanggal_verifikasi_akreditasi": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": null,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status project berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Akses ditolak (khusus role KAPRODI atau ADMINISTRATOR)"
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Project tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
             "patch": {
                 "tags": [
                     "Akreditasi - Project"
@@ -832,7 +941,7 @@
                     "Akreditasi - Project"
                 ],
                 "summary": "Mendapatkan metadata modul kriteria placeholder (Tata Pamong, Keuangan & Sarpras)",
-                "description": "Mengembalikan daftar kriteria read-only non-handle yang tidak dikelola oleh mitra agar struktur 9 kriteria LAM-INFOKOM tetap lengkap di frontend.",
+                "description": "Mengembalikan daftar kriteria read-only non-handle (C.2 & C.5 dengan total bobot 40, subkriteria 5.1 & 5.2 berstatus Statis / Read-Only, is_editable: false) yang tidak dapat di-plotting pada penugasan tim agar struktur 9 kriteria LAM-INFOKOM tetap lengkap di frontend. Dapat diakses oleh ADMINISTRATOR, KAPRODI, dan DOSEN.",
                 "operationId": "f0f4ba02c36002cfff5892e81bc4de30",
                 "parameters": [
                     {
@@ -866,11 +975,16 @@
                                                 "properties": {
                                                     "kode_kriteria": {
                                                         "type": "string",
-                                                        "example": "C.2"
+                                                        "example": "C.5"
                                                     },
                                                     "nama_kriteria": {
                                                         "type": "string",
-                                                        "example": "Tata Pamong, Tata Kelola, dan Kerjasama"
+                                                        "example": "Keuangan, Sarana, dan Prasarana"
+                                                    },
+                                                    "total_bobot": {
+                                                        "type": "integer",
+                                                        "example": 40,
+                                                        "nullable": true
                                                     },
                                                     "is_placeholder": {
                                                         "type": "boolean",
@@ -884,9 +998,39 @@
                                                         "type": "string",
                                                         "example": "Aktif (Placeholder LAM-INFOKOM)"
                                                     },
+                                                    "catatan_sistem": {
+                                                        "type": "string",
+                                                        "example": "Komponen Read-Only LAM-INFOKOM (Data dikelola oleh SPMI Pusat Polines)",
+                                                        "nullable": true
+                                                    },
                                                     "keterangan": {
                                                         "type": "string",
-                                                        "example": "Modul Tata Pamong tidak memerlukan transaksi penginputan langsung."
+                                                        "example": "Modul Keuangan, Sarana, dan Prasarana disajikan sebagai komponen display data statis/read-only tanpa transaksi form input borang."
+                                                    },
+                                                    "subkriteria": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "kode_subkriteria": {
+                                                                    "type": "string",
+                                                                    "example": "5.1"
+                                                                },
+                                                                "nama_subkriteria": {
+                                                                    "type": "string",
+                                                                    "example": "Standar Tata Kelola Otonom & Transparan"
+                                                                },
+                                                                "is_editable": {
+                                                                    "type": "boolean",
+                                                                    "example": false
+                                                                },
+                                                                "status": {
+                                                                    "type": "string",
+                                                                    "example": "Statis / Read-Only"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "nullable": true
                                                     }
                                                 },
                                                 "type": "object"
@@ -977,8 +1121,8 @@
                 "tags": [
                     "Akreditasi - Mapping Tim"
                 ],
-                "summary": "Menyimpan pembagian tugas tim per indikator untuk project tertentu",
-                "description": "Menugaskan user/dosen untuk indikator pada project akreditasi (mendukung format single assignment atau batch assignments).",
+                "summary": "Menyimpan batch/single penugasan dosen (Plotting PJ & PIC) untuk project",
+                "description": "Menugaskan user/dosen dengan role PJ atau PIC pada indikator aktif (menolak indikator dari Kriteria Statis/Non-Handle K5 dan role selain PJ/PIC dengan HTTP 422). Hanya dapat diakses oleh role ADMINISTRATOR dan KAPRODI (403 Forbidden untuk role lain).",
                 "operationId": "04332f5a32217a970b7a7645b7ed35f7",
                 "parameters": [
                     {
@@ -1003,32 +1147,44 @@
                                         "example": 101
                                     },
                                     "id_indikator": {
-                                        "description": "Diisi jika single penugasan",
+                                        "description": "Diisi jika single penugasan (harus indikator aktif non-K5)",
                                         "type": "integer",
                                         "example": 1
                                     },
                                     "role": {
                                         "type": "string",
-                                        "example": "Penyusun",
-                                        "nullable": true
+                                        "example": "PJ",
+                                        "nullable": true,
+                                        "enum": [
+                                            "PJ",
+                                            "PIC"
+                                        ]
                                     },
                                     "assignments": {
-                                        "description": "Diisi jika batch penugasan sekaligus",
+                                        "description": "Diisi jika batch penugasan sekaligus (min: 1)",
                                         "type": "array",
                                         "items": {
+                                            "required": [
+                                                "id_user",
+                                                "id_indikator",
+                                                "role"
+                                            ],
                                             "properties": {
                                                 "id_user": {
                                                     "type": "integer",
-                                                    "example": 101
+                                                    "example": 10
                                                 },
                                                 "id_indikator": {
                                                     "type": "integer",
-                                                    "example": 1
+                                                    "example": 4
                                                 },
                                                 "role": {
                                                     "type": "string",
-                                                    "example": "Penyusun",
-                                                    "nullable": true
+                                                    "example": "PIC",
+                                                    "enum": [
+                                                        "PJ",
+                                                        "PIC"
+                                                    ]
                                                 }
                                             },
                                             "type": "object"
@@ -1051,8 +1207,11 @@
                             }
                         }
                     },
+                    "403": {
+                        "description": "Akses ditolak (hanya ADMINISTRATOR dan KAPRODI)"
+                    },
                     "422": {
-                        "description": "Validasi gagal",
+                        "description": "Validasi gagal (role selain PJ/PIC atau indikator termasuk Kriteria 5 statis)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1281,7 +1440,7 @@
                     "Dosen - Penugasan PIC"
                 ],
                 "summary": "Daftar butir indikator tugas dosen login (PIC & PJ)",
-                "description": "Menampilkan daftar butir indikator yang ditugaskan kepada dosen yang sedang login (sebagai PIC atau PJ), dilengkapi status keterisian bukti dan hak akses edit.",
+                "description": "Menampilkan daftar butir indikator aktif yang ditugaskan kepada pengguna yang sedang login (PIC/PJ), secara otomatis mengecualikan indikator dari Kriteria Statis / Non-Handle (K5), serta menyertakan kelengkapan bukti (has_bukti, status_narasi, status_evidence). Dapat diakses oleh role DOSEN, KAPRODI, dan ADMINISTRATOR (403 Forbidden untuk role REVIEWER yang telah dinonaktifkan).",
                 "operationId": "e0ce1b3ad19fd3c153d47b9af1a3c11f",
                 "parameters": [
                     {
@@ -1307,13 +1466,71 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "Daftar penugasan berhasil diambil"
+                                            "example": "Daftar penugasan dosen berhasil diambil."
                                         },
                                         "data": {
                                             "type": "array",
                                             "items": {
+                                                "properties": {
+                                                    "id_mapping": {
+                                                        "type": "integer",
+                                                        "example": 16
+                                                    },
+                                                    "role": {
+                                                        "type": "string",
+                                                        "example": "PIC"
+                                                    },
+                                                    "id_project": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "nama_project": {
+                                                        "type": "string",
+                                                        "example": "Akreditasi TRK 2026"
+                                                    },
+                                                    "status_project": {
+                                                        "type": "string",
+                                                        "example": "Draft"
+                                                    },
+                                                    "id_indikator": {
+                                                        "type": "integer",
+                                                        "example": 4
+                                                    },
+                                                    "kode_indikator": {
+                                                        "type": "string",
+                                                        "example": "2.1.B"
+                                                    },
+                                                    "deskripsi": {
+                                                        "type": "string",
+                                                        "example": "Standar isi pembelajaran & kurikulum OBE"
+                                                    },
+                                                    "bobot": {
+                                                        "type": "number",
+                                                        "example": 4
+                                                    },
+                                                    "kriteria": {
+                                                        "type": "string",
+                                                        "example": "Kriteria 2: Relevansi Pendidikan",
+                                                        "nullable": true
+                                                    },
+                                                    "has_bukti": {
+                                                        "type": "boolean",
+                                                        "example": false
+                                                    },
+                                                    "status_narasi": {
+                                                        "type": "string",
+                                                        "example": "Belum Terisi"
+                                                    },
+                                                    "status_evidence": {
+                                                        "type": "string",
+                                                        "example": "Belum Terunggah"
+                                                    }
+                                                },
                                                 "type": "object"
                                             }
+                                        },
+                                        "meta": {
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -1323,6 +1540,9 @@
                     },
                     "401": {
                         "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Akses ditolak (role REVIEWER dinonaktifkan)"
                     }
                 },
                 "security": [
@@ -1377,8 +1597,8 @@
                 "tags": [
                     "Akreditasi - Self Assessment"
                 ],
-                "summary": "Mengisi atau memperbarui penilaian mandiri (Self Assessment)",
-                "description": "Menyimpan penilaian reviewer untuk indikator pada project. Jika id_rubrik disertakan, sistem secara otomatis menghitung skor_terbobot = rubrik.skor * bobot.nilai_bobot.",
+                "summary": "Mengisi atau memperbarui penilaian mandiri (Kaprodi & Administrator)",
+                "description": "Menyimpan penilaian evaluasi untuk indikator pada project oleh KAPRODI atau ADMINISTRATOR (role REVIEWER dinonaktifkan). Jika id_rubrik disertakan, sistem otomatis menghitung skor_terbobot = rubrik.skor * bobot.",
                 "operationId": "41b71d115346ec8623b8c5537cdc73e1",
                 "requestBody": {
                     "required": true,
@@ -1404,9 +1624,9 @@
                                         "nullable": true
                                     },
                                     "reviewer_id": {
-                                        "description": "ID User Reviewer",
+                                        "description": "ID User Penilai (Kaprodi / Administrator)",
                                         "type": "integer",
-                                        "example": 301,
+                                        "example": 2,
                                         "nullable": true
                                     },
                                     "catatan_reviewer": {
@@ -1436,6 +1656,9 @@
                                 }
                             }
                         }
+                    },
+                    "403": {
+                        "description": "Akses ditolak (hanya KAPRODI atau ADMINISTRATOR)"
                     },
                     "422": {
                         "description": "Validasi gagal",
@@ -1843,7 +2066,7 @@
                     "Akreditasi - Self Assessment"
                 ],
                 "summary": "Mendapatkan rekapitulasi penilaian review project akreditasi",
-                "description": "Menampilkan ringkasan total nilai terbobot, skor akhir, dan rincian butir yang sudah dinilai oleh reviewer/kaprodi.",
+                "description": "Menampilkan ringkasan total nilai terbobot, skor akhir, dan rincian butir yang sudah dinilai oleh Kaprodi/Administrator. Dapat diakses oleh ADMINISTRATOR, KAPRODI, dan DOSEN (role REVIEWER telah dinonaktifkan).",
                 "operationId": "96d6b07724e92615ec9dfdc3514e295e",
                 "parameters": [
                     {
@@ -1859,6 +2082,9 @@
                 "responses": {
                     "200": {
                         "description": "Rekapitulasi review penilaian project berhasil diambil"
+                    },
+                    "403": {
+                        "description": "Akses ditolak (role REVIEWER dinonaktifkan)"
                     },
                     "404": {
                         "description": "Project tidak ditemukan"
@@ -1876,8 +2102,8 @@
                 "tags": [
                     "Akreditasi - Self Assessment"
                 ],
-                "summary": "Menambahkan tanggapan / klarifikasi prodi atas catatan reviewer (Khusus Kaprodi)",
-                "description": "Kaprodi memberikan tanggapan atau penjelasan klarifikasi atas temuan/catatan reviewer pada butir self assessment.",
+                "summary": "Menambahkan tanggapan / klarifikasi resmi prodi (Kaprodi & Administrator)",
+                "description": "Kaprodi atau Administrator memberikan tanggapan/klarifikasi resmi atas catatan evaluasi pada butir self assessment (minimal 5 karakter). Role DOSEN dan REVIEWER ditolak dengan HTTP 403 Forbidden.",
                 "operationId": "8982ca678e695780b84b5fb87ece01e6",
                 "parameters": [
                     {
@@ -1901,7 +2127,8 @@
                                 "properties": {
                                     "tanggapan_kaprodi": {
                                         "type": "string",
-                                        "example": "Dokumen revisi RPS dan bukti keterlibatan industri telah diunggah pada tautan pendukung."
+                                        "example": "SK Kurikulum OBE 2024 dan Berita Acara DUDIKA telah disematkan pada tautan bukti pilar 2.",
+                                        "minLength": 5
                                     }
                                 },
                                 "type": "object"
@@ -1914,13 +2141,13 @@
                         "description": "Penjelasan / tanggapan prodi berhasil disimpan"
                     },
                     "403": {
-                        "description": "Akses ditolak (hanya role Kaprodi yang berwenang)"
+                        "description": "Akses ditolak: Hanya Kaprodi atau Administrator yang berhak mengisi tanggapan prodi"
                     },
                     "404": {
                         "description": "Data penilaian mandiri tidak ditemukan"
                     },
                     "422": {
-                        "description": "Validasi gagal"
+                        "description": "Validasi gagal (tanggapan_kaprodi wajib minimal 5 karakter)"
                     }
                 },
                 "security": [
@@ -2827,8 +3054,8 @@
                 "tags": [
                     "Master Data - Versi Instrumen"
                 ],
-                "summary": "Mendapatkan daftar versi instrumen akreditasi",
-                "description": "Menampilkan list versi instrumen dengan filter id_lembaga dan status_aktif.",
+                "summary": "Mendapatkan daftar versi instrumen akreditasi (Aktif & Arsip)",
+                "description": "Menampilkan list versi instrumen aktif maupun arsip komparasi (misal: 2.1 aktif dan 2.0 arsip) dengan filter opsional id_lembaga, id_jenjang, dan status_aktif. Dapat diakses oleh seluruh role aktif (ADMINISTRATOR, KAPRODI, DOSEN).",
                 "operationId": "3b5b98039c9bb10856b97452f1a730ae",
                 "parameters": [
                     {
@@ -2856,7 +3083,27 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseListSuccess"
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data versi instrumen berhasil diambil"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/VersiInstrumen"
+                                            }
+                                        },
+                                        "errors": {
+                                            "type": "null",
+                                            "example": null
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -2892,6 +3139,11 @@
                                         "type": "string",
                                         "format": "date",
                                         "example": "2026-01-25"
+                                    },
+                                    "keterangan": {
+                                        "type": "string",
+                                        "example": "Instrumen Akreditasi Program Studi Sarjana Terapan TRK (Aktif)",
+                                        "nullable": true
                                     },
                                     "status_aktif": {
                                         "type": "boolean",
@@ -5850,7 +6102,7 @@
                     "SPMI - Evidence Mutu"
                 ],
                 "summary": "Mendapatkan data evidence SPMI berdasarkan project_id",
-                "description": "Mengambil data evidence SPMI untuk suatu project. Jika belum ada data, mengembalikan data: null dengan status 200 OK.",
+                "description": "Mengambil data evidence SPMI untuk suatu project (akses: ADMINISTRATOR, KAPRODI, DOSEN; role REVIEWER telah dinonaktifkan -> 403 Forbidden). Jika belum ada data, mengembalikan data: null dengan status 200 OK.",
                 "operationId": "be20cba1b0f30e10a9621bcbf5c0b038",
                 "parameters": [
                     {
@@ -5873,6 +6125,9 @@
                                 }
                             }
                         }
+                    },
+                    "403": {
+                        "description": "Akses ditolak (role REVIEWER dinonaktifkan)"
                     },
                     "422": {
                         "description": "Parameter project_id tidak disertakan",
@@ -5899,7 +6154,8 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "project_id"
+                                    "project_id",
+                                    "link_bukti_evaluasi"
                                 ],
                                 "properties": {
                                     "project_id": {
@@ -5967,8 +6223,11 @@
                             }
                         }
                     },
+                    "403": {
+                        "description": "Akses ditolak (role REVIEWER dinonaktifkan)"
+                    },
                     "422": {
-                        "description": "Validasi gagal",
+                        "description": "Validasi gagal (URL tidak valid atau skema berbahaya)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6005,10 +6264,30 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Rekapitulasi evidence overview berhasil diambil"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/EvidenceSpmiOverview"
+                                        },
+                                        "errors": {
+                                            "type": "null",
+                                            "example": null
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
+                    },
+                    "403": {
+                        "description": "Akses ditolak (role REVIEWER dinonaktifkan)"
                     },
                     "404": {
                         "description": "Project akreditasi tidak ditemukan",
@@ -6159,6 +6438,100 @@
                     "errors": {
                         "type": "null",
                         "example": null
+                    }
+                },
+                "type": "object"
+            },
+            "VersiInstrumen": {
+                "title": "Skema Versi Instrumen Akreditasi",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "id_lembaga": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "nomor_versi": {
+                        "type": "string",
+                        "example": "2.1"
+                    },
+                    "nama_lembaga": {
+                        "type": "string",
+                        "example": "LAM-INFOKOM",
+                        "nullable": true
+                    },
+                    "status_aktif": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "keterangan": {
+                        "type": "string",
+                        "example": "Instrumen Akreditasi Program Studi Sarjana Terapan TRK (Aktif)",
+                        "nullable": true
+                    },
+                    "tanggal_berlaku": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-01-25"
+                    }
+                },
+                "type": "object"
+            },
+            "EvidenceSpmiOverview": {
+                "title": "Skema Rekapitulasi Evidence Overview 4 Pilar",
+                "properties": {
+                    "project": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "nama_project": {
+                                "type": "string",
+                                "example": "Akreditasi TRK 2026"
+                            },
+                            "status_project": {
+                                "type": "string",
+                                "example": "Pengisian"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "kelengkapan_pilar": {
+                        "properties": {
+                            "total_pilar": {
+                                "type": "integer",
+                                "example": 4
+                            },
+                            "terisi": {
+                                "type": "integer",
+                                "example": 3
+                            },
+                            "belum_terisi": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "persentase": {
+                                "type": "string",
+                                "example": "75.0%"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "evidence_pilar": {
+                        "type": "object"
+                    },
+                    "evidence": {
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "assigned_indicators": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
                     }
                 },
                 "type": "object"

@@ -119,13 +119,19 @@ class ScoringResultTest extends TestCase
         $this->getJson("/api/v1/projects/{$project->id}/scoring-result")
             ->assertStatus(401);
 
-        // Roles resmi: ADMINISTRATOR, KAPRODI, REVIEWER, DOSEN -> 200
-        foreach (['ADMINISTRATOR', 'KAPRODI', 'REVIEWER', 'DOSEN'] as $role) {
+        // Role aktif: ADMINISTRATOR, KAPRODI, DOSEN -> 200
+        foreach (['ADMINISTRATOR', 'KAPRODI', 'DOSEN'] as $role) {
             $token = $this->generateToken($role);
             $this->withHeader('Authorization', 'Bearer '.$token)
                 ->getJson("/api/v1/projects/{$project->id}/scoring-result")
                 ->assertStatus(200);
         }
+
+        // Role REVIEWER ditolak -> 403
+        $reviewerToken = $this->generateToken('REVIEWER');
+        $this->withHeader('Authorization', 'Bearer '.$reviewerToken)
+            ->getJson("/api/v1/projects/{$project->id}/scoring-result")
+            ->assertStatus(403);
     }
 
     /**
@@ -225,7 +231,7 @@ class ScoringResultTest extends TestCase
         $rubrikB1 = Rubrik::where('id_indikator', $indB1->id)->where('skor', 3)->first();
         SelfAssessment::create(['id_project' => $project->id, 'id_indikator' => $indB1->id, 'id_rubrik' => $rubrikB1->id]);
 
-        $token = $this->generateToken('REVIEWER');
+        $token = $this->generateToken('KAPRODI');
         $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson("/api/v1/projects/{$project->id}/scoring-result");
 

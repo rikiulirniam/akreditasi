@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Akreditasi;
 
 use App\Http\Requests\BaseApiRequest;
+use App\Models\Indikator;
+use Illuminate\Validation\Validator;
 
 class StoreMappingTimRequest extends BaseApiRequest
 {
@@ -50,9 +52,55 @@ class StoreMappingTimRequest extends BaseApiRequest
     {
         return [
             'role.in' => 'Role harus bernilai PJ (Penanggung Jawab) atau PIC (Pelaksana Teknis).',
-            'assignments.*.role.in' => 'Setiap role pada assignments harus PJ atau PIC.',
+            'assignments.*.role.in' => 'Field role harus bernilai PJ atau PIC.',
             'assignments.*.role.required' => 'Field role wajib diisi pada setiap item assignments.',
             'assignments.min' => 'Minimal harus ada 1 item dalam assignments.',
         ];
+    }
+
+    /**
+     * Tolak indikator yang berasal dari Kriteria Statis / Non-Handle (Kriteria 5).
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            if ($validator->errors()->isNotEmpty()) {
+                return;
+            }
+
+            $staticCodes = ['K5', 'C.5', '5'];
+            $indikatorIds = [];
+
+            if ($this->has('assignments') && is_array($this->assignments)) {
+                foreach ($this->assignments as $index => $item) {
+                    if (isset($item['id_indikator'])) {
+                        $indikatorIds[$index] = (int) $item['id_indikator'];
+                    }
+                }
+            } elseif ($this->filled('id_indikator')) {
+                $indikatorIds['single'] = (int) $this->input('id_indikator');
+            }
+
+            if (empty($indikatorIds)) {
+                return;
+            }
+
+            $blockedIds = Indikator::whereIn('id', array_values($indikatorIds))
+                ->whereHas('subkriteria.kriteria', function ($q) use ($staticCodes) {
+                    $q->whereIn('kode_kriteria', $staticCodes);
+                })
+                ->pluck('id')
+                ->all();
+
+            foreach ($indikatorIds as $key => $idIndikator) {
+                if (in_array($idIndikator, $blockedIds, true)) {
+                    $field = $key === 'single' ? 'id_indikator' : "assignments.{$key}.id_indikator";
+                    $validator->errors()->add(
+                        $field,
+                        'Indikator dari Kriteria Statis / Non-Handle (Kriteria 5) tidak dapat ditugaskan.'
+                    );
+                }
+            }
+        });
     }
 }
