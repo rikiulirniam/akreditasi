@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Akreditasi\ProjectAkreditasiController;
 use App\Http\Controllers\Api\Akreditasi\SelfAssessmentController;
 use App\Http\Controllers\Api\CompositeProjectController;
 use App\Http\Controllers\Api\Dashboard\DashboardProgressController;
+use App\Http\Controllers\Api\ExternalApiController;
 use App\Http\Controllers\Api\Master\IndikatorController;
 use App\Http\Controllers\Api\Master\InstrumenController;
 use App\Http\Controllers\Api\Master\JenisPembiayaanController;
@@ -19,7 +20,6 @@ use App\Http\Controllers\Api\Sarpras\DataSaranaProdiController;
 use App\Http\Controllers\Api\Sarpras\DataSarprasProdiController;
 use App\Http\Controllers\Api\Spmi\EvidenceSpmiController;
 use App\Http\Controllers\Api\Spmi\SpmiAuditController;
-use App\Services\External\DosenApiService;
 use App\Services\External\ProdiApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -54,14 +54,11 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
             ]);
         });
 
-        Route::get('dosen', function (DosenApiService $dosenService) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Daftar dosen berhasil diambil.',
-                'data' => $dosenService->getAllDosen(),
-                'errors' => null,
-            ]);
-        });
+        // B1: Ambil Data Profil Dosen & DTPS (API Kelompok 2)
+        Route::get('dosen', [ExternalApiController::class, 'getDosen']);
+
+        // B2: Ambil Data Agregat Riset, PkM, Publikasi & Hibah (API Kelompok 2)
+        Route::get('tridharma-summary', [ExternalApiController::class, 'getTridharmaSummary']);
     });
 
     // Profil pengguna terautentikasi (semua role yang valid)

@@ -26,7 +26,7 @@ class NarasiSubkriteriaController extends Controller
     ) {}
 
     /**
-     * Menghasilkan template dan nilai agregasi aktual untuk satu subkriteria project.
+     * B3: Menghasilkan template narasi draf terinjeksi nilai pakem (atau catatan parsial/kosong).
      */
     public function showTemplate(int $projectId, int $subkriteriaId): JsonResponse
     {
@@ -43,14 +43,17 @@ class NarasiSubkriteriaController extends Controller
             return $this->errorResponse('Subkriteria tidak termasuk instrumen project ini', null, 404);
         }
 
-        return $this->successResponse(
-            $this->narrationTemplateService->generate($project, $subkriteria),
-            'Template narasi subkriteria berhasil dibuat'
-        );
+        $data = $this->narrationTemplateService->generate($project, $subkriteria);
+
+        $message = ($data['status_ketersediaan_data'] === 'Tersedia Lengkap')
+            ? 'Template narasi subkriteria berhasil di-generate'
+            : 'Template narasi dihasilkan dengan catatan data parsial';
+
+        return $this->successResponse($data, $message);
     }
 
     /**
-     * Memvalidasi dan menyimpan narasi yang telah diedit oleh pengguna berwenang.
+     * B4: Memvalidasi dan menyimpan narasi yang telah diedit/disesuaikan oleh Dosen PIC atau Kaprodi.
      */
     public function store(StoreNarasiSubkriteriaRequest $request, int $projectId, int $subkriteriaId): JsonResponse
     {
@@ -70,6 +73,11 @@ class NarasiSubkriteriaController extends Controller
             return $this->errorResponse('Anda tidak memiliki hak menyimpan narasi untuk project/subkriteria ini', null, 403);
         }
 
+        $user = $request->user();
+        $disuntingOleh = (string) ($user->nama ?? $user->name ?? 'Dr. Eng. Riki Ulir, M.T.');
+        $narasiText = (string) ($request->input('narasi_disunting') ?? $request->input('narasi'));
+        $catatanRevisi = $request->input('catatan_revisi');
+
         $aggregate = $this->narrationTemplateService->getAggregation($project);
         $aggregate['nama_subkriteria'] = $subkriteria->nama_subkriteria;
 
@@ -79,17 +87,23 @@ class NarasiSubkriteriaController extends Controller
                 'id_subkriteria' => $subkriteria->id,
             ],
             [
-                'narasi' => $request->validated('narasi'),
+                'narasi' => $narasiText,
+                'disunting_oleh' => $disuntingOleh,
+                'catatan_revisi' => $catatanRevisi,
                 'data_agregasi' => $aggregate,
             ]
         );
 
         return $this->successResponse([
             'id' => $narasi->id,
-            'project_id' => $narasi->id_project,
             'subkriteria_id' => $narasi->id_subkriteria,
+            'project_id' => $narasi->id_project,
+            'narasi_final' => $narasi->narasi,
             'narasi' => $narasi->narasi,
+            'disunting_oleh' => $narasi->disunting_oleh,
+            'catatan_revisi' => $narasi->catatan_revisi,
             'data_agregasi' => $narasi->data_agregasi,
+            'updated_at' => $narasi->updated_at?->toISOString() ?? now()->toISOString(),
         ], 'Narasi subkriteria berhasil disimpan');
     }
 

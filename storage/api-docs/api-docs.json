@@ -1823,8 +1823,8 @@
                 "tags": [
                     "Akreditasi - Project"
                 ],
-                "summary": "Mendapatkan template narasi subkriteria dengan angka agregasi aktual",
-                "description": "Menghasilkan template narasi deskriptif untuk subkriteria tertentu (misal Kriteria C.4 SDM Dosen) yang disuntik dengan angka riil dari API Kelompok 2 (misal jumlah dosen, rasio, kualifikasi S3). Frontend menampilkan narasi ini sebagai draft yang dapat diedit.",
+                "summary": "Mendapatkan template narasi subkriteria dengan angka agregasi aktual (B3)",
+                "description": "Menghasilkan template narasi terinjeksi nilai pakem untuk subkriteria tertentu (misal Kriteria C.4 SDM Dosen) berdasarkan data agregasi API Tridharma Kelompok 2. Mendukung graceful fallback 200 OK dengan penanda data kosong/parsial (seperti Tracer Study pada Subkriteria 2.4).",
                 "operationId": "aa1191e63fd9bb55ee5c2963f01de78d",
                 "parameters": [
                     {
@@ -1848,7 +1848,78 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Template narasi subkriteria berhasil dibuat"
+                        "description": "Template narasi subkriteria berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Template narasi subkriteria berhasil di-generate"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id_project": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "id_subkriteria": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "kode_subkriteria": {
+                                                    "type": "string",
+                                                    "example": "2.2"
+                                                },
+                                                "nama_subkriteria": {
+                                                    "type": "string",
+                                                    "example": "Dosen dan Tenaga Kependidikan"
+                                                },
+                                                "status_ketersediaan_data": {
+                                                    "type": "string",
+                                                    "example": "Tersedia Lengkap"
+                                                },
+                                                "variabel_pakem": {
+                                                    "properties": {
+                                                        "NDTPS": {
+                                                            "type": "integer",
+                                                            "example": 23
+                                                        },
+                                                        "NDTPS_S3": {
+                                                            "type": "integer",
+                                                            "example": 5
+                                                        },
+                                                        "Persentase_S3": {
+                                                            "type": "string",
+                                                            "example": "21.74%"
+                                                        },
+                                                        "Rasio_Mhs_Dosen": {
+                                                            "type": "string",
+                                                            "example": "1:18.5"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "draf_narasi": {
+                                                    "type": "string",
+                                                    "example": "Program Studi Sarjana Terapan Teknologi Rekayasa Komputer (TRK)..."
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "errors": {
+                                            "type": "null",
+                                            "example": null
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "404": {
                         "description": "Project atau Subkriteria tidak ditemukan"
@@ -1866,8 +1937,8 @@
                 "tags": [
                     "Akreditasi - Project"
                 ],
-                "summary": "Menyimpan teks narasi subkriteria hasil editan (Kaprodi / PIC)",
-                "description": "Menyimpan teks narasi yang telah disesuaikan/diedit oleh Kaprodi atau PIC butir subkriteria terkait.",
+                "summary": "Menyimpan teks narasi subkriteria hasil editan (B4)",
+                "description": "Menyimpan teks narasi yang telah disesuaikan/diedit oleh Kaprodi atau PIC butir subkriteria terkait dengan validasi minimal 20 karakter serta catatan revisi.",
                 "operationId": "f8e1fd0b3afaa361a3fe0562103434ce",
                 "parameters": [
                     {
@@ -1895,12 +1966,18 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "narasi"
+                                    "narasi_disunting"
                                 ],
                                 "properties": {
-                                    "narasi": {
+                                    "narasi_disunting": {
                                         "type": "string",
-                                        "example": "Program Studi Teknologi Rekayasa Komputer memiliki 12 orang dosen tetap yang berkualifikasi..."
+                                        "example": "Program Studi Teknologi Rekayasa Komputer memiliki 23 orang dosen tetap yang berkualifikasi...",
+                                        "minLength": 20
+                                    },
+                                    "catatan_revisi": {
+                                        "type": "string",
+                                        "example": "Penyesuaian narasi profil dosen",
+                                        "nullable": true
                                     }
                                 },
                                 "type": "object"
@@ -1910,7 +1987,61 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Narasi subkriteria berhasil disimpan"
+                        "description": "Narasi subkriteria berhasil disimpan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Narasi subkriteria berhasil disimpan"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "id_project": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "id_subkriteria": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "narasi_final": {
+                                                    "type": "string",
+                                                    "example": "Program Studi Teknologi Rekayasa Komputer memiliki 23 orang dosen tetap yang berkualifikasi..."
+                                                },
+                                                "status_ketersediaan_data": {
+                                                    "type": "string",
+                                                    "example": "Tersedia Lengkap"
+                                                },
+                                                "disunting_oleh": {
+                                                    "type": "string",
+                                                    "example": "Kaprodi"
+                                                },
+                                                "catatan_revisi": {
+                                                    "type": "string",
+                                                    "example": "Penyesuaian narasi profil dosen"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "errors": {
+                                            "type": "null",
+                                            "example": null
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "403": {
                         "description": "Tidak memiliki hak akses menyimpan narasi pada butir ini"
@@ -2451,12 +2582,12 @@
                 "tags": [
                     "Integrasi Eksternal"
                 ],
-                "summary": "Mendapatkan daftar dosen dari Kelompok 2",
-                "description": "Mengambil data seluruh dosen aktif dari sistem Tridharma (Kelompok 2) dengan standardisasi 5 field: nip_nidn, nama_lengkap, gelar, jabatan_fungsional, dan status_homebase.",
+                "summary": "Mendapatkan profil dosen & agregasi DTPS dari Kelompok 2 (B1)",
+                "description": "Mengambil data live dosen dari API Tridharma (Kelompok 2) dan mengagregasikan 23 data Dosen Tetap Program Studi (DTPS) lengkap dengan persentase S3, pengelompokan jabatan fungsional, dan status sertifikasi dosen.",
                 "operationId": "76ebbeaaeb5ef8f0b6dfc53aa758d571",
                 "responses": {
                     "200": {
-                        "description": "Daftar dosen berhasil diambil",
+                        "description": "Data dosen DTPS berhasil diambil dari API Tridharma",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2467,51 +2598,210 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "Daftar dosen berhasil diambil."
+                                            "example": "Data dosen DTPS berhasil diambil dari API Tridharma"
                                         },
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "nip_nidn": {
-                                                        "type": "string",
-                                                        "example": "197504122000031001"
-                                                    },
-                                                    "nidn": {
-                                                        "type": "string",
-                                                        "example": "0012048801"
-                                                    },
-                                                    "nama_lengkap": {
-                                                        "type": "string",
-                                                        "example": "Prof. Dr. Andi Wijaya, S.Kom., M.T."
-                                                    },
-                                                    "nama": {
-                                                        "type": "string",
-                                                        "example": "Prof. Dr. Andi Wijaya, S.Kom., M.T."
-                                                    },
-                                                    "gelar": {
-                                                        "type": "string",
-                                                        "example": "Doktor (S3)"
-                                                    },
-                                                    "jabatan_fungsional": {
-                                                        "type": "string",
-                                                        "example": "Guru Besar"
-                                                    },
-                                                    "status_homebase": {
-                                                        "type": "boolean",
-                                                        "example": true
-                                                    },
-                                                    "email": {
-                                                        "type": "string",
-                                                        "example": "andi.wijaya@kampus.ac.id"
-                                                    },
-                                                    "bidang_minat": {
-                                                        "type": "string",
-                                                        "example": "Rekayasa Perangkat Lunak & Sistem Informasi"
-                                                    }
+                                            "properties": {
+                                                "total_dosen": {
+                                                    "type": "integer",
+                                                    "example": 23
                                                 },
-                                                "type": "object"
-                                            }
+                                                "total_s3_doktor": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "persentase_s3": {
+                                                    "type": "string",
+                                                    "example": "21.74%"
+                                                },
+                                                "jabatan_fungsional": {
+                                                    "properties": {
+                                                        "guru_besar": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "lektor_kepala": {
+                                                            "type": "integer",
+                                                            "example": 6
+                                                        },
+                                                        "lektor": {
+                                                            "type": "integer",
+                                                            "example": 11
+                                                        },
+                                                        "asisten_ahli": {
+                                                            "type": "integer",
+                                                            "example": 5
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "dosen_tersertifikasi": {
+                                                    "type": "integer",
+                                                    "example": 19
+                                                },
+                                                "daftar_dosen": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "nidn": {
+                                                                "type": "string",
+                                                                "example": "0012058001"
+                                                            },
+                                                            "nama": {
+                                                                "type": "string",
+                                                                "example": "Dr. Eng. Riki Ulir, M.T."
+                                                            },
+                                                            "pendidikan_terakhir": {
+                                                                "type": "string",
+                                                                "example": "S3"
+                                                            },
+                                                            "jabatan_akademik": {
+                                                                "type": "string",
+                                                                "example": "Lektor Kepala"
+                                                            },
+                                                            "status_dosen": {
+                                                                "type": "string",
+                                                                "example": "DTPS"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "errors": {
+                                            "type": "null",
+                                            "example": null
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/external/tridharma-summary": {
+            "get": {
+                "tags": [
+                    "Integrasi Eksternal"
+                ],
+                "summary": "Mendapatkan ringkasan agregat Tridharma dari Kelompok 2 (B2)",
+                "description": "Mengambil dan merangkum agregat penelitian, PkM, publikasi, HKI, dan kerja sama DUDIKA dari server API Kelompok 2 untuk kebutuhan akreditasi.",
+                "operationId": "31760d68f91d8844b816caeea9a19c05",
+                "responses": {
+                    "200": {
+                        "description": "Ringkasan Tridharma berhasil diambil dari API Kelompok 2",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ringkasan Tridharma berhasil diambil dari API Kelompok 2"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "penelitian": {
+                                                    "properties": {
+                                                        "total_kegiatan": {
+                                                            "type": "integer",
+                                                            "example": 42
+                                                        },
+                                                        "melibatkan_mahasiswa": {
+                                                            "type": "integer",
+                                                            "example": 35
+                                                        },
+                                                        "hibah_nasional_bima": {
+                                                            "type": "integer",
+                                                            "example": 8
+                                                        },
+                                                        "hibah_internal_polines": {
+                                                            "type": "integer",
+                                                            "example": 26
+                                                        },
+                                                        "mandiri": {
+                                                            "type": "integer",
+                                                            "example": 8
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "pkm": {
+                                                    "properties": {
+                                                        "total_kegiatan": {
+                                                            "type": "integer",
+                                                            "example": 28
+                                                        },
+                                                        "melibatkan_mahasiswa": {
+                                                            "type": "integer",
+                                                            "example": 24
+                                                        },
+                                                        "hibah_pkm_nasional": {
+                                                            "type": "integer",
+                                                            "example": 4
+                                                        },
+                                                        "hibah_internal": {
+                                                            "type": "integer",
+                                                            "example": 24
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "publikasi": {
+                                                    "properties": {
+                                                        "jurnal_internasional_scopus": {
+                                                            "type": "integer",
+                                                            "example": 18
+                                                        },
+                                                        "jurnal_nasional_sinta": {
+                                                            "type": "integer",
+                                                            "example": 64
+                                                        },
+                                                        "prosiding_seminar_ieee": {
+                                                            "type": "integer",
+                                                            "example": 32
+                                                        },
+                                                        "buku_isbn": {
+                                                            "type": "integer",
+                                                            "example": 12
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "hki": {
+                                                    "properties": {
+                                                        "paten_terdaftar": {
+                                                            "type": "integer",
+                                                            "example": 3
+                                                        },
+                                                        "hak_cipta_program_komputer": {
+                                                            "type": "integer",
+                                                            "example": 22
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "kerjasama_dudika_aktif": {
+                                                    "type": "integer",
+                                                    "example": 15
+                                                }
+                                            },
+                                            "type": "object"
                                         },
                                         "errors": {
                                             "type": "null",
@@ -5856,7 +6146,7 @@
                     "SPMI - Evidence Mutu"
                 ],
                 "summary": "Menyimpan atau memperbarui data evidence SPMI project",
-                "description": "Menyimpan rekaman 4 Pilar Dokumen Mutu Institusi SPMI berbasis updateOrCreate pada project_id. Dapat diakses oleh ADMINISTRATOR, KAPRODI, dan DOSEN (role REVIEWER ditolak 403). Seluruh tautan pilar divalidasi format URL http/https yang aman (menolak skema berbahaya seperti javascript:).",
+                "description": "Menyimpan rekaman 4 Pilar Dokumen Mutu Institusi SPMI berbasis updateOrCreate pada project_id.",
                 "operationId": "a7fadaf60a0bd0e3c1308e564f82c0f1",
                 "requestBody": {
                     "required": true,
@@ -5873,10 +6163,10 @@
                                         "example": 1
                                     },
                                     "link_bukti_evaluasi": {
-                                        "description": "Pilar 1 (Wajib, URL http/https valid): Laporan Audit Mutu Internal (AMI & Monev)",
+                                        "description": "Pilar 1: Laporan Audit Mutu Internal (AMI & Monev)",
                                         "type": "string",
-                                        "format": "uri",
-                                        "example": "https://drive.google.com/ami-monev"
+                                        "example": "https://drive.google.com/ami-monev",
+                                        "nullable": true
                                     },
                                     "deskripsi_bukti_evaluasi": {
                                         "type": "string",
@@ -5884,17 +6174,9 @@
                                         "nullable": true
                                     },
                                     "link_bukti_pengendalian": {
-                                        "description": "Pilar 2 (URL http/https valid): Rapat Tinjauan Manajemen / Kebijakan",
+                                        "description": "Pilar 2: Rapat Tinjauan Manajemen (RTM & RTL)",
                                         "type": "string",
-                                        "format": "uri",
                                         "example": "https://drive.google.com/rtm-rtl",
-                                        "nullable": true
-                                    },
-                                    "link_dokumen_kebijakan": {
-                                        "description": "Alias untuk link_bukti_pengendalian",
-                                        "type": "string",
-                                        "format": "uri",
-                                        "example": "https://drive.google.com/kebijakan",
                                         "nullable": true
                                     },
                                     "deskripsi_bukti_pengendalian": {
@@ -5903,17 +6185,9 @@
                                         "nullable": true
                                     },
                                     "link_bukti_dampak": {
-                                        "description": "Pilar 3 (URL http/https valid): Capaian IKU / Manual Mutu",
+                                        "description": "Pilar 3: Capaian IKU & Survei Kepuasan Stakeholder",
                                         "type": "string",
-                                        "format": "uri",
                                         "example": "https://drive.google.com/iku-kepuasan",
-                                        "nullable": true
-                                    },
-                                    "link_dokumen_manual": {
-                                        "description": "Alias untuk link_bukti_dampak",
-                                        "type": "string",
-                                        "format": "uri",
-                                        "example": "https://drive.google.com/manual",
                                         "nullable": true
                                     },
                                     "deskripsi_bukti_dampak": {
@@ -5922,17 +6196,9 @@
                                         "nullable": true
                                     },
                                     "link_dokumen_implementasi": {
-                                        "description": "Pilar 4 (URL http/https valid): Dokumen Implementasi / Formulir",
+                                        "description": "Pilar 4: Dokumen Implementasi (Buku Kebijakan SPMI, Manual Mutu, SOP PPEPP)",
                                         "type": "string",
-                                        "format": "uri",
                                         "example": "https://drive.google.com/spmi-manual-sop",
-                                        "nullable": true
-                                    },
-                                    "link_dokumen_formulir": {
-                                        "description": "Alias untuk link_dokumen_implementasi",
-                                        "type": "string",
-                                        "format": "uri",
-                                        "example": "https://drive.google.com/formulir",
                                         "nullable": true
                                     },
                                     "deskripsi_dokumen_implementasi": {
@@ -5979,7 +6245,7 @@
                     "SPMI - Evidence Mutu"
                 ],
                 "summary": "Rekapitulasi evidence overview sebuah project akreditasi",
-                "description": "Mengambil rekapitulasi kelengkapan 4 Pilar Dokumen Mutu Institusi (termasuk persentase kelengkapan 1 desimal dan status masing-masing pilar) beserta daftar indikator yang ditugaskan. Dapat diakses oleh ADMINISTRATOR, KAPRODI, dan DOSEN (role REVIEWER ditolak dengan 403 Forbidden).",
+                "description": "Mengambil rekapitulasi data 4 Pilar Dokumen Mutu Institusi (Laporan AMI & Monev, RTM & RTL, Capaian IKU & Survei Kepuasan Stakeholder, Dokumen Implementasi Kebijakan/Manual/SOP), daftar indikator yang ditugaskan beserta status kelengkapan.",
                 "operationId": "b14542f4ded1d2d645b5fc1cc52e22c9",
                 "parameters": [
                     {

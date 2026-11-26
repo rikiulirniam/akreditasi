@@ -618,8 +618,8 @@ class AkreditasiDocs
     )]
     #[OA\Get(
         path: '/projects/{id}/subkriteria/{subkriteriaId}/narasi-template',
-        summary: 'Mendapatkan template narasi subkriteria dengan angka agregasi aktual',
-        description: 'Menghasilkan template narasi deskriptif untuk subkriteria tertentu (misal Kriteria C.4 SDM Dosen) yang disuntik dengan angka riil dari API Kelompok 2 (misal jumlah dosen, rasio, kualifikasi S3). Frontend menampilkan narasi ini sebagai draft yang dapat diedit.',
+        summary: 'Mendapatkan template narasi subkriteria dengan angka agregasi aktual (B3)',
+        description: 'Menghasilkan template narasi terinjeksi nilai pakem untuk subkriteria tertentu (misal Kriteria C.4 SDM Dosen) berdasarkan data agregasi API Tridharma Kelompok 2. Mendukung graceful fallback 200 OK dengan penanda data kosong/parsial (seperti Tracer Study pada Subkriteria 2.4).',
         tags: ['Akreditasi - Project'],
         security: [['BearerAuth' => []]],
         parameters: [
@@ -627,14 +627,46 @@ class AkreditasiDocs
             new OA\Parameter(name: 'subkriteriaId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Subkriteria'),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'Template narasi subkriteria berhasil dibuat'),
+            new OA\Response(
+                response: 200,
+                description: 'Template narasi subkriteria berhasil dibuat',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Template narasi subkriteria berhasil di-generate'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'id_project', type: 'integer', example: 1),
+                                new OA\Property(property: 'id_subkriteria', type: 'integer', example: 2),
+                                new OA\Property(property: 'kode_subkriteria', type: 'string', example: '2.2'),
+                                new OA\Property(property: 'nama_subkriteria', type: 'string', example: 'Dosen dan Tenaga Kependidikan'),
+                                new OA\Property(property: 'status_ketersediaan_data', type: 'string', example: 'Tersedia Lengkap'),
+                                new OA\Property(
+                                    property: 'variabel_pakem',
+                                    type: 'object',
+                                    properties: [
+                                        new OA\Property(property: 'NDTPS', type: 'integer', example: 23),
+                                        new OA\Property(property: 'NDTPS_S3', type: 'integer', example: 5),
+                                        new OA\Property(property: 'Persentase_S3', type: 'string', example: '21.74%'),
+                                        new OA\Property(property: 'Rasio_Mhs_Dosen', type: 'string', example: '1:18.5'),
+                                    ]
+                                ),
+                                new OA\Property(property: 'draf_narasi', type: 'string', example: 'Program Studi Sarjana Terapan Teknologi Rekayasa Komputer (TRK)...'),
+                            ]
+                        ),
+                        new OA\Property(property: 'errors', type: 'null', example: null),
+                    ]
+                )
+            ),
             new OA\Response(response: 404, description: 'Project atau Subkriteria tidak ditemukan'),
         ]
     )]
     #[OA\Put(
         path: '/projects/{id}/subkriteria/{subkriteriaId}/narasi',
-        summary: 'Menyimpan teks narasi subkriteria hasil editan (Kaprodi / PIC)',
-        description: 'Menyimpan teks narasi yang telah disesuaikan/diedit oleh Kaprodi atau PIC butir subkriteria terkait.',
+        summary: 'Menyimpan teks narasi subkriteria hasil editan (B4)',
+        description: 'Menyimpan teks narasi yang telah disesuaikan/diedit oleh Kaprodi atau PIC butir subkriteria terkait dengan validasi minimal 20 karakter serta catatan revisi.',
         tags: ['Akreditasi - Project'],
         security: [['BearerAuth' => []]],
         parameters: [
@@ -644,14 +676,38 @@ class AkreditasiDocs
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['narasi'],
+                required: ['narasi_disunting'],
                 properties: [
-                    new OA\Property(property: 'narasi', type: 'string', example: 'Program Studi Teknologi Rekayasa Komputer memiliki 12 orang dosen tetap yang berkualifikasi...'),
+                    new OA\Property(property: 'narasi_disunting', type: 'string', minLength: 20, example: 'Program Studi Teknologi Rekayasa Komputer memiliki 23 orang dosen tetap yang berkualifikasi...'),
+                    new OA\Property(property: 'catatan_revisi', type: 'string', example: 'Penyesuaian narasi profil dosen', nullable: true),
                 ]
             )
         ),
         responses: [
-            new OA\Response(response: 200, description: 'Narasi subkriteria berhasil disimpan'),
+            new OA\Response(
+                response: 200,
+                description: 'Narasi subkriteria berhasil disimpan',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Narasi subkriteria berhasil disimpan'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'id', type: 'integer', example: 1),
+                                new OA\Property(property: 'id_project', type: 'integer', example: 1),
+                                new OA\Property(property: 'id_subkriteria', type: 'integer', example: 2),
+                                new OA\Property(property: 'narasi_final', type: 'string', example: 'Program Studi Teknologi Rekayasa Komputer memiliki 23 orang dosen tetap yang berkualifikasi...'),
+                                new OA\Property(property: 'status_ketersediaan_data', type: 'string', example: 'Tersedia Lengkap'),
+                                new OA\Property(property: 'disunting_oleh', type: 'string', example: 'Kaprodi'),
+                                new OA\Property(property: 'catatan_revisi', type: 'string', example: 'Penyesuaian narasi profil dosen'),
+                            ]
+                        ),
+                        new OA\Property(property: 'errors', type: 'null', example: null),
+                    ]
+                )
+            ),
             new OA\Response(response: 403, description: 'Tidak memiliki hak akses menyimpan narasi pada butir ini'),
             new OA\Response(response: 404, description: 'Project atau Subkriteria tidak ditemukan'),
             new OA\Response(response: 422, description: 'Validasi gagal'),
