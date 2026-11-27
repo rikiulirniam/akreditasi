@@ -12,6 +12,7 @@ use App\Models\MappingTimAkreditasi;
 use App\Models\ProjectAkreditasi;
 use App\Models\Subkriteria;
 use App\Models\VersiInstrumen;
+use App\Services\External\DosenApiService;
 use App\Services\JwtService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -134,6 +135,21 @@ class Pengembang2AiniTest extends TestCase
             'id_user' => 55,
             'role' => 'PIC',
         ]);
+    }
+
+    public function test_dtps_profile_normalizes_nested_academic_position(): void
+    {
+        $profile = app(DosenApiService::class)->aggregateDtps([
+            [
+                'nidn' => '1234567890',
+                'nama' => 'Dosen Uji',
+                'pendidikan_terakhir' => 'S3',
+                'jabatan_akademik' => ['nama_jabatan' => 'Lektor Kepala'],
+            ],
+        ]);
+
+        $this->assertSame('Lektor Kepala', $profile['daftar_dosen'][0]['jabatan_akademik']);
+        $this->assertSame(1, $profile['jabatan_fungsional']['lektor_kepala']);
     }
 
     /**

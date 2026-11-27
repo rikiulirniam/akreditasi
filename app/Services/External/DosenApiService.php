@@ -80,11 +80,11 @@ class DosenApiService
         $daftarDosen = [];
 
         foreach ($list as $item) {
-            $nidn = (string) ($item['nidn'] ?? $item['nip_nidn'] ?? $item['nip'] ?? '-');
-            $nama = (string) ($item['nama'] ?? $item['nama_lengkap'] ?? $item['name'] ?? '-');
-            $pendidikan = (string) ($item['pendidikan_terakhir'] ?? $item['pendidikan'] ?? 'S2');
-            $jabatan = (string) ($item['jabatan_akademik'] ?? $item['jabatan_fungsional'] ?? $item['jafung'] ?? 'Lektor');
-            $statusDosen = (string) ($item['status_dosen'] ?? 'DTPS');
+            $nidn = $this->normalizeStringValue($item['nidn'] ?? $item['nip_nidn'] ?? $item['nip'] ?? null, '-');
+            $nama = $this->normalizeStringValue($item['nama'] ?? $item['nama_lengkap'] ?? $item['name'] ?? null, '-');
+            $pendidikan = $this->normalizeStringValue($item['pendidikan_terakhir'] ?? $item['pendidikan'] ?? null, 'S2');
+            $jabatan = $this->normalizeStringValue($item['jabatan_akademik'] ?? $item['jabatan_fungsional'] ?? $item['jafung'] ?? null, 'Lektor');
+            $statusDosen = $this->normalizeStringValue($item['status_dosen'] ?? null, 'DTPS');
 
             $isS3 = strtoupper($pendidikan) === 'S3'
                 || str_contains(strtoupper($pendidikan), 'DOKTOR')
@@ -197,10 +197,10 @@ class DosenApiService
      */
     protected function formatDosenItem(array $dosen): array
     {
-        $nipNidn = (string) ($dosen['nip_nidn'] ?? $dosen['nidn'] ?? $dosen['nip'] ?? '-');
-        $namaLengkap = (string) ($dosen['nama_lengkap'] ?? $dosen['nama'] ?? $dosen['nama_dosen'] ?? $dosen['name'] ?? '-');
-        $gelar = (string) ($dosen['gelar'] ?? $dosen['gelar_akademik'] ?? $dosen['pendidikan'] ?? '-');
-        $jabatanFungsional = (string) ($dosen['jabatan_fungsional'] ?? $dosen['jafung'] ?? $dosen['jabatan'] ?? '-');
+        $nipNidn = $this->normalizeStringValue($dosen['nip_nidn'] ?? $dosen['nidn'] ?? $dosen['nip'] ?? null, '-');
+        $namaLengkap = $this->normalizeStringValue($dosen['nama_lengkap'] ?? $dosen['nama'] ?? $dosen['nama_dosen'] ?? $dosen['name'] ?? null, '-');
+        $gelar = $this->normalizeStringValue($dosen['gelar'] ?? $dosen['gelar_akademik'] ?? $dosen['pendidikan'] ?? null, '-');
+        $jabatanFungsional = $this->normalizeStringValue($dosen['jabatan_fungsional'] ?? $dosen['jafung'] ?? $dosen['jabatan'] ?? null, '-');
 
         $statusHomebase = isset($dosen['status_homebase'])
             ? filter_var($dosen['status_homebase'], FILTER_VALIDATE_BOOLEAN)
@@ -214,9 +214,26 @@ class DosenApiService
             'gelar' => $gelar,
             'jabatan_fungsional' => $jabatanFungsional,
             'status_homebase' => $statusHomebase,
-            'email' => (string) ($dosen['email'] ?? '-'),
-            'bidang_minat' => (string) ($dosen['bidang_minat'] ?? $dosen['keahlian'] ?? '-'),
+            'email' => $this->normalizeStringValue($dosen['email'] ?? null, '-'),
+            'bidang_minat' => $this->normalizeStringValue($dosen['bidang_minat'] ?? $dosen['keahlian'] ?? null, '-'),
         ];
+    }
+
+    private function normalizeStringValue(mixed $value, string $fallback): string
+    {
+        if (is_scalar($value)) {
+            return (string) $value;
+        }
+
+        if (is_array($value)) {
+            foreach (['nama', 'name', 'label', 'value', 'nama_jabatan'] as $key) {
+                if (isset($value[$key]) && is_scalar($value[$key])) {
+                    return (string) $value[$key];
+                }
+            }
+        }
+
+        return $fallback;
     }
 
     /**
