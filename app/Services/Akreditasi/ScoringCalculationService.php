@@ -8,6 +8,9 @@ use App\Models\Kriteria;
 use App\Models\ProjectAkreditasi;
 use App\Models\SelfAssessment;
 use App\Models\Subkriteria;
+use App\Services\External\DosenApiService;
+use App\Services\External\ProdiApiService;
+use App\Services\External\TridharmaApiService;
 use Illuminate\Support\Collection;
 
 class ScoringCalculationService
@@ -507,7 +510,7 @@ class ScoringCalculationService
      */
     public function simulateDosenScoring(ProjectAkreditasi $project, int $mahasiswaInput = 0): array
     {
-        $allDosen = app('App\Services\External\DosenApiService')->getAllDosen();
+        $allDosen = app(DosenApiService::class)->getAllDosen();
 
         // Filter dosen tetap yang memiliki status homebase aktif
         $homebaseDosen = array_values(array_filter($allDosen, function ($dosen) {
@@ -525,6 +528,33 @@ class ScoringCalculationService
 
         $totalNa = round(($rmdResult['skor'] + $pds3Result['skor'] + $pjlkResult['skor']) / 3.0, 2);
 
+        $tridharmaSummary = app(TridharmaApiService::class)->getSummary();
+        $mkSummary = app(ProdiApiService::class)->getMataKuliahSummary();
+
+        $rincianKuantitatif = $this->buildQuantitativeIndicatorsBreakdown(
+            $totalDth,
+            $totalNa,
+            $rmdResult,
+            $pds3Result,
+            $tridharmaSummary,
+            $mkSummary
+        );
+
+        $totalSkorKuantitatif = round(array_sum(array_column($rincianKuantitatif, 'skor_terbobot')), 2);
+        $totalBobotKuantitatif = array_sum(array_column($rincianKuantitatif, 'bobot'));
+        $skorMaksimalKuantitatif = round($totalBobotKuantitatif * 4.0, 2);
+        $persentaseCapaian = $skorMaksimalKuantitatif > 0
+            ? round(($totalSkorKuantitatif / $skorMaksimalKuantitatif) * 100.0, 2)
+            : 0.0;
+
+        // Proyeksi skala 400 dari proporsi capaian kuantitatif
+        $proyeksiSkala400 = round(($persentaseCapaian / 100.0) * 400.0, 2);
+        $publikasiButir = collect($rincianKuantitatif)->firstWhere('kode_butir', '3.2.C');
+        $publikasiSkor = (float) ($publikasiButir['nilai_mentah'] ?? 0.0);
+        $thresholdDtpsMet = $totalNa >= 3.5 && ! $minimumNotMet;
+        $thresholdPublikasiMet = $publikasiSkor >= 3.5;
+        $thresholdUnggulMet = $thresholdDtpsMet && $thresholdPublikasiMet;
+
         $response = [
             'skor_per_subkriteria' => [
                 'rmd' => $rmdResult,
@@ -534,6 +564,21 @@ class ScoringCalculationService
             'total_na' => $totalNa,
             'is_simulated' => true,
             'minimum_not_met' => $minimumNotMet,
+            'rincian_butir_kuantitatif' => $rincianKuantitatif,
+            'ringkasan_kuantitatif' => [
+                'jumlah_butir_terhitung' => count($rincianKuantitatif),
+                'total_bobot_kuantitatif' => $totalBobotKuantitatif,
+                'total_skor_kuantitatif' => $totalSkorKuantitatif,
+                'skor_maksimal_kuantitatif' => $skorMaksimalKuantitatif,
+                'persentase_capaian' => $persentaseCapaian,
+                'proyeksi_skor_skala_400' => $proyeksiSkala400,
+                'predikat_proyeksi' => $this->determinePredikat($proyeksiSkala400, $thresholdUnggulMet),
+                'threshold_syarat_unggul' => [
+                    'terpenuhi' => $thresholdUnggulMet,
+                    'dtps_ge_3_5' => $thresholdDtpsMet,
+                    'publikasi_ge_3_5' => $thresholdPublikasiMet,
+                ],
+            ],
         ];
 
         if ($minimumNotMet) {
@@ -541,6 +586,263 @@ class ScoringCalculationService
         }
 
         return $response;
+    }
+
+    /**
+     * Menyusun rincian skor kuantitatif untuk seluruh indikator LAM-INFOKOM yang tersedia di API K1 & K2.
+     *
+     * @param  array{nilai: float|int, skor: float}  $rmdResult
+     * @param  array{persentase: float|int, skor: float}  $pds3Result
+     * @param  array<string, mixed>  $tridharma
+     * @param  array<string, int>  $mkSummary
+     * @return array<int, array<string, mixed>>
+     */
+    protected function buildQuantitativeIndicatorsBreakdown(
+        int $totalDth,
+        float $totalNaDosen,
+        array $rmdResult,
+        array $pds3Result,
+        array $tridharma,
+        array $mkSummary
+    ): array {
+        $penelitian = $tridharma['penelitian'] ?? [];
+        $pkm = $tridharma['pkm'] ?? [];
+        $publikasi = $tridharma['publikasi'] ?? [];
+        $hki = $tridharma['hki'] ?? [];
+        $kerjasamaAktif = (int) ($tridharma['kerjasama_dudika_aktif'] ?? 0);
+
+        $penelitianScore = $this->calculatePenelitianScore($penelitian, $totalDth);
+        $publikasiScore = $this->calculatePublikasiHkiScore($publikasi, $hki, $totalDth);
+        $pkmScore = $this->calculatePkmScore($pkm, $hki, $totalDth);
+        $diferensiasiScore = $this->calculateDiferensiasiScore($kerjasamaAktif);
+        $suplemenScore = $this->calculateSuplemenScore($mkSummary, $hki);
+
+        return [
+            [
+                'kode_butir' => '2.2.A',
+                'elemen' => 'Dosen Tetap (DTPR), Rasio RMD, S3, & Jabatan Akademik',
+                'bobot' => 9,
+                'nilai_mentah' => $totalNaDosen,
+                'skor_terbobot' => round(9 * $totalNaDosen, 2),
+                'sumber_data' => 'API Tridharma (/api/dosen) & Akademik (/api/mahasiswa)',
+                'formula' => "DTH={$totalDth}; RMD={$rmdResult['nilai']} (skor {$rmdResult['skor']}); S3={$pds3Result['persentase']}% (skor {$pds3Result['skor']})",
+            ],
+            [
+                'kode_butir' => '3.2.A',
+                'elemen' => 'Pelaksanaan Kegiatan Penelitian Dosen Sesuai Roadmap',
+                'bobot' => 8,
+                'nilai_mentah' => $penelitianScore['skor_pelaksanaan'],
+                'skor_terbobot' => round(8 * $penelitianScore['skor_pelaksanaan'], 2),
+                'sumber_data' => 'API Tridharma (/api/kegiatan?id_jenis_kegiatan=1)',
+                'formula' => $penelitianScore['formula_pelaksanaan'],
+            ],
+            [
+                'kode_butir' => '3.2.B',
+                'elemen' => 'Pelibatan Mahasiswa dalam Penelitian Dosen',
+                'bobot' => 6,
+                'nilai_mentah' => $penelitianScore['skor_mahasiswa'],
+                'skor_terbobot' => round(6 * $penelitianScore['skor_mahasiswa'], 2),
+                'sumber_data' => 'API Tridharma (/api/kegiatan relasi anggota)',
+                'formula' => $penelitianScore['formula_mahasiswa'],
+            ],
+            [
+                'kode_butir' => '3.2.C',
+                'elemen' => 'Produktivitas Publikasi Ilmiah (Scopus/SINTA/IEEE) & HKI',
+                'bobot' => 18,
+                'nilai_mentah' => $publikasiScore['skor'],
+                'skor_terbobot' => round(18 * $publikasiScore['skor'], 2),
+                'sumber_data' => 'API Tridharma (/api/luaran)',
+                'formula' => $publikasiScore['formula'],
+            ],
+            [
+                'kode_butir' => '4.2.A',
+                'elemen' => 'Pelaksanaan Pengabdian kepada Masyarakat (PkM) Dosen',
+                'bobot' => 7,
+                'nilai_mentah' => $pkmScore['skor_pelaksanaan'],
+                'skor_terbobot' => round(7 * $pkmScore['skor_pelaksanaan'], 2),
+                'sumber_data' => 'API Tridharma (/api/kegiatan?id_jenis_kegiatan=2)',
+                'formula' => $pkmScore['formula_pelaksanaan'],
+            ],
+            [
+                'kode_butir' => '4.2.B',
+                'elemen' => 'Pelibatan Mahasiswa dalam Kegiatan PkM',
+                'bobot' => 6,
+                'nilai_mentah' => $pkmScore['skor_mahasiswa'],
+                'skor_terbobot' => round(6 * $pkmScore['skor_mahasiswa'], 2),
+                'sumber_data' => 'API Tridharma (/api/kegiatan relasi anggota)',
+                'formula' => $pkmScore['formula_mahasiswa'],
+            ],
+            [
+                'kode_butir' => '4.2.C',
+                'elemen' => 'Dampak & Luaran PkM (Publikasi PkM & HKI Teknologi Tepat Guna)',
+                'bobot' => 15,
+                'nilai_mentah' => $pkmScore['skor_luaran'],
+                'skor_terbobot' => round(15 * $pkmScore['skor_luaran'], 2),
+                'sumber_data' => 'API Tridharma (/api/luaran)',
+                'formula' => $pkmScore['formula_luaran'],
+            ],
+            [
+                'kode_butir' => '6.2',
+                'elemen' => 'Pelaksanaan Tridarma Khas Keilmuan & Kemitraan DUDIKA',
+                'bobot' => 8,
+                'nilai_mentah' => $diferensiasiScore['skor'],
+                'skor_terbobot' => round(8 * $diferensiasiScore['skor'], 2),
+                'sumber_data' => 'API Tridharma (/api/kerja-sama)',
+                'formula' => $diferensiasiScore['formula'],
+            ],
+            [
+                'kode_butir' => 'Suplemen 1-5',
+                'elemen' => 'Suplemen Program Sarjana Infokom (Inti, Domain TRK, Math, Capstone, Produk)',
+                'bobot' => 20,
+                'nilai_mentah' => $suplemenScore['skor'],
+                'skor_terbobot' => round(20 * $suplemenScore['skor'], 2),
+                'sumber_data' => 'API Akademik (/api/mata-kuliah) & Tridharma (/api/luaran)',
+                'formula' => $suplemenScore['formula'],
+            ],
+        ];
+    }
+
+    /**
+     * Menghitung skor Butir 3.2.A & 3.2.B (Penelitian & Pelibatan Mahasiswa).
+     *
+     * @param  array<string, mixed>  $penelitian
+     * @return array{skor_pelaksanaan: float, skor_mahasiswa: float, formula_pelaksanaan: string, formula_mahasiswa: string}
+     */
+    protected function calculatePenelitianScore(array $penelitian, int $totalDth): array
+    {
+        $total = (int) ($penelitian['total_kegiatan'] ?? 0);
+        $mhs = (int) ($penelitian['melibatkan_mahasiswa'] ?? 0);
+        $hibahNasional = (int) ($penelitian['hibah_nasional_bima'] ?? 0);
+        $divisor = max(1, $totalDth);
+
+        // Rasio judul penelitian per dosen + bonus hibah nasional
+        $rasioPerDosen = $total / $divisor;
+        $skorPelaksanaan = min(4.0, round(2.0 + ($rasioPerDosen * 1.0) + min(0.8, $hibahNasional * 0.1), 2));
+
+        $persenMhs = $total > 0 ? round(($mhs / $total) * 100.0, 2) : 0.0;
+        $skorMahasiswa = $persenMhs >= 75.0
+            ? 4.0
+            : min(4.0, round(1.5 + ($persenMhs / 100.0) * 3.0, 2));
+
+        return [
+            'skor_pelaksanaan' => $skorPelaksanaan,
+            'skor_mahasiswa' => $skorMahasiswa,
+            'formula_pelaksanaan' => "Total riset={$total}, Hibah Nasional={$hibahNasional}, Rasio/DTPS=".round($rasioPerDosen, 2),
+            'formula_mahasiswa' => "Riset libatkan mhs={$mhs}/{$total} ({$persenMhs}%)",
+        ];
+    }
+
+    /**
+     * Menghitung skor Butir 3.2.C (Produktivitas Publikasi Ilmiah & HKI).
+     *
+     * @param  array<string, mixed>  $publikasi
+     * @param  array<string, mixed>  $hki
+     * @return array{skor: float, formula: string}
+     */
+    protected function calculatePublikasiHkiScore(array $publikasi, array $hki, int $totalDth): array
+    {
+        $scopus = (int) ($publikasi['jurnal_internasional_scopus'] ?? 0);
+        $sinta = (int) ($publikasi['jurnal_nasional_sinta'] ?? 0);
+        $ieee = (int) ($publikasi['prosiding_seminar_ieee'] ?? 0);
+        $paten = (int) ($hki['paten_terdaftar'] ?? 0);
+        $hakCipta = (int) ($hki['hak_cipta_program_komputer'] ?? 0);
+
+        $divisor = max(1, $totalDth);
+        $poinTertimbang = ($scopus * 3.0) + ($sinta * 1.0) + ($ieee * 1.5) + ($paten * 3.0) + ($hakCipta * 1.0);
+        $rasioProduktivitas = $poinTertimbang / $divisor;
+
+        $skor = min(4.0, round(1.5 + min(2.5, $rasioProduktivitas * 0.35), 2));
+
+        return [
+            'skor' => $skor,
+            'formula' => "Scopus={$scopus}, SINTA={$sinta}, IEEE={$ieee}, Paten={$paten}, Hak Cipta={$hakCipta} (Indeks/DTPS=".round($rasioProduktivitas, 2).')',
+        ];
+    }
+
+    /**
+     * Menghitung skor Butir 4.2.A, 4.2.B, & 4.2.C (PkM, Pelibatan Mhs, & Luaran Terapan).
+     *
+     * @param  array<string, mixed>  $pkm
+     * @param  array<string, mixed>  $hki
+     * @return array{skor_pelaksanaan: float, skor_mahasiswa: float, skor_luaran: float, formula_pelaksanaan: string, formula_mahasiswa: string, formula_luaran: string}
+     */
+    protected function calculatePkmScore(array $pkm, array $hki, int $totalDth): array
+    {
+        $total = (int) ($pkm['total_kegiatan'] ?? 0);
+        $mhs = (int) ($pkm['melibatkan_mahasiswa'] ?? 0);
+        $hibahNasional = (int) ($pkm['hibah_pkm_nasional'] ?? 0);
+        $hakCipta = (int) ($hki['hak_cipta_program_komputer'] ?? 0);
+        $divisor = max(1, $totalDth);
+
+        $rasioPerDosen = $total / $divisor;
+        $skorPelaksanaan = min(4.0, round(2.0 + ($rasioPerDosen * 1.2) + min(0.6, $hibahNasional * 0.15), 2));
+
+        $persenMhs = $total > 0 ? round(($mhs / $total) * 100.0, 2) : 0.0;
+        $skorMahasiswa = $persenMhs >= 75.0
+            ? 4.0
+            : min(4.0, round(1.5 + ($persenMhs / 100.0) * 3.0, 2));
+
+        $skorLuaran = min(4.0, round(2.0 + min(2.0, ($hakCipta + $hibahNasional) * 0.08), 2));
+
+        return [
+            'skor_pelaksanaan' => $skorPelaksanaan,
+            'skor_mahasiswa' => $skorMahasiswa,
+            'skor_luaran' => $skorLuaran,
+            'formula_pelaksanaan' => "Total PkM={$total}, Hibah Nasional={$hibahNasional}",
+            'formula_mahasiswa' => "PkM libatkan mhs={$mhs}/{$total} ({$persenMhs}%)",
+            'formula_luaran' => "HKI produk terapan={$hakCipta}, Hibah PkM Nasional={$hibahNasional}",
+        ];
+    }
+
+    /**
+     * Menghitung skor Butir 6.2 (Kemitraan DUDIKA aktif).
+     *
+     * @return array{skor: float, formula: string}
+     */
+    protected function calculateDiferensiasiScore(int $kerjasamaAktif): array
+    {
+        $skor = $kerjasamaAktif >= 10
+            ? 4.0
+            : min(4.0, round(1.5 + ($kerjasamaAktif * 0.25), 2));
+
+        return [
+            'skor' => $skor,
+            'formula' => "Kerjasama DUDIKA aktif={$kerjasamaAktif} mitra",
+        ];
+    }
+
+    /**
+     * Menghitung skor Suplemen 1-5 (Kurikulum Inti, Domain TRK, Matematika, Capstone, & Produk Terapan).
+     *
+     * @param  array<string, int>  $mkSummary
+     * @param  array<string, mixed>  $hki
+     * @return array{skor: float, formula: string}
+     */
+    protected function calculateSuplemenScore(array $mkSummary, array $hki): array
+    {
+        $terpenuhi = 0;
+        if (($mkSummary['mk_inti_komputasi'] ?? 0) >= 5) {
+            $terpenuhi++;
+        }
+        if (($mkSummary['mk_domain_trk'] ?? 0) >= 3) {
+            $terpenuhi++;
+        }
+        if (($mkSummary['mk_matematika'] ?? 0) >= 2) {
+            $terpenuhi++;
+        }
+        if (($mkSummary['mk_capstone'] ?? 0) >= 1) {
+            $terpenuhi++;
+        }
+        if (((int) ($hki['hak_cipta_program_komputer'] ?? 0) + (int) ($hki['paten_terdaftar'] ?? 0)) >= 1) {
+            $terpenuhi++;
+        }
+
+        $skor = round(($terpenuhi / 5.0) * 4.0, 2);
+
+        return [
+            'skor' => $skor,
+            'formula' => "Terpenuhi {$terpenuhi}/5 komponen suplemen (Inti={$mkSummary['mk_inti_komputasi']}, Domain={$mkSummary['mk_domain_trk']}, Math={$mkSummary['mk_matematika']}, Capstone={$mkSummary['mk_capstone']})",
+        ];
     }
 
     /**
@@ -655,7 +957,9 @@ class ScoringCalculationService
             return $sarprasKapasitas;
         }
 
-        return 100;
+        $apiMahasiswaCount = app(ProdiApiService::class)->getMahasiswaAktifCount();
+
+        return $apiMahasiswaCount > 0 ? $apiMahasiswaCount : 100;
     }
 
     /**

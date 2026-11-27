@@ -14,6 +14,7 @@ use App\Models\Subkriteria;
 use App\Models\VersiInstrumen;
 use App\Services\JwtService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class Pengembang2AiniTest extends TestCase
@@ -39,6 +40,7 @@ class Pengembang2AiniTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Http::fake(['*' => Http::response([], 503)]);
 
         $jwt = app(JwtService::class);
 

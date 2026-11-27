@@ -46,7 +46,7 @@ class DosenApiService
                         $payload = $payload['data'];
                     }
 
-                    if (is_array($payload) && count($payload) >= 20) {
+                    if (is_array($payload) && count($payload) > 0) {
                         $liveData = $payload;
                     }
                 }
