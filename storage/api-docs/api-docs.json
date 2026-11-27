@@ -588,8 +588,8 @@
                 "tags": [
                     "Akreditasi - Project"
                 ],
-                "summary": "Simulasi skor kuantitatif LAM-INFOKOM (SDM Dosen)",
-                "description": "Menghitung simulasi skor 3 butir kuantitatif SDM Dosen (RMD, PDS3, PJLK) berdasarkan integrasi data live Kelompok 2 pada skala 0 - 4.",
+                "summary": "Simulasi skor kuantitatif LAM-INFOKOM (SDM Dosen, Riset, Publikasi, PkM, & Suplemen)",
+                "description": "Menghitung simulasi skor kuantitatif otomatis LAM-INFOKOM 2.1 untuk seluruh butir yang datanya tersedia dari API Kelompok 1 & Kelompok 2 (DTPR/RMD/PDS3/PJLK, Penelitian, Publikasi & HKI, PkM, Kemitraan DUDIKA, dan Suplemen 1-5) beserta proyeksi predikat kelulusan.",
                 "operationId": "50ac90a032abd2fcd9c34898b70eb981",
                 "parameters": [
                     {
@@ -691,6 +691,50 @@
                                                     "type": "boolean",
                                                     "example": false
                                                 },
+                                                "rincian_butir_kuantitatif": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "ringkasan_kuantitatif": {
+                                                    "properties": {
+                                                        "jumlah_butir_terhitung": {
+                                                            "type": "integer",
+                                                            "example": 9
+                                                        },
+                                                        "total_bobot_kuantitatif": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 97
+                                                        },
+                                                        "total_skor_kuantitatif": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 368.5
+                                                        },
+                                                        "skor_maksimal_kuantitatif": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 388
+                                                        },
+                                                        "persentase_capaian": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 94.97
+                                                        },
+                                                        "proyeksi_skor_skala_400": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 379.89
+                                                        },
+                                                        "predikat_proyeksi": {
+                                                            "type": "string",
+                                                            "example": "Terakreditasi Unggul"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
                                                 "warning": {
                                                     "type": "string",
                                                     "example": "Jumlah dosen tetap homebase kurang dari 5 (syarat minimum LAM-INFOKOM tidak terpenuhi).",
@@ -714,6 +758,567 @@
                     },
                     "404": {
                         "description": "Project tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/projects/{id}/data-summary": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Mengambil ringkasan data sumber akreditasi",
+                "description": "Menggabungkan data project, program studi, mahasiswa, dosen, dan Tridharma dari layanan terkait.",
+                "operationId": "753f2c02c968b9e4ea0353f700c8e6c2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Project Akreditasi",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ringkasan data akreditasi berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ringkasan data akreditasi berhasil diambil"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "project": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "id_prodi": {
+                                                            "type": "integer",
+                                                            "example": 101
+                                                        },
+                                                        "tahun": {
+                                                            "type": "integer",
+                                                            "example": 2026
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "prodi": {
+                                                    "description": "Data program studi dari API Akademik",
+                                                    "type": "object"
+                                                },
+                                                "mahasiswa": {
+                                                    "properties": {
+                                                        "total_aktif": {
+                                                            "type": "integer",
+                                                            "example": 345
+                                                        },
+                                                        "source": {
+                                                            "type": "string",
+                                                            "example": "akademik:/api/mahasiswa"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "dosen": {
+                                                    "description": "Profil DTPS dari API Dosen",
+                                                    "type": "object"
+                                                },
+                                                "tridharma": {
+                                                    "description": "Ringkasan penelitian, PkM, publikasi, HKI, dan kerja sama",
+                                                    "type": "object"
+                                                },
+                                                "meta": {
+                                                    "properties": {
+                                                        "is_simulation": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "pending": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "errors": {
+                                            "type": "null",
+                                            "example": null
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Project tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/narasi-templates": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Mendapatkan daftar template narasi",
+                "operationId": "df9f8770e1b5780bdd3c7cc7cbacefdb",
+                "parameters": [
+                    {
+                        "name": "kategori_data",
+                        "in": "query",
+                        "description": "Filter kategori sumber data",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "description": "Filter status aktif",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar template narasi berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Daftar template narasi berhasil diambil"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "id_subkriteria": {
+                                                        "type": "integer",
+                                                        "example": 12,
+                                                        "nullable": true
+                                                    },
+                                                    "kategori_data": {
+                                                        "type": "string",
+                                                        "example": "dosen"
+                                                    },
+                                                    "nama_template": {
+                                                        "type": "string",
+                                                        "example": "Template data dosen"
+                                                    },
+                                                    "template_tersedia": {
+                                                        "type": "string"
+                                                    },
+                                                    "template_tidak_tersedia": {
+                                                        "type": "string",
+                                                        "nullable": true
+                                                    },
+                                                    "sumber_data": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "field_mapping": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "prioritas": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "is_active": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "errors": {
+                                            "type": "null",
+                                            "example": null
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Membuat template narasi",
+                "operationId": "4e21fc05acf801888d92d0a217f15366",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "kategori_data",
+                                    "nama_template",
+                                    "template_tersedia"
+                                ],
+                                "properties": {
+                                    "id_subkriteria": {
+                                        "type": "integer",
+                                        "example": 12,
+                                        "nullable": true
+                                    },
+                                    "kategori_data": {
+                                        "type": "string",
+                                        "example": "dosen",
+                                        "maxLength": 80
+                                    },
+                                    "nama_template": {
+                                        "type": "string",
+                                        "example": "Template data dosen",
+                                        "maxLength": 255
+                                    },
+                                    "template_tersedia": {
+                                        "type": "string",
+                                        "example": "Terdapat {jumlah_dosen_homebase} dosen pada program studi.",
+                                        "maxLength": 20000
+                                    },
+                                    "template_tidak_tersedia": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "maxLength": 20000
+                                    },
+                                    "sumber_data": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "maxLength": 255
+                                        }
+                                    },
+                                    "field_mapping": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "maxLength": 120
+                                        }
+                                    },
+                                    "prioritas": {
+                                        "type": "integer",
+                                        "example": 1,
+                                        "maximum": 65535,
+                                        "minimum": 1
+                                    },
+                                    "is_active": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Template narasi berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/narasi-templates/{id}": {
+            "get": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Mendapatkan detail template narasi",
+                "operationId": "ae328084d00180f42f4568b8d9ebbe9a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail template narasi berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Template narasi tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Memperbarui template narasi",
+                "operationId": "e1c6926b6da39bd18422a46acb368d88",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "kategori_data",
+                                    "nama_template",
+                                    "template_tersedia"
+                                ],
+                                "properties": {
+                                    "id_subkriteria": {
+                                        "type": "integer",
+                                        "example": 12,
+                                        "nullable": true
+                                    },
+                                    "kategori_data": {
+                                        "type": "string",
+                                        "example": "dosen",
+                                        "maxLength": 80
+                                    },
+                                    "nama_template": {
+                                        "type": "string",
+                                        "example": "Template data dosen",
+                                        "maxLength": 255
+                                    },
+                                    "template_tersedia": {
+                                        "type": "string",
+                                        "maxLength": 20000
+                                    },
+                                    "template_tidak_tersedia": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "maxLength": 20000
+                                    },
+                                    "sumber_data": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "maxLength": 255
+                                        }
+                                    },
+                                    "field_mapping": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "maxLength": 120
+                                        }
+                                    },
+                                    "prioritas": {
+                                        "type": "integer",
+                                        "maximum": 65535,
+                                        "minimum": 1
+                                    },
+                                    "is_active": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Template narasi berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Template narasi tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi gagal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Akreditasi - Project"
+                ],
+                "summary": "Menghapus template narasi",
+                "operationId": "c2cf5db9223f313c217a5d22a04acabc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Template narasi berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseSuccess"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Template narasi tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseNotFound"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -6146,7 +6751,7 @@
                     "SPMI - Evidence Mutu"
                 ],
                 "summary": "Menyimpan atau memperbarui data evidence SPMI project",
-                "description": "Menyimpan rekaman 4 Pilar Dokumen Mutu Institusi SPMI berbasis updateOrCreate pada project_id.",
+                "description": "Menyimpan rekaman 4 Pilar Dokumen Mutu Institusi SPMI berbasis updateOrCreate pada project_id. Dapat diakses oleh ADMINISTRATOR, KAPRODI, dan DOSEN (role REVIEWER ditolak 403). Seluruh tautan pilar divalidasi format URL http/https yang aman (menolak skema berbahaya seperti javascript:).",
                 "operationId": "a7fadaf60a0bd0e3c1308e564f82c0f1",
                 "requestBody": {
                     "required": true,
@@ -6163,10 +6768,10 @@
                                         "example": 1
                                     },
                                     "link_bukti_evaluasi": {
-                                        "description": "Pilar 1: Laporan Audit Mutu Internal (AMI & Monev)",
+                                        "description": "Pilar 1 (Wajib, URL http/https valid): Laporan Audit Mutu Internal (AMI & Monev)",
                                         "type": "string",
-                                        "example": "https://drive.google.com/ami-monev",
-                                        "nullable": true
+                                        "format": "uri",
+                                        "example": "https://drive.google.com/ami-monev"
                                     },
                                     "deskripsi_bukti_evaluasi": {
                                         "type": "string",
@@ -6174,9 +6779,17 @@
                                         "nullable": true
                                     },
                                     "link_bukti_pengendalian": {
-                                        "description": "Pilar 2: Rapat Tinjauan Manajemen (RTM & RTL)",
+                                        "description": "Pilar 2 (URL http/https valid): Rapat Tinjauan Manajemen / Kebijakan",
                                         "type": "string",
+                                        "format": "uri",
                                         "example": "https://drive.google.com/rtm-rtl",
+                                        "nullable": true
+                                    },
+                                    "link_dokumen_kebijakan": {
+                                        "description": "Alias untuk link_bukti_pengendalian",
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://drive.google.com/kebijakan",
                                         "nullable": true
                                     },
                                     "deskripsi_bukti_pengendalian": {
@@ -6185,9 +6798,17 @@
                                         "nullable": true
                                     },
                                     "link_bukti_dampak": {
-                                        "description": "Pilar 3: Capaian IKU & Survei Kepuasan Stakeholder",
+                                        "description": "Pilar 3 (URL http/https valid): Capaian IKU / Manual Mutu",
                                         "type": "string",
+                                        "format": "uri",
                                         "example": "https://drive.google.com/iku-kepuasan",
+                                        "nullable": true
+                                    },
+                                    "link_dokumen_manual": {
+                                        "description": "Alias untuk link_bukti_dampak",
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://drive.google.com/manual",
                                         "nullable": true
                                     },
                                     "deskripsi_bukti_dampak": {
@@ -6196,9 +6817,17 @@
                                         "nullable": true
                                     },
                                     "link_dokumen_implementasi": {
-                                        "description": "Pilar 4: Dokumen Implementasi (Buku Kebijakan SPMI, Manual Mutu, SOP PPEPP)",
+                                        "description": "Pilar 4 (URL http/https valid): Dokumen Implementasi / Formulir",
                                         "type": "string",
+                                        "format": "uri",
                                         "example": "https://drive.google.com/spmi-manual-sop",
+                                        "nullable": true
+                                    },
+                                    "link_dokumen_formulir": {
+                                        "description": "Alias untuk link_dokumen_implementasi",
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://drive.google.com/formulir",
                                         "nullable": true
                                     },
                                     "deskripsi_dokumen_implementasi": {
@@ -6245,7 +6874,7 @@
                     "SPMI - Evidence Mutu"
                 ],
                 "summary": "Rekapitulasi evidence overview sebuah project akreditasi",
-                "description": "Mengambil rekapitulasi data 4 Pilar Dokumen Mutu Institusi (Laporan AMI & Monev, RTM & RTL, Capaian IKU & Survei Kepuasan Stakeholder, Dokumen Implementasi Kebijakan/Manual/SOP), daftar indikator yang ditugaskan beserta status kelengkapan.",
+                "description": "Mengambil rekapitulasi kelengkapan 4 Pilar Dokumen Mutu Institusi (termasuk persentase kelengkapan 1 desimal dan status masing-masing pilar) beserta daftar indikator yang ditugaskan. Dapat diakses oleh ADMINISTRATOR, KAPRODI, dan DOSEN (role REVIEWER ditolak dengan 403 Forbidden).",
                 "operationId": "b14542f4ded1d2d645b5fc1cc52e22c9",
                 "parameters": [
                     {

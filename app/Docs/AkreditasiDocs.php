@@ -176,8 +176,8 @@ class AkreditasiDocs
     )]
     #[OA\Get(
         path: '/projects/{id}/scoring-simulation',
-        summary: 'Simulasi skor kuantitatif LAM-INFOKOM (SDM Dosen)',
-        description: 'Menghitung simulasi skor 3 butir kuantitatif SDM Dosen (RMD, PDS3, PJLK) berdasarkan integrasi data live Kelompok 2 pada skala 0 - 4.',
+        summary: 'Simulasi skor kuantitatif LAM-INFOKOM (SDM Dosen, Riset, Publikasi, PkM, & Suplemen)',
+        description: 'Menghitung simulasi skor kuantitatif otomatis LAM-INFOKOM 2.1 untuk seluruh butir yang datanya tersedia dari API Kelompok 1 & Kelompok 2 (DTPR/RMD/PDS3/PJLK, Penelitian, Publikasi & HKI, PkM, Kemitraan DUDIKA, dan Suplemen 1-5) beserta proyeksi predikat kelulusan.',
         tags: ['Akreditasi - Project'],
         security: [['BearerAuth' => []]],
         parameters: [
@@ -229,6 +229,20 @@ class AkreditasiDocs
                                 new OA\Property(property: 'total_na', type: 'number', format: 'float', example: 3.71),
                                 new OA\Property(property: 'is_simulated', type: 'boolean', example: true),
                                 new OA\Property(property: 'minimum_not_met', type: 'boolean', example: false),
+                                new OA\Property(property: 'rincian_butir_kuantitatif', type: 'array', items: new OA\Items(type: 'object')),
+                                new OA\Property(
+                                    property: 'ringkasan_kuantitatif',
+                                    type: 'object',
+                                    properties: [
+                                        new OA\Property(property: 'jumlah_butir_terhitung', type: 'integer', example: 9),
+                                        new OA\Property(property: 'total_bobot_kuantitatif', type: 'number', format: 'float', example: 97),
+                                        new OA\Property(property: 'total_skor_kuantitatif', type: 'number', format: 'float', example: 368.5),
+                                        new OA\Property(property: 'skor_maksimal_kuantitatif', type: 'number', format: 'float', example: 388),
+                                        new OA\Property(property: 'persentase_capaian', type: 'number', format: 'float', example: 94.97),
+                                        new OA\Property(property: 'proyeksi_skor_skala_400', type: 'number', format: 'float', example: 379.89),
+                                        new OA\Property(property: 'predikat_proyeksi', type: 'string', example: 'Terakreditasi Unggul'),
+                                    ]
+                                ),
                                 new OA\Property(property: 'warning', type: 'string', nullable: true, example: 'Jumlah dosen tetap homebase kurang dari 5 (syarat minimum LAM-INFOKOM tidak terpenuhi).'),
                             ]
                         ),
@@ -238,6 +252,179 @@ class AkreditasiDocs
             ),
             new OA\Response(response: 401, description: 'Unauthenticated'),
             new OA\Response(response: 404, description: 'Project tidak ditemukan'),
+        ]
+    )]
+    #[OA\Get(
+        path: '/projects/{id}/data-summary',
+        summary: 'Mengambil ringkasan data sumber akreditasi',
+        description: 'Menggabungkan data project, program studi, mahasiswa, dosen, dan Tridharma dari layanan terkait.',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'), description: 'ID Project Akreditasi'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Ringkasan data akreditasi berhasil diambil',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Ringkasan data akreditasi berhasil diambil'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'project', type: 'object', properties: [
+                                    new OA\Property(property: 'id', type: 'integer', example: 1),
+                                    new OA\Property(property: 'id_prodi', type: 'integer', example: 101),
+                                    new OA\Property(property: 'tahun', type: 'integer', example: 2026),
+                                ]),
+                                new OA\Property(property: 'prodi', type: 'object', description: 'Data program studi dari API Akademik'),
+                                new OA\Property(property: 'mahasiswa', type: 'object', properties: [
+                                    new OA\Property(property: 'total_aktif', type: 'integer', example: 345),
+                                    new OA\Property(property: 'source', type: 'string', example: 'akademik:/api/mahasiswa'),
+                                ]),
+                                new OA\Property(property: 'dosen', type: 'object', description: 'Profil DTPS dari API Dosen'),
+                                new OA\Property(property: 'tridharma', type: 'object', description: 'Ringkasan penelitian, PkM, publikasi, HKI, dan kerja sama'),
+                                new OA\Property(property: 'meta', type: 'object', properties: [
+                                    new OA\Property(property: 'is_simulation', type: 'boolean', example: false),
+                                    new OA\Property(property: 'pending', type: 'array', items: new OA\Items(type: 'string')),
+                                ]),
+                            ]
+                        ),
+                        new OA\Property(property: 'errors', type: 'null', example: null),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 404, description: 'Project tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/narasi-templates',
+        summary: 'Mendapatkan daftar template narasi',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'kategori_data', in: 'query', required: false, schema: new OA\Schema(type: 'string'), description: 'Filter kategori sumber data'),
+            new OA\Parameter(name: 'is_active', in: 'query', required: false, schema: new OA\Schema(type: 'boolean'), description: 'Filter status aktif'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Daftar template narasi berhasil diambil',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Daftar template narasi berhasil diambil'),
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(
+                            properties: [
+                                new OA\Property(property: 'id', type: 'integer', example: 1),
+                                new OA\Property(property: 'id_subkriteria', type: 'integer', nullable: true, example: 12),
+                                new OA\Property(property: 'kategori_data', type: 'string', example: 'dosen'),
+                                new OA\Property(property: 'nama_template', type: 'string', example: 'Template data dosen'),
+                                new OA\Property(property: 'template_tersedia', type: 'string'),
+                                new OA\Property(property: 'template_tidak_tersedia', type: 'string', nullable: true),
+                                new OA\Property(property: 'sumber_data', type: 'array', items: new OA\Items(type: 'string')),
+                                new OA\Property(property: 'field_mapping', type: 'array', items: new OA\Items(type: 'string')),
+                                new OA\Property(property: 'prioritas', type: 'integer', example: 1),
+                                new OA\Property(property: 'is_active', type: 'boolean', example: true),
+                            ]
+                        )),
+                        new OA\Property(property: 'errors', type: 'null', example: null),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+        ]
+    )]
+    #[OA\Post(
+        path: '/narasi-templates',
+        summary: 'Membuat template narasi',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['kategori_data', 'nama_template', 'template_tersedia'],
+                properties: [
+                    new OA\Property(property: 'id_subkriteria', type: 'integer', nullable: true, example: 12),
+                    new OA\Property(property: 'kategori_data', type: 'string', maxLength: 80, example: 'dosen'),
+                    new OA\Property(property: 'nama_template', type: 'string', maxLength: 255, example: 'Template data dosen'),
+                    new OA\Property(property: 'template_tersedia', type: 'string', maxLength: 20000, example: 'Terdapat {jumlah_dosen_homebase} dosen pada program studi.'),
+                    new OA\Property(property: 'template_tidak_tersedia', type: 'string', nullable: true, maxLength: 20000),
+                    new OA\Property(property: 'sumber_data', type: 'array', items: new OA\Items(type: 'string', maxLength: 255)),
+                    new OA\Property(property: 'field_mapping', type: 'array', items: new OA\Items(type: 'string', maxLength: 120)),
+                    new OA\Property(property: 'prioritas', type: 'integer', minimum: 1, maximum: 65535, example: 1),
+                    new OA\Property(property: 'is_active', type: 'boolean', example: true),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: 'Template narasi berhasil dibuat', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
+        ]
+    )]
+    #[OA\Get(
+        path: '/narasi-templates/{id}',
+        summary: 'Mendapatkan detail template narasi',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Detail template narasi berhasil diambil', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 404, description: 'Template narasi tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+        ]
+    )]
+    #[OA\Put(
+        path: '/narasi-templates/{id}',
+        summary: 'Memperbarui template narasi',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['kategori_data', 'nama_template', 'template_tersedia'],
+                properties: [
+                    new OA\Property(property: 'id_subkriteria', type: 'integer', nullable: true, example: 12),
+                    new OA\Property(property: 'kategori_data', type: 'string', maxLength: 80, example: 'dosen'),
+                    new OA\Property(property: 'nama_template', type: 'string', maxLength: 255, example: 'Template data dosen'),
+                    new OA\Property(property: 'template_tersedia', type: 'string', maxLength: 20000),
+                    new OA\Property(property: 'template_tidak_tersedia', type: 'string', nullable: true, maxLength: 20000),
+                    new OA\Property(property: 'sumber_data', type: 'array', items: new OA\Items(type: 'string', maxLength: 255)),
+                    new OA\Property(property: 'field_mapping', type: 'array', items: new OA\Items(type: 'string', maxLength: 120)),
+                    new OA\Property(property: 'prioritas', type: 'integer', minimum: 1, maximum: 65535),
+                    new OA\Property(property: 'is_active', type: 'boolean'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Template narasi berhasil diperbarui', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 404, description: 'Template narasi tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
+            new OA\Response(response: 422, description: 'Validasi gagal', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseValidationError')),
+        ]
+    )]
+    #[OA\Delete(
+        path: '/narasi-templates/{id}',
+        summary: 'Menghapus template narasi',
+        tags: ['Akreditasi - Project'],
+        security: [['BearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Template narasi berhasil dihapus', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseSuccess')),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 404, description: 'Template narasi tidak ditemukan', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponseNotFound')),
         ]
     )]
     #[OA\Get(
