@@ -8,7 +8,6 @@ use App\Models\MappingTimAkreditasi;
 use App\Models\ProjectAkreditasi;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 /**
  * MappingTimAkreditasiController
@@ -146,45 +145,15 @@ class MappingTimAkreditasiController extends Controller
             ->excludeNonHandleCriteria()
             ->get();
 
-        // Optimasi: Tarik seluruh self_assessment, evidence indikator, dan narasi subkriteria dalam 3 batch query (Bebas N+1)
+        // Optimasi: Tarik seluruh status self_assessment, evidence indikator, dan narasi subkriteria secara batch (Bebas N+1)
         $projectIds = $mappings->pluck('id_project')->unique()->filter()->values()->all();
         $indikatorIds = $mappings->pluck('id_indikator')->unique()->filter()->values()->all();
         $subkriteriaIds = $mappings->pluck('indikator.id_subkriteria')->unique()->filter()->values()->all();
 
-        $assessedMap = [];
-        $evidenceMap = [];
-        $narasiMap = [];
-
-        if (! empty($projectIds) && ! empty($indikatorIds)) {
-            $assessedMap = DB::table('self_assessment')
-                ->whereIn('id_project', $projectIds)
-                ->whereIn('id_indikator', $indikatorIds)
-                ->whereNotNull('id_rubrik')
-                ->select('id_project', 'id_indikator')
-                ->get()
-                ->mapWithKeys(fn ($row) => ["{$row->id_project}_{$row->id_indikator}" => true])
-                ->all();
-
-            $evidenceMap = DB::table('project_indicator_evidence')
-                ->whereIn('id_project', $projectIds)
-                ->whereIn('id_indikator', $indikatorIds)
-                ->select('id_project', 'id_indikator')
-                ->get()
-                ->mapWithKeys(fn ($row) => ["{$row->id_project}_{$row->id_indikator}" => true])
-                ->all();
-        }
-
-        if (! empty($projectIds) && ! empty($subkriteriaIds)) {
-            $narasiMap = DB::table('narasi_subkriterias')
-                ->whereIn('id_project', $projectIds)
-                ->whereIn('id_subkriteria', $subkriteriaIds)
-                ->whereNotNull('narasi')
-                ->where('narasi', '!=', '')
-                ->select('id_project', 'id_subkriteria')
-                ->get()
-                ->mapWithKeys(fn ($row) => ["{$row->id_project}_{$row->id_subkriteria}" => true])
-                ->all();
-        }
+        $statusMaps = MappingTimAkreditasi::getAssignmentStatusMaps($projectIds, $indikatorIds, $subkriteriaIds);
+        $assessedMap = $statusMaps['assessed'];
+        $evidenceMap = $statusMaps['evidence'];
+        $narasiMap = $statusMaps['narasi'];
 
         $assignments = $mappings->map(function ($mapping) use ($assessedMap, $evidenceMap, $narasiMap) {
             $key = "{$mapping->id_project}_{$mapping->id_indikator}";

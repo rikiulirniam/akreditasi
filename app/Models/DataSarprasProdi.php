@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -46,5 +47,13 @@ class DataSarprasProdi extends Model
     public function sarana(): HasMany
     {
         return $this->hasMany(DataSaranaProdi::class, 'id_prasarana');
+    }
+
+    /**
+     * Scope untuk memfilter prasarana berdasarkan project ID.
+     */
+    public function scopeForProject(Builder $query, int $projectId): Builder
+    {
+        return $query->where('id_project', $projectId);
     }
 }

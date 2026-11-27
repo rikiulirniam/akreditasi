@@ -22,7 +22,7 @@ class SelfAssessment extends Model
         'tanggal_penilaian',
         'reviewer_id',
         'tanggapan_kaprodi',
-        'status_verifikasi_bukti', 
+        'status_verifikasi_bukti',
     ];
 
     protected function casts(): array
@@ -35,7 +35,7 @@ class SelfAssessment extends Model
             'tanggal_penilaian' => 'datetime',
             'catatan_reviewer' => 'string',
             'reviewer_id' => 'integer',
-            'status_verifikasi_bukti' => 'string', 
+            'status_verifikasi_bukti' => 'string',
         ];
     }
 
@@ -60,6 +60,14 @@ class SelfAssessment extends Model
     public function scopeForProject(Builder $query, int $projectId): Builder
     {
         return $query->where('id_project', $projectId);
+    }
+
+    /**
+     * Scope untuk memfilter penilaian berdasarkan indikator ID.
+     */
+    public function scopeForIndikator(Builder $query, int $indikatorId): Builder
+    {
+        return $query->where('id_indikator', $indikatorId);
     }
 
     /**

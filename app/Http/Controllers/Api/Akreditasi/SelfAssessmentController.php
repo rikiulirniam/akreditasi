@@ -30,8 +30,8 @@ class SelfAssessmentController extends Controller
             $query->forProject((int) $request->query('id_project'));
         }
 
-        if ($request->has('id_indikator')) {
-            $query->where('id_indikator', $request->query('id_indikator'));
+        if ($request->filled('id_indikator')) {
+            $query->forIndikator((int) $request->query('id_indikator'));
         }
 
         $data = $query->latest()->get();

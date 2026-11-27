@@ -18,8 +18,8 @@ class DataSarprasProdiController extends Controller
     {
         $query = DataSarprasProdi::with(['project', 'sarana']);
 
-        if ($request->has('id_project')) {
-            $query->where('id_project', $request->query('id_project'));
+        if ($request->filled('id_project')) {
+            $query->forProject((int) $request->query('id_project'));
         }
 
         $data = $query->latest()->get();

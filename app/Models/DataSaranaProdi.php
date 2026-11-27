@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,5 +35,13 @@ class DataSaranaProdi extends Model
     public function prasarana(): BelongsTo
     {
         return $this->belongsTo(DataSarprasProdi::class, 'id_prasarana');
+    }
+
+    /**
+     * Scope untuk memfilter sarana berdasarkan ID prasarana induk.
+     */
+    public function scopeForPrasarana(Builder $query, int $prasaranaId): Builder
+    {
+        return $query->where('id_prasarana', $prasaranaId);
     }
 }

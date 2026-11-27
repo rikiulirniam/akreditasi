@@ -18,10 +18,9 @@ class DataSaranaProdiController extends Controller
     {
         $query = DataSaranaProdi::with('prasarana');
 
-        if ($request->filled('id_prasarana')) {
-            $query->where('id_prasarana', $request->input('id_prasarana'));
-        } elseif ($request->filled('id_sarpras_prodi')) {
-            $query->where('id_prasarana', $request->input('id_sarpras_prodi'));
+        $prasaranaId = $request->input('id_prasarana') ?? $request->input('id_sarpras_prodi');
+        if ($prasaranaId !== null && $prasaranaId !== '') {
+            $query->forPrasarana((int) $prasaranaId);
         }
 
         $data = $query->latest()->get();

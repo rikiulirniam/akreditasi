@@ -139,4 +139,53 @@ class MappingTimAkreditasi extends Model
             ->assignedRoles()
             ->exists();
     }
+
+    /**
+     * Mengambil peta status self-assessment, evidence, dan narasi secara batch (bebas N+1).
+     *
+     * @param  array<int, int>  $projectIds
+     * @param  array<int, int>  $indikatorIds
+     * @param  array<int, int>  $subkriteriaIds
+     * @return array{assessed: array<string, bool>, evidence: array<string, bool>, narasi: array<string, bool>}
+     */
+    public static function getAssignmentStatusMaps(array $projectIds, array $indikatorIds, array $subkriteriaIds): array
+    {
+        $assessedMap = [];
+        $evidenceMap = [];
+        $narasiMap = [];
+
+        if ($projectIds !== [] && $indikatorIds !== []) {
+            $assessedMap = SelfAssessment::query()
+                ->whereIn('id_project', $projectIds)
+                ->whereIn('id_indikator', $indikatorIds)
+                ->whereNotNull('id_rubrik')
+                ->get(['id_project', 'id_indikator'])
+                ->mapWithKeys(fn ($row) => ["{$row->id_project}_{$row->id_indikator}" => true])
+                ->all();
+
+            $evidenceMap = ProjectIndicatorEvidence::query()
+                ->whereIn('id_project', $projectIds)
+                ->whereIn('id_indikator', $indikatorIds)
+                ->get(['id_project', 'id_indikator'])
+                ->mapWithKeys(fn ($row) => ["{$row->id_project}_{$row->id_indikator}" => true])
+                ->all();
+        }
+
+        if ($projectIds !== [] && $subkriteriaIds !== []) {
+            $narasiMap = NarasiSubkriteria::query()
+                ->whereIn('id_project', $projectIds)
+                ->whereIn('id_subkriteria', $subkriteriaIds)
+                ->whereNotNull('narasi')
+                ->where('narasi', '!=', '')
+                ->get(['id_project', 'id_subkriteria'])
+                ->mapWithKeys(fn ($row) => ["{$row->id_project}_{$row->id_subkriteria}" => true])
+                ->all();
+        }
+
+        return [
+            'assessed' => $assessedMap,
+            'evidence' => $evidenceMap,
+            'narasi' => $narasiMap,
+        ];
+    }
 }

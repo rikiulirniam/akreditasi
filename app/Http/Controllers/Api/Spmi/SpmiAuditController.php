@@ -17,25 +17,10 @@ class SpmiAuditController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = DataSpmiAudit::with(['project', 'indikator']);
-
-        if ($request->has('id_project')) {
-            $query->where('id_project', $request->query('id_project'));
-        }
-
-        if ($request->has('jenis_kegiatan')) {
-            $query->where('jenis_kegiatan', $request->query('jenis_kegiatan'));
-        }
-
-        if ($request->has('tahun_audit')) {
-            $query->where('tahun_audit', $request->query('tahun_audit'));
-        }
-
-        if ($request->has('status_penyelesaian')) {
-            $query->where('status_penyelesaian', $request->query('status_penyelesaian'));
-        }
-
-        $data = $query->latest('tanggal_pelaksanaan')->get();
+        $data = DataSpmiAudit::with(['project', 'indikator'])
+            ->filter($request->only(['id_project', 'jenis_kegiatan', 'tahun_audit', 'status_penyelesaian']))
+            ->latest('tanggal_pelaksanaan')
+            ->get();
 
         return $this->successResponse($data, 'Data temuan audit SPMI berhasil diambil');
     }
