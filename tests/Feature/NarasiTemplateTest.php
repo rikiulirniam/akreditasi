@@ -14,6 +14,7 @@ use App\Models\Subkriteria;
 use App\Models\VersiInstrumen;
 use App\Services\External\DosenApiService;
 use App\Services\External\ProdiApiService;
+use App\Services\External\TridharmaApiService;
 use App\Services\JwtService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
@@ -101,6 +102,7 @@ class NarasiTemplateTest extends TestCase
         $dosenMock = Mockery::mock(DosenApiService::class);
         $dosenMock->shouldReceive('getAllDosen')->andReturn($dosen);
         $dosenMock->shouldReceive('getRasioDosenMahasiswa')->andReturn($ratio);
+        $dosenMock->shouldReceive('getDtpsProfile')->andReturn(['dosen_tersertifikasi' => 0]);
         $this->app->instance(DosenApiService::class, $dosenMock);
 
         $prodiMock = Mockery::mock(ProdiApiService::class);
@@ -109,7 +111,15 @@ class NarasiTemplateTest extends TestCase
             'kode_prodi' => 'TRK',
             'nama_prodi' => 'Teknologi Rekayasa Komputer',
         ]);
+        $prodiMock->shouldReceive('getMahasiswaAktifCount')->andReturn(345);
         $this->app->instance(ProdiApiService::class, $prodiMock);
+
+        $tridharmaMock = Mockery::mock(TridharmaApiService::class);
+        $tridharmaMock->shouldReceive('getSummary')->andReturn([
+            '_meta' => ['source' => 'test', 'available' => false],
+            'kerjasama_dudika_aktif' => 0,
+        ]);
+        $this->app->instance(TridharmaApiService::class, $tridharmaMock);
     }
 
     /**
@@ -150,7 +160,7 @@ class NarasiTemplateTest extends TestCase
             ->assertJsonPath('data.data_agregasi.jumlah_dosen_homebase', 0)
             ->assertJsonPath('data.data_lengkap', false)
             ->assertJsonFragment([
-                'draft_narasi' => 'Dosen pada program studi berjumlah 0, dengan 0 dosen berkualifikasi doktor. Rasio dosen dan mahasiswa adalah 1:[belum tersedia], dengan jumlah mahasiswa sebesar [belum tersedia].',
+                'draft_narasi' => 'Dosen pada program studi berjumlah 0, dengan 0 dosen berkualifikasi doktor. Rasio dosen dan mahasiswa adalah 1:[belum tersedia], dengan jumlah mahasiswa sebesar 345.',
             ]);
     }
 

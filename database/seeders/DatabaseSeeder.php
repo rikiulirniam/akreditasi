@@ -97,5 +97,8 @@ class DatabaseSeeder extends Seeder
 
         // 8. Jalankan Seeder Komprehensif LAM-INFOKOM Versi 2.1 (Terakreditasi Unggul)
         $this->call(LamInfokomSeeder::class);
+
+        // 9. Template narasi berbasis kategori data dan sumber API
+        $this->call(NarasiTemplateSeeder::class);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Services\Narration;
 use App\Models\NarasiSubkriteria;
 use App\Models\ProjectAkreditasi;
 use App\Models\Subkriteria;
+use App\Models\TemplateNarasiSubkriteria;
 use App\Services\External\DosenApiService;
 use App\Services\External\ProdiApiService;
 use App\Services\External\TridharmaApiService;
@@ -43,7 +44,17 @@ class NarrationTemplateService
             $prodiLabel .= ' (TRK)';
         }
 
-        $template = $this->getTemplate($subkriteria);
+        $kategoriData = $this->resolveCategory($subkriteria);
+        $templateRecord = TemplateNarasiSubkriteria::resolveFor($subkriteria, $kategoriData);
+        $kategoriTersedia = $this->isCategoryAvailable($aggregate, $kategoriData);
+        $dataSimulasi = (bool) data_get($aggregate, 'data_sumber.is_simulation', false)
+            || $kategoriData === 'tracer';
+        $gunakanTemplateTersedia = $kategoriTersedia || $dataSimulasi;
+        $template = $templateRecord
+            ? ($gunakanTemplateTersedia || ! $templateRecord->template_tidak_tersedia
+                ? $templateRecord->template_tersedia
+                : $templateRecord->template_tidak_tersedia)
+            : $this->getTemplate($subkriteria);
         $draft = $this->fillTemplate($template, $aggregate);
 
         $saved = NarasiSubkriteria::query()
@@ -66,7 +77,15 @@ class NarrationTemplateService
             || str_contains($name, 'lulusan')
             || str_contains($name, 'masa tunggu');
 
-        if ($isDosen) {
+        if ($templateRecord) {
+            $statusKetersediaan = $kategoriTersedia
+                ? 'Tersedia Lengkap'
+                : ($dataSimulasi ? 'Data simulasi - belum terverifikasi' : 'Data tidak tersedia di API');
+            $variabelPakem = collect($templateRecord->field_mapping ?? [])
+                ->mapWithKeys(fn (string $field): array => [$field => $aggregate[$field] ?? null])
+                ->all();
+            $drafNarasi = $draft;
+        } elseif ($isDosen) {
             $countDtps = 23;
             $countS3 = 5;
             $persenS3 = '21.74%';
@@ -141,6 +160,10 @@ class NarrationTemplateService
             'draf_narasi' => $drafNarasi,
             'draft_narasi' => $draft,
             'data_agregasi' => $aggregate,
+            'kategori_data' => $kategoriData,
+            'template_id' => $templateRecord?->id,
+            'sumber_data' => $templateRecord?->sumber_data ?? [],
+            'is_simulasi' => $dataSimulasi,
             'data_lengkap' => $aggregate['data_lengkap'],
             'template' => $template,
             'narasi_tersimpan' => $saved?->narasi,
@@ -213,6 +236,9 @@ class NarrationTemplateService
             $ratioPayload['data']['jumlah_mahasiswa'] ?? null,
             $ratioPayload['data']['mahasiswa'] ?? null,
         ]);
+        if ($jumlahMahasiswa === null) {
+            $jumlahMahasiswa = $this->prodiApiService->getMahasiswaAktifCount();
+        }
         $jumlahDosenRatio = $this->extractNumeric([
             $ratioPayload['jumlah_dosen'] ?? null,
             $ratioPayload['dosen'] ?? null,
@@ -273,6 +299,28 @@ class NarrationTemplateService
             'minimum_dosen_1_per_20' => $minimumDosenRatio,
             'data_lengkap' => $dataLengkap,
             'catatan' => $catatan,
+            'dosen_tersertifikasi' => $this->dosenApiService->getDtpsProfile()['dosen_tersertifikasi'] ?? null,
+            'data_sumber' => $this->tridharmaApiService->getSummary()['_meta'] ?? ['source' => 'unknown', 'available' => false],
+            'penelitian_total_kegiatan' => data_get($this->tridharmaApiService->getSummary(), 'penelitian.total_kegiatan'),
+            'penelitian_melibatkan_mahasiswa' => data_get($this->tridharmaApiService->getSummary(), 'penelitian.melibatkan_mahasiswa'),
+            'penelitian_hibah_nasional' => data_get($this->tridharmaApiService->getSummary(), 'penelitian.hibah_nasional_bima'),
+            'penelitian_hibah_internal' => data_get($this->tridharmaApiService->getSummary(), 'penelitian.hibah_internal_polines'),
+            'penelitian_hibah_internasional' => data_get($this->tridharmaApiService->getSummary(), 'penelitian.hibah_internasional'),
+            'pkm_total_kegiatan' => data_get($this->tridharmaApiService->getSummary(), 'pkm.total_kegiatan'),
+            'pkm_melibatkan_mahasiswa' => data_get($this->tridharmaApiService->getSummary(), 'pkm.melibatkan_mahasiswa'),
+            'pkm_hibah_nasional' => data_get($this->tridharmaApiService->getSummary(), 'pkm.hibah_pkm_nasional'),
+            'pkm_hibah_internal' => data_get($this->tridharmaApiService->getSummary(), 'pkm.hibah_internal'),
+            'pkm_hibah_internasional' => data_get($this->tridharmaApiService->getSummary(), 'pkm.hibah_internasional'),
+            'publikasi_internasional' => data_get($this->tridharmaApiService->getSummary(), 'publikasi.jurnal_internasional_scopus'),
+            'publikasi_nasional' => data_get($this->tridharmaApiService->getSummary(), 'publikasi.jurnal_nasional_sinta'),
+            'publikasi_prosiding' => data_get($this->tridharmaApiService->getSummary(), 'publikasi.prosiding_seminar_ieee'),
+            'hki_paten' => data_get($this->tridharmaApiService->getSummary(), 'hki.paten_terdaftar'),
+            'hki_hak_cipta' => data_get($this->tridharmaApiService->getSummary(), 'hki.hak_cipta_program_komputer'),
+            'kerjasama_aktif' => $this->tridharmaApiService->getSummary()['kerjasama_dudika_aktif'] ?? null,
+            // Nilai sementara untuk simulasi tracer study sampai endpoint lulusan tersedia penuh.
+            'lulusan_total' => 25,
+            'lulusan_waktu_tunggu' => 3,
+            'lulusan_kesesuaian' => '80%',
         ];
     }
 
@@ -281,6 +329,11 @@ class NarrationTemplateService
      */
     public function getTemplate(Subkriteria $subkriteria): string
     {
+        $templateRecord = TemplateNarasiSubkriteria::resolveFor($subkriteria, $this->resolveCategory($subkriteria));
+        if ($templateRecord) {
+            return $templateRecord->template_tersedia;
+        }
+
         $code = strtoupper((string) $subkriteria->kode_subkriteria);
         $name = strtolower((string) $subkriteria->nama_subkriteria);
 
@@ -302,16 +355,38 @@ class NarrationTemplateService
      */
     public function fillTemplate(string $template, array $aggregate): string
     {
-        $placeholders = [
-            '{jumlah_dosen_homebase}' => $this->formatValue($aggregate['jumlah_dosen_homebase'] ?? null),
-            '{jumlah_doktor}' => $this->formatValue($aggregate['jumlah_doktor'] ?? null),
-            '{jumlah_mahasiswa}' => $this->formatValue($aggregate['jumlah_mahasiswa'] ?? null),
-            '{rasio_mahasiswa_per_dosen}' => $this->formatValue($aggregate['rasio_mahasiswa_per_dosen'] ?? null),
-            '{nama_subkriteria}' => (string) ($aggregate['nama_subkriteria'] ?? '[Subkriteria]'),
-            '{nama_program_studi}' => (string) ($aggregate['nama_program_studi'] ?? '[Program Studi]'),
-        ];
+        return preg_replace_callback('/\{([a-zA-Z0-9_]+)\}/', function (array $matches) use ($aggregate): string {
+            return $this->formatValue($aggregate[$matches[1]] ?? null);
+        }, $template) ?? $template;
+    }
 
-        return strtr($template, $placeholders);
+    private function resolveCategory(Subkriteria $subkriteria): string
+    {
+        $name = strtolower((string) $subkriteria->nama_subkriteria);
+
+        return match (true) {
+            str_contains($name, 'dosen') || str_contains($name, 'sdm') => 'dosen',
+            str_contains($name, 'mahasiswa') => 'mahasiswa',
+            str_contains($name, 'penelitian') || str_contains($name, 'hibah') => 'penelitian',
+            str_contains($name, 'pengabdian') || str_contains($name, 'pkm') => 'pkm',
+            str_contains($name, 'publikasi') || str_contains($name, 'hki') || str_contains($name, 'luaran') => 'publikasi_hki',
+            str_contains($name, 'kerja sama') || str_contains($name, 'kerjasama') || str_contains($name, 'kemitraan') => 'kerjasama',
+            str_contains($name, 'lulusan') || str_contains($name, 'tracer') || str_contains($name, 'masa tunggu') => 'tracer',
+            default => 'umum',
+        };
+    }
+
+    private function isCategoryAvailable(array $aggregate, string $kategoriData): bool
+    {
+        if ($kategoriData === 'tracer') {
+            return false;
+        }
+
+        if ($kategoriData === 'dosen' || $kategoriData === 'mahasiswa') {
+            return ($aggregate['jumlah_dosen_homebase'] ?? 0) > 0 || ($aggregate['jumlah_mahasiswa'] ?? null) !== null;
+        }
+
+        return (bool) data_get($aggregate, 'data_sumber.available', false);
     }
 
     /**

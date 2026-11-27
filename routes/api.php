@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\Akreditasi\DataSummaryController;
 use App\Http\Controllers\Api\Akreditasi\MappingTimAkreditasiController;
 use App\Http\Controllers\Api\Akreditasi\ProjectAkreditasiController;
 use App\Http\Controllers\Api\Akreditasi\SelfAssessmentController;
+use App\Http\Controllers\Api\Akreditasi\TemplateNarasiController;
 use App\Http\Controllers\Api\CompositeProjectController;
 use App\Http\Controllers\Api\Dashboard\DashboardProgressController;
 use App\Http\Controllers\Api\ExternalApiController;
@@ -182,6 +184,7 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
         Route::get('projects/{id}/dashboard-progress', [DashboardProgressController::class, 'dashboardProgress']);
         Route::get('projects/{id}/readiness', [DashboardProgressController::class, 'readiness']);
         Route::get('projects/{id}/composite-overview', [CompositeProjectController::class, 'overview']);
+        Route::get('projects/{id}/data-summary', [DataSummaryController::class, 'show']);
         Route::get('projects/{id}/subkriteria/{subkriteriaId}/narasi-template', [NarasiSubkriteriaController::class, 'showTemplate']);
         Route::get('projects/{id}/indicators/{indicatorId}/evidence', [DashboardProgressController::class, 'showEvidence']);
         Route::get('projects/{id}/scoring-simulation', [ProjectAkreditasiController::class, 'scoringSimulation']);
@@ -208,6 +211,10 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function () {
 
     Route::put('projects/{id}/subkriteria/{subkriteriaId}/narasi', [NarasiSubkriteriaController::class, 'store'])
         ->middleware('role:administrator,kaprodi,dosen');
+
+    Route::middleware('role:administrator,kaprodi')->group(function () {
+        Route::apiResource('narasi-templates', TemplateNarasiController::class);
+    });
 
     Route::get('mapping-tim', [MappingTimAkreditasiController::class, 'index'])
         ->middleware('role:administrator,kaprodi,dosen');
